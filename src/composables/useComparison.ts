@@ -1,25 +1,13 @@
 import { computed, ref } from 'vue';
-import { evaluateRule } from '../core/evaluate';
-import type { EvaluationInputs, ScoreNode } from '../core/types';
-import {
-  getBaselineById,
-  rtingsBaselinesV1,
-  rtingsRuleV1
-} from '../data/rtingsRule';
+import type { ScoreNode } from '../core/types';
+import { getBaselineById, rtingsBaselinesV1, rtingsRuleV1 } from '../data/rtingsRule';
 
 export function useComparison() {
   const allBaselines = rtingsBaselinesV1.items;
   const selectedIds = ref<string[]>(allBaselines.map(baseline => baseline.id));
 
-  const selectedResults = computed(() =>
-    selectedIds.value.map(id => {
-      const baseline = getBaselineById(id)!;
-      const result = evaluateRule(
-        rtingsRuleV1,
-        baseline.inputs as EvaluationInputs
-      );
-      return { baseline, result };
-    })
+  const selectedProducts = computed(() =>
+    selectedIds.value.map(id => getBaselineById(id)!)
   );
 
   const topGroups = computed(() =>
@@ -29,19 +17,19 @@ export function useComparison() {
   );
 
   const totalEntries = computed(() =>
-    selectedResults.value.map(({ baseline, result }) => ({
+    selectedProducts.value.map(baseline => ({
       label: baseline.label,
-      value: result.value
+      value: baseline.expectedTotal
     }))
   );
 
   const radarLabels = computed(() => topGroups.value.map(group => group.label));
 
   const radarSeries = computed(() =>
-    selectedResults.value.map(({ baseline, result }) => ({
+    selectedProducts.value.map(baseline => ({
       label: baseline.label,
       values: topGroups.value.map(
-        (group: ScoreNode) => result.nodes[group.id]?.value ?? null
+        (group: ScoreNode) => baseline.expectedScores[group.id] ?? null
       )
     }))
   );
@@ -55,7 +43,7 @@ export function useComparison() {
   return {
     allBaselines,
     selectedIds,
-    selectedResults,
+    selectedProducts,
     topGroups,
     totalEntries,
     radarLabels,

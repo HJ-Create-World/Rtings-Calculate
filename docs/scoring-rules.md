@@ -123,7 +123,7 @@
 
 - `src/data/rtings-rule.v1.json`：152 个规则节点、20 个客观映射、1433 个预估区间。
 - 19 个叶子使用客观区间映射；`CIELAB BT.2020 Coverage` 因预估列当前为空，按主观评分处理。
-- `src/data/baselines/rtings-baselines.v1.json`：从 `000005` 导入 4 个产品基准，其中 `Hisense 65U7N-Rtings实际评测值(VA)` 为权威基准，期望总分 `7.44607754`。
+- `src/data/baselines/rtings-baselines.v1.json`：从 `000005` 导入 4 个产品基准，其中 `Hisense 65U7N-Rtings实际评测值(VA)` 为权威基准，期望总分 `7.44607754`。第三台“Hisense 65U7N—实测值”的黑场均匀度存在缺失值，评分引擎会标为不完整；横向对比图使用工作簿基准分，不静默补分。
 - 权威基准测试通过：19 个客观叶子分均与工作簿一致；聚合总分与 `000005 G2` 一致；Supported Resolutions 权重和异常会输出警告。
 
 规则状态明细见 `requirements.md` 的 R01~R09。

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { EvaluationResult, ScoreNode } from '../core/types';
+import type { ScoreNode } from '../core/types';
 import type { ProductBaseline } from '../data/rtingsRule';
 import { formatScore } from '../utils/format';
 
 defineProps<{
   groups: ScoreNode[];
-  results: Array<{ baseline: ProductBaseline; result: EvaluationResult }>;
+  products: ProductBaseline[];
 }>();
 </script>
 
@@ -16,11 +16,11 @@ defineProps<{
         <tr>
           <th class="px-6 py-3 text-left font-semibold text-gray-900">评测项</th>
           <th
-            v-for="item in results"
-            :key="item.baseline.id"
+            v-for="product in products"
+            :key="product.id"
             class="px-6 py-3 text-right font-semibold text-gray-900"
           >
-            {{ item.baseline.label }}
+            {{ product.label }}
           </th>
         </tr>
       </thead>
@@ -28,11 +28,11 @@ defineProps<{
         <tr class="transition-colors duration-200 hover:bg-gray-50">
           <td class="px-6 py-3 font-medium text-gray-900">Mixed Usage 总分</td>
           <td
-            v-for="item in results"
-            :key="item.baseline.id"
+            v-for="product in products"
+            :key="product.id"
             class="px-6 py-3 text-right font-semibold text-blue-700"
           >
-            {{ formatScore(item.result.value) }}
+            {{ formatScore(product.expectedTotal) }}
           </td>
         </tr>
         <tr
@@ -42,11 +42,11 @@ defineProps<{
         >
           <td class="px-6 py-3 text-gray-700">{{ group.label }}</td>
           <td
-            v-for="item in results"
-            :key="item.baseline.id"
+            v-for="product in products"
+            :key="product.id"
             class="px-6 py-3 text-right text-gray-700"
           >
-            {{ formatScore(item.result.nodes[group.id]?.value ?? null) }}
+            {{ formatScore(product.expectedScores[group.id] ?? null) }}
           </td>
         </tr>
       </tbody>

@@ -31,7 +31,7 @@ const {
 const {
   allBaselines,
   selectedIds,
-  selectedResults,
+  selectedProducts,
   topGroups: comparisonGroups,
   totalEntries,
   radarLabels,
@@ -119,7 +119,7 @@ const metricCards = computed(() => [
           </article>
         </div>
 
-        <ComparisonTable :groups="comparisonGroups" :results="selectedResults" />
+        <ComparisonTable :groups="comparisonGroups" :products="selectedProducts" />
       </section>
 
       <section class="mb-12">
