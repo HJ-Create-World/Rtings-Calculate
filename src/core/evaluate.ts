@@ -267,6 +267,7 @@ export function evaluateRule(
     status: root.status,
     value: root.value,
     partialValue: root.partialValue,
+    children: root.children,
     nodes: Object.fromEntries([...evaluated.entries()]),
     warnings: allWarnings
   };

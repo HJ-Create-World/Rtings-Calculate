@@ -25,6 +25,8 @@ export interface MappingInterval {
   source: IntervalSource;
   /** 仅用于显式 inf：只有 value === Infinity 才命中。 */
   infiniteOnly?: boolean;
+  /** 原始区间文本，用于展示与排查。 */
+  rawText?: string;
   note?: string;
 }
 
@@ -118,6 +120,8 @@ export interface EvaluationResult {
   status: ScoreStatus;
   value: number | null;
   partialValue: number;
+  /** 根节点的直接子项，便于 UI 展示顶层分组。 */
+  children: NodeEvaluation[];
   nodes: Record<NodeId, NodeEvaluation>;
   warnings: RuleWarning[];
 }
