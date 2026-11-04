@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import type { ChartConfiguration } from 'chart.js';
 import BaseChart from './BaseChart.vue';
 import { corporatePalette } from '../../utils/chartTheme';
@@ -7,6 +7,7 @@ import { corporatePalette } from '../../utils/chartTheme';
 const props = defineProps<{
   labels: string[];
   series: Array<{ label: string; values: Array<number | null> }>;
+  height?: string;
 }>();
 
 const configuration = computed<ChartConfiguration<'radar'>>(() => ({
@@ -40,8 +41,20 @@ const configuration = computed<ChartConfiguration<'radar'>>(() => ({
     }
   }
 }));
+const baseChartRef = ref<InstanceType<typeof BaseChart> | null>(null);
+
+function downloadPng(fileName: string) {
+  baseChartRef.value?.downloadPng(fileName);
+}
+
+defineExpose({ downloadPng });
 </script>
 
 <template>
-  <BaseChart :configuration="configuration" label="顶层分组能力雷达图" />
+  <BaseChart
+    ref="baseChartRef"
+    :configuration="configuration"
+    :height="height"
+    label="顶层分组能力雷达图"
+  />
 </template>

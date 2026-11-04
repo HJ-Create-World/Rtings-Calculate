@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import type { ChartConfiguration } from 'chart.js';
 import BaseChart from './BaseChart.vue';
 import { corporatePalette } from '../../utils/chartTheme';
 
 const props = defineProps<{
   entries: Array<{ label: string; value: number | null }>;
+  height?: string;
 }>();
 
 const configuration = computed<ChartConfiguration<'bar'>>(() => ({
@@ -50,8 +51,20 @@ const configuration = computed<ChartConfiguration<'bar'>>(() => ({
     }
   }
 }));
+const baseChartRef = ref<InstanceType<typeof BaseChart> | null>(null);
+
+function downloadPng(fileName: string) {
+  baseChartRef.value?.downloadPng(fileName);
+}
+
+defineExpose({ downloadPng });
 </script>
 
 <template>
-  <BaseChart :configuration="configuration" label="多产品总分对比图表" />
+  <BaseChart
+    ref="baseChartRef"
+    :configuration="configuration"
+    :height="height"
+    label="多产品总分对比图表"
+  />
 </template>

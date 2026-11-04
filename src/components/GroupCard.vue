@@ -7,7 +7,7 @@ defineProps<{
   node: ScoreNode;
   evaluation: NodeEvaluation;
   labelFor: (nodeId: string) => string;
-  selectNode: (nodeId: string) => void;
+  selectNode?: (nodeId: string) => void;
 }>();
 </script>
 
@@ -30,14 +30,16 @@ defineProps<{
 
     <ul class="grid gap-2">
       <li v-for="child in evaluation.children" :key="child.nodeId">
-        <button
-          type="button"
-          class="flex w-full items-center justify-between gap-3 rounded-lg bg-gray-50 px-3 py-2 text-left text-sm text-gray-700 transition-all duration-200 ease-out hover:bg-blue-50 hover:text-blue-700 active:translate-y-0 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          @click="selectNode(child.nodeId)"
+        <component
+          :is="selectNode ? 'button' : 'div'"
+          :type="selectNode ? 'button' : undefined"
+          class="flex w-full items-center justify-between gap-3 rounded-lg bg-gray-50 px-3 py-2 text-left text-sm text-gray-700"
+          :class="selectNode ? 'transition-all duration-200 ease-out hover:bg-blue-50 hover:text-blue-700 active:translate-y-0 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2' : ''"
+          @click="selectNode?.(child.nodeId)"
         >
           <span class="truncate">{{ labelFor(child.nodeId) }}</span>
           <span class="font-medium">{{ formatScore(child.value) }}</span>
-        </button>
+        </component>
       </li>
     </ul>
   </section>
