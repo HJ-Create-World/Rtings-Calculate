@@ -7,7 +7,7 @@ const route = useRoute();
 const navItems = [
   { to: '/', label: '总览', title: '评分总览', description: '查看权威基准总分、规则健康度和关键警告' },
   { to: '/comparison', label: '横向对比', title: '横向对比', description: '多产品总分、顶层能力与明细对比' },
-  { to: '/drilldown', label: '自定义下钻', title: '自定义下钻', description: '选择分组、测试项和产品进行测试项级对比' },
+  { to: '/drilldown', label: '测试项对比', title: '测试项对比', description: '选择分组、测试项和产品，查看测试项级差异' },
   { to: '/trace', label: '单机追溯', title: '单机追溯', description: '查看输入、权重、区间命中和逐层贡献' },
   { to: '/entry', label: '评分录入', title: '评分录入', description: '填写产品档案、客观测试值和主观评分' },
   { to: '/import', label: 'Excel 导入', title: 'Excel 导入', description: '下载模板、导入测试值并检查校验结果' }

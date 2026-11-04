@@ -21,6 +21,23 @@ const groupOptions = groups.map(group => ({ value: group.id, label: group.label 
 const selectedGroupId = ref(groups[0]?.id ?? '');
 const keyword = ref('');
 
+const inputNodeCount = rtingsRuleV1.nodes.filter(node => node.inputType !== 'aggregate').length;
+const hasAnyInput = computed(() => filledCount.value > 0);
+const warningGroups = computed(() => {
+  const groupsByCode = new Map<string, { code: string; count: number; messages: string[] }>();
+  for (const warning of result.value.warnings) {
+    const current = groupsByCode.get(warning.code) ?? {
+      code: warning.code,
+      count: 0,
+      messages: []
+    };
+    current.count += 1;
+    if (!current.messages.includes(warning.message)) current.messages.push(warning.message);
+    groupsByCode.set(warning.code, current);
+  }
+  return [...groupsByCode.values()];
+});
+
 function collectTestItems(nodeId: string): ScoreNode[] {
   return rtingsRuleV1.nodes
     .filter(node => node.parentId === nodeId)
@@ -105,22 +122,36 @@ function subjectiveValue(node: ScoreNode): number | null {
         </div>
         <div class="rounded-lg bg-gray-50 p-4">
           <p class="text-xs text-gray-500">已填测试项</p>
-          <strong class="mt-1 block text-lg">{{ filledCount }}</strong>
+          <strong class="mt-1 block text-lg">{{ filledCount }} / {{ inputNodeCount }}</strong>
         </div>
       </div>
       <button :class="secondaryButtonClass" class="mt-4 w-full" @click="resetDraft">清空草稿</button>
     </article>
   </section>
 
-  <section v-if="result.warnings.length" class="mb-6 space-y-3">
-    <div
-      v-for="warning in result.warnings"
-      :key="warning.code + warning.message"
-      class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700"
-    >
-      <strong class="font-medium">{{ warningLabel(warning.code) }}</strong>
-      <span class="ml-2">{{ warning.message }}</span>
+  <section v-if="!hasAnyInput" class="mb-6">
+    <div class="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-700">
+      <p class="font-medium">尚未填写测试值</p>
+      <p class="mt-1">
+        请从下方选择分组并录入客观测试值或主观评分。系统不会自动补零，因此在数据完整前不输出正式总分。
+      </p>
     </div>
+  </section>
+
+  <section v-else-if="warningGroups.length" class="mb-6">
+    <details class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
+      <summary class="cursor-pointer font-medium">
+        计算提示（{{ result.warnings.length }} 条）
+      </summary>
+      <div class="mt-3 space-y-3">
+        <div v-for="group in warningGroups" :key="group.code">
+          <p class="font-medium">{{ warningLabel(group.code) }} · {{ group.count }}</p>
+          <ul class="mt-1 list-disc space-y-1 pl-5">
+            <li v-for="message in group.messages" :key="message">{{ message }}</li>
+          </ul>
+        </div>
+      </div>
+    </details>
   </section>
 
   <section :class="cardClass" class="p-6">
