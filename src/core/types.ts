@@ -23,6 +23,8 @@ export interface MappingInterval {
   minInclusive: boolean;
   maxInclusive: boolean;
   source: IntervalSource;
+  /** 仅用于显式 inf：只有 value === Infinity 才命中。 */
+  infiniteOnly?: boolean;
   note?: string;
 }
 

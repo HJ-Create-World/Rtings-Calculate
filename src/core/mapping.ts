@@ -6,13 +6,22 @@ import type {
 } from './types';
 
 function matchesLower(value: number, interval: MappingInterval): boolean {
+  if (interval.infiniteOnly) return false;
   if (interval.min === null) return true;
   return interval.minInclusive ? value >= interval.min : value > interval.min;
 }
 
 function matchesUpper(value: number, interval: MappingInterval): boolean {
+  if (interval.infiniteOnly) return false;
   if (interval.max === null) return true;
   return interval.maxInclusive ? value <= interval.max : value < interval.max;
+}
+
+function matchesInterval(value: number, interval: MappingInterval): boolean {
+  if (interval.infiniteOnly) {
+    return value === Number.POSITIVE_INFINITY;
+  }
+  return matchesLower(value, interval) && matchesUpper(value, interval);
 }
 
 /**
@@ -41,8 +50,8 @@ export function mapObjectiveValue(
     };
   }
 
-  const matched = mapping.intervals.filter(
-    interval => matchesLower(value, interval) && matchesUpper(value, interval)
+  const matched = mapping.intervals.filter(interval =>
+    matchesInterval(value, interval)
   );
 
   if (matched.length === 0) {
@@ -97,6 +106,7 @@ export function validateMapping(mapping: ObjectiveMapping): RuleWarning[] {
 
     for (let j = i + 1; j < mapping.intervals.length; j += 1) {
       const right = mapping.intervals[j];
+      if (left.infiniteOnly || right.infiniteOnly) continue;
       const leftMax = left.max ?? Number.POSITIVE_INFINITY;
       const rightMax = right.max ?? Number.POSITIVE_INFINITY;
       const leftMin = left.min ?? Number.NEGATIVE_INFINITY;
