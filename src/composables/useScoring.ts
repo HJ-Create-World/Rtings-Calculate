@@ -2,13 +2,13 @@ import { computed, ref } from 'vue';
 import { evaluateRule } from '../core/evaluate';
 import type { EvaluationInputs, NodeEvaluation, ScoreNode } from '../core/types';
 import {
-  buildHisenseBaselineInputs,
+  buildBaselineInputs,
   hisense65U7nVaBaselineV1,
   rtingsRuleV1
 } from '../data/rtingsRule';
 
 export function useScoring() {
-  const inputs = computed<EvaluationInputs>(() => buildHisenseBaselineInputs());
+  const inputs = computed<EvaluationInputs>(() => buildBaselineInputs(hisense65U7nVaBaselineV1));
   const result = computed(() => evaluateRule(rtingsRuleV1, inputs.value));
 
   const nodeById = computed(() => {

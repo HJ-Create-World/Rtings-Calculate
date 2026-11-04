@@ -1,25 +1,25 @@
-:root {
-  color-scheme: light;
-  font-family: Inter, "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
-  color: #2c2c2a;
-  background: #f5f4ef;
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
 }
 
-* {
-  box-sizing: border-box;
-}
+@layer base {
+  html {
+    color-scheme: light;
+  }
 
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  background: #f5f4ef;
-}
+  body {
+    @apply bg-slate-50 text-gray-900 antialiased;
+    font-family: var(--font-sans);
+  }
 
-button {
-  font-family: inherit;
-}
-
-strong {
-  font-weight: 500;
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 }
