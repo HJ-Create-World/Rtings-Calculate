@@ -1,0 +1,17 @@
+node_modules/
+dist/
+build/
+coverage/
+playwright-report/
+test-results/
+exports/
+
+.env
+.env.*
+!.env.example
+*.local
+
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
