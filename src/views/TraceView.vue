@@ -23,13 +23,6 @@ const selectedPath = computed(() => pathFor(selectedNodeId.value));
 
 <template>
   <section class="mb-8">
-    <h1 :class="['text-3xl md:text-4xl', sectionTitleClass]">单机追溯</h1>
-    <p :class="['mt-2 text-sm md:text-base', mutedTextClass]">
-      查看权威基准的输入、权重、区间命中和逐层贡献
-    </p>
-  </section>
-
-  <section class="mb-8">
     <div class="mb-4">
       <h2 :class="['text-2xl md:text-3xl', sectionTitleClass]">顶层分组</h2>
       <p :class="['mt-2 text-sm', mutedTextClass]">点击子项查看计算过程</p>

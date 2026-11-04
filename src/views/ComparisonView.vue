@@ -36,13 +36,6 @@ function downloadExcel() {
 </script>
 
 <template>
-  <section class="mb-8">
-    <h1 :class="['text-3xl md:text-4xl', sectionTitleClass]">横向对比</h1>
-    <p :class="['mt-2 text-sm md:text-base', mutedTextClass]">
-      可选择 2~6 个产品进行总分、顶层能力和测试项对比
-    </p>
-  </section>
-
   <ProductSelector
     class="mb-6"
     :products="allBaselines"

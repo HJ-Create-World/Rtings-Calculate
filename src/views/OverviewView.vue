@@ -25,11 +25,8 @@ const metricCards = computed(() => [
 
 <template>
   <section class="mb-8 flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-    <div>
-      <h1 :class="['text-3xl md:text-4xl', sectionTitleClass]">评分总览</h1>
-      <p :class="['mt-2 text-sm md:text-base', mutedTextClass]">
-        规则版本 {{ rule.version }} · 数据来源 {{ baseline.label }}
-      </p>
+    <div class="max-w-2xl">
+      <p :class="mutedTextClass">以权威基准为核心，快速确认规则和数据健康度</p>
     </div>
     <div :class="['w-full md:w-80', cardClass]" class="p-6">
       <p class="text-sm text-gray-500">Mixed Usage 总分</p>

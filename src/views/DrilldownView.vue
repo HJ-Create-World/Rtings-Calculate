@@ -6,7 +6,7 @@ import ProductSelector from '../components/ProductSelector.vue';
 import TestItemComparisonChart from '../components/charts/TestItemComparisonChart.vue';
 import { useDrilldown } from '../composables/useDrilldown';
 import { exportDrilldownExcel } from '../utils/export';
-import { cardClass, mutedTextClass, primaryButtonClass, secondaryButtonClass, sectionTitleClass } from '../utils/ui';
+import { cardClass, mutedTextClass, primaryButtonClass, secondaryButtonClass } from '../utils/ui';
 
 const {
   allBaselines,
@@ -51,13 +51,6 @@ function downloadExcel() {
 </script>
 
 <template>
-  <section class="mb-8">
-    <h1 :class="['text-3xl md:text-4xl', sectionTitleClass]">自定义下钻</h1>
-    <p :class="['mt-2 text-sm md:text-base', mutedTextClass]">
-      选择分组、测试项和产品，生成测试项级对比图
-    </p>
-  </section>
-
   <section :class="cardClass" class="mb-6 p-6">
     <h2 class="mb-4 text-xl font-semibold tracking-tight text-gray-900">1. 选择顶层分组</h2>
     <OptionChips v-model="selectedGroupId" :options="groupOptions" />

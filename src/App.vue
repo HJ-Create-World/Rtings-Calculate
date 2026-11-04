@@ -5,13 +5,16 @@ import { useRoute } from 'vue-router';
 const route = useRoute();
 
 const navItems = [
-  { to: '/', label: '评分总览' },
-  { to: '/comparison', label: '横向对比' },
-  { to: '/drilldown', label: '自定义下钻' },
-  { to: '/trace', label: '单机追溯' }
+  { to: '/', label: '总览', title: '评分总览', description: '查看权威基准总分、规则健康度和关键警告' },
+  { to: '/comparison', label: '横向对比', title: '横向对比', description: '多产品总分、顶层能力与明细对比' },
+  { to: '/drilldown', label: '自定义下钻', title: '自定义下钻', description: '选择分组、测试项和产品进行测试项级对比' },
+  { to: '/trace', label: '单机追溯', title: '单机追溯', description: '查看输入、权重、区间命中和逐层贡献' },
+  { to: '/entry', label: '评分录入', title: '评分录入', description: '填写产品档案、客观测试值和主观评分' },
+  { to: '/import', label: 'Excel 导入', title: 'Excel 导入', description: '下载模板、导入测试值并检查校验结果' }
 ];
 
 const currentPath = computed(() => route.path);
+const pageMeta = computed(() => navItems.find(item => item.to === currentPath.value) ?? navItems[0]);
 
 function linkClass(path: string) {
   const active = currentPath.value === path;
@@ -19,23 +22,25 @@ function linkClass(path: string) {
     'whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 ease-out',
     'active:translate-y-0 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
     active
-      ? 'bg-blue-600 text-white shadow-sm hover:bg-blue-700'
-      : 'bg-white text-gray-700 border border-gray-300 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow'
+      ? 'bg-white text-gray-900 shadow-sm'
+      : 'text-gray-600 hover:bg-white/70 hover:text-gray-900'
   ];
 }
 </script>
 
 <template>
   <div class="min-h-screen bg-slate-50">
-    <header class="sticky top-0 z-10 border-b border-gray-200 bg-white/95 backdrop-blur">
-      <div class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 md:flex-row md:items-center md:justify-between md:px-6 lg:px-8">
-        <RouterLink
-          to="/"
-          class="text-xl font-semibold tracking-tight text-gray-900 transition-all duration-200 ease-out hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          Rtings Calculate
-        </RouterLink>
-        <nav class="flex gap-3 overflow-x-auto pb-1 md:pb-0" aria-label="功能页面">
+    <header class="border-b border-gray-200 bg-white">
+      <div class="mx-auto max-w-7xl px-4 py-8 md:px-6 lg:px-8">
+        <p class="text-sm font-medium text-blue-700">Rtings Calculate</p>
+        <h1 class="mt-2 text-3xl font-semibold tracking-tight text-gray-900 md:text-4xl">
+          {{ pageMeta.title }}
+        </h1>
+        <p class="mt-2 max-w-3xl text-sm text-gray-500 md:text-base">
+          {{ pageMeta.description }}
+        </p>
+
+        <nav class="mt-6 inline-flex max-w-full gap-1 overflow-x-auto rounded-xl bg-gray-100 p-1" aria-label="功能页面">
           <RouterLink
             v-for="item in navItems"
             :key="item.to"

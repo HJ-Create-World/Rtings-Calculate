@@ -4,9 +4,10 @@
 
 ## 当前状态
 
-- 阶段：多页面工作台（4/6）；评分核心与权威基准已对齐
-- Web 进度：Corporate Clean 多页面导航；总览、横向对比、自定义下钻、单机追溯分离；图表放大；支持 Excel/PNG 导出
-- 已确认：P01~P12 已写入 `docs/requirements.md`；Excel 批量导入为下一步
+- 阶段：录入与导入（5/6）；评分核心与权威基准已对齐
+- Web 进度：Corporate Clean 多页面导航；总览、对比、下钻、追溯、评分录入、Excel 导入分离；图表放大；支持 Excel/PNG 导出
+- 已实现：工程师手工输入、Excel 模板下载/解析/校验、本机草稿自动保存
+- 已确认：P01~P12 已写入 `docs/requirements.md`
 - 本地启动：`npm run dev`；生产预览：`npm run build && npm run preview`
 - 源工作簿：`Rtings计算文档.xlsx`（仅作只读规则来源，不修改）
 - 开发闸门：存储/部署/账号/集成等待 P01~P12；权威基准用例待从 `000005` 导入
