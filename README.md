@@ -4,13 +4,12 @@
 
 ## 当前状态
 
-- 阶段：录入与导入（5/6）；评分核心与权威基准已对齐
+- 阶段：导出模板与部署规划（6/6）；评分核心、录入、导入与对比已跑通
 - Web 进度：Corporate Clean 多页面导航；总览、对比、测试项对比、追溯、评分录入、Excel 导入分离；图表放大；支持 Excel/PNG 导出
-- 已实现：工程师手工输入、Excel 模板下载/解析/校验、本机草稿自动保存
+- 已实现：工程师手工输入、按分组分 Sheet 的 Excel 模板下载/解析/校验、本机草稿自动保存
 - 已确认：P01~P12 已写入 `docs/requirements.md`
 - 本地启动：`npm run dev`；生产预览：`npm run build && npm run preview`
 - 源工作簿：`Rtings计算文档.xlsx`（仅作只读规则来源，不修改）
-- 开发闸门：存储/部署/账号/集成等待 P01~P12；权威基准用例待从 `000005` 导入
 
 ## 核心目标
 
@@ -24,8 +23,10 @@
 
 | 文档 | 用途 |
 |---|---|
-| `docs/requirements.md` | 需求边界、验收口径与待确认问题 |
+| `docs/requirements.md` | 需求边界、确认状态、验收口径与信息架构 |
 | `docs/scoring-rules.md` | 从源工作簿提取的评分规则、证据与异常 |
+| `docs/export-templates.md` | Excel/PNG 导出模板与字段设计 |
+| `docs/deployment.md` | 本机部署、内网部署和后续集成方案 |
 | `docs/project-log.md` | 已确认决策和项目阶段变化，只记录长期有效信息 |
 
 文档分工不重复：需求看 `requirements`，计算事实看 `scoring-rules`，当前进度看本文件，历史决策看 `project-log`。

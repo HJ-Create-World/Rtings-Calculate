@@ -79,6 +79,34 @@ function subjectiveValue(node: ScoreNode): number | null {
   const score = draft.value.values[node.id]?.subjectiveScore;
   return score === null || score === undefined ? null : score / 10;
 }
+
+function hasInput(node: ScoreNode): boolean {
+  const value = draft.value.values[node.id];
+  if (node.inputType === 'objective') return Boolean(value?.objectiveRaw?.trim());
+  return value?.subjectiveScore !== null && value?.subjectiveScore !== undefined;
+}
+
+function itemStatusClass(node: ScoreNode): string {
+  const evaluation = result.value.nodes[node.id];
+  if (!node.includeInParent) return 'status-excluded';
+  if (evaluation?.status === 'scored') return 'status-scored';
+  if (!hasInput(node)) return 'status-neutral';
+  return 'status-incomplete';
+}
+
+function itemScoreLabel(node: ScoreNode): string {
+  const evaluation = result.value.nodes[node.id];
+  if (!node.includeInParent) return '不计入';
+  if (evaluation?.status === 'scored') return formatScore(evaluation.value);
+  if (!hasInput(node)) return '未填';
+  return '待确认';
+}
+
+function itemScoreTitle(node: ScoreNode): string {
+  const evaluation = result.value.nodes[node.id];
+  if (evaluation?.status !== 'scored') return '';
+  return evaluation.mappingTrace?.matchedInterval?.rawText ?? '';
+}
 </script>
 
 <template>
@@ -172,8 +200,9 @@ function subjectiveValue(node: ScoreNode): number | null {
         <thead class="bg-gray-50">
           <tr>
             <th class="px-4 py-3 text-left font-semibold text-gray-900">测试项</th>
-            <th class="px-4 py-3 text-left font-semibold text-gray-900">类型 / 单位</th>
             <th class="px-4 py-3 text-left font-semibold text-gray-900">输入值</th>
+            <th class="px-4 py-3 text-left font-semibold text-gray-900">类型 / 单位</th>
+            <th class="px-4 py-3 text-left font-semibold text-gray-900">单项评分</th>
             <th class="px-4 py-3 text-left font-semibold text-gray-900">备注</th>
           </tr>
         </thead>
@@ -182,9 +211,6 @@ function subjectiveValue(node: ScoreNode): number | null {
             <td class="px-4 py-3">
               <p class="font-medium text-gray-900">{{ node.label }}</p>
               <p class="text-xs text-gray-500">{{ parentLabel(node) }}</p>
-            </td>
-            <td class="px-4 py-3 text-gray-700">
-              {{ node.inputType === 'objective' ? '客观' : '主观' }} · {{ unitOf(node) }}
             </td>
             <td class="px-4 py-3">
               <input
@@ -207,6 +233,17 @@ function subjectiveValue(node: ScoreNode): number | null {
                 :class="[inputClass, 'w-28']"
                 @input="updateValue(node.id, { subjectiveScore: ($event.target as HTMLInputElement).valueAsNumber })"
               />
+            </td>
+            <td class="px-4 py-3 text-gray-700">
+              {{ node.inputType === 'objective' ? '客观' : '主观' }} · {{ unitOf(node) }}
+            </td>
+            <td class="px-4 py-3">
+              <span
+                :class="['inline-flex rounded-full px-2 py-1 text-xs', itemStatusClass(node)]"
+                :title="itemScoreTitle(node)"
+              >
+                {{ itemScoreLabel(node) }}
+              </span>
             </td>
             <td class="px-4 py-3">
               <input

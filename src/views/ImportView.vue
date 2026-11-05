@@ -38,10 +38,10 @@ function importDraft() {
   <section :class="cardClass" class="mb-6 p-6">
     <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div>
-        <h2 class="text-xl font-semibold tracking-tight text-gray-900">第 1 步：下载导入模板</h2>
-        <p :class="['mt-2 text-sm', mutedTextClass]">
-          模板包含产品信息、测试输入和导入说明；节点ID已预填，避免手写错位
-        </p>
+          <h2 class="text-xl font-semibold tracking-tight text-gray-900">第 1 步：下载导入模板</h2>
+          <p :class="['mt-2 text-sm', mutedTextClass]">
+            模板包含产品信息、分组测试输入和导入说明；每个顶层分组独立一个工作表
+          </p>
       </div>
       <button :class="primaryButtonClass" @click="downloadImportTemplate">下载模板</button>
     </div>

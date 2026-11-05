@@ -1,29 +1,80 @@
 import * as XLSX from 'xlsx';
 import { rtingsRuleV1 } from '../data/rtingsRule';
-import type { EvaluationDraft } from '../types/evaluation';
-import type { ImportValidation } from '../types/evaluation';
+import type { ScoreNode } from '../core/types';
+import type { EvaluationDraft, ImportValidation } from '../types/evaluation';
 import { parseObjectiveNumber } from '../composables/useEvaluationDraft';
 
-function inputRows() {
+function collectDescendantInputNodes(nodeId: string): ScoreNode[] {
   return rtingsRuleV1.nodes
-    .filter(node => node.inputType !== 'aggregate')
-    .map(node => {
-      const parent = rtingsRuleV1.nodes.find(item => item.id === node.parentId);
-      const mapping = node.mappingId
-        ? rtingsRuleV1.mappings.find(item => item.id === node.mappingId)
-        : undefined;
-      return {
-        '节点ID': node.id,
-        '层级': node.kind,
-        '输入类型': node.inputType,
-        '父级': parent?.label ?? '',
-        '测试项': node.label,
-        '单位/范围': node.inputType === 'objective' ? mapping?.unit ?? '数值' : '0~10',
-        '填写说明': node.inputType === 'objective' ? '填数值或 inf，不带单位' : '填 0~10，支持一位小数',
-        '值': '',
-        '备注': ''
-      };
-    });
+    .filter(node => node.parentId === nodeId)
+    .flatMap(child =>
+      child.inputType === 'aggregate' ? collectDescendantInputNodes(child.id) : [child]
+    );
+}
+
+function shortGroupName(group: ScoreNode): string {
+  const key = group.id.replace('mixed-usage.', '');
+  const names: Record<string, string> = {
+    brightness: 'Brightness',
+    'black-level': 'Black Level',
+    color: 'Color',
+    processing: 'Processing',
+    'motion-handling': 'Motion Handling',
+    'game-mode-responsiveness': 'Game Mode',
+    'direct-reflections': 'Direct Reflections',
+    'ambient-black-level-raise': 'Ambient Black',
+    panel: 'Panel'
+  };
+  return names[key] ?? group.label.replace(/[\\/?*[\]:]/g, ' ').slice(0, 28);
+}
+
+function inputRow(node: ScoreNode) {
+  const parent = rtingsRuleV1.nodes.find(item => item.id === node.parentId);
+  const mapping = node.mappingId
+    ? rtingsRuleV1.mappings.find(item => item.id === node.mappingId)
+    : undefined;
+  return {
+    '维度 / 父级': parent?.label ?? '',
+    '测试项': node.label,
+    '节点ID': node.id,
+    '类型': node.inputType === 'objective' ? '客观' : '主观',
+    '单位 / 范围': node.inputType === 'objective' ? mapping?.unit ?? '数值' : '0~10',
+    '填写说明': node.inputType === 'objective' ? '填数值或 inf，不带单位' : '填 0~10，支持一位小数',
+    '值': '',
+    '备注': ''
+  };
+}
+
+function groupedInputSheets() {
+  const groups = rtingsRuleV1.nodes.filter(node => node.parentId === rtingsRuleV1.rootId);
+  return groups.map((group, index) => {
+    const rows = collectDescendantInputNodes(group.id)
+      .slice()
+      .sort((left, right) => {
+        const parentDiff = inputRow(left)['维度 / 父级'].localeCompare(
+          inputRow(right)['维度 / 父级'],
+          'zh-CN'
+        );
+        return parentDiff || left.label.localeCompare(right.label, 'zh-CN');
+      })
+      .map(inputRow);
+    const sheet = XLSX.utils.json_to_sheet(rows);
+    sheet['!cols'] = [
+      { wch: 26 },
+      { wch: 34 },
+      { wch: 44 },
+      { wch: 8 },
+      { wch: 16 },
+      { wch: 24 },
+      { wch: 12 },
+      { wch: 24 }
+    ];
+    return {
+      name: `${String(index + 1).padStart(2, '0')} ${shortGroupName(group)}`,
+      sheet,
+      count: rows.length
+    };
+  });
 }
 
 export function downloadImportTemplate() {
@@ -35,12 +86,17 @@ export function downloadImportTemplate() {
     { 字段: '测试工程师', 值: '' },
     { 字段: '备注', 值: '' }
   ]), '产品信息');
-  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(inputRows()), '测试输入');
+
+  groupedInputSheets().forEach(({ name, sheet }) => {
+    XLSX.utils.book_append_sheet(workbook, sheet, name);
+  });
+
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet([
-    { 说明: '1. 不要修改“节点ID”“输入类型”和表头名称。' },
-    { 说明: '2. “测试输入”中客观项填数值或 inf，不要带单位；主观项填 0~10。' },
-    { 说明: '3. 留空表示未填写，软件会标为不完整，不会自动补零。' },
-    { 说明: '4. 导入前请确认规则版本与当前软件一致。' }
+    { 说明: '1. 不要修改各分组工作表的“节点ID”“类型”和表头名称。' },
+    { 说明: '2. 每个顶层分组一个工作表；同一分组内已按维度排列。' },
+    { 说明: '3. 客观项填数值或 inf，不要带单位；主观项填 0~10。' },
+    { 说明: '4. 留空表示未填写，软件会标为不完整，不会自动补零。' },
+    { 说明: '5. 导入前请确认规则版本与当前软件一致。' }
   ]), '导入说明');
   XLSX.writeFile(workbook, 'Rtings-评分导入模板.xlsx');
 }
@@ -62,9 +118,12 @@ export async function parseImportWorkbook(file: File): Promise<ImportValidation>
   const workbook = XLSX.read(buffer, { type: 'array' });
 
   const productRows = sheetRows(workbook, '产品信息');
-  const inputRows = sheetRows(workbook, '测试输入');
+  const inputSheetNames = workbook.SheetNames.filter(
+    name => name !== '产品信息' && name !== '导入说明'
+  );
+  const inputRows = inputSheetNames.flatMap(name => sheetRows(workbook, name));
   if (!productRows.length) errors.push('缺少“产品信息”工作表或该表为空。');
-  if (!inputRows.length) errors.push('缺少“测试输入”工作表或该表为空。');
+  if (!inputRows.length) errors.push('缺少分组工作表，或所有分组工作表为空。');
 
   const productInfo = new Map<string, string>();
   for (const row of productRows) {
@@ -111,8 +170,8 @@ export async function parseImportWorkbook(file: File): Promise<ImportValidation>
     values[nodeId] = { subjectiveScore: Math.round(parsed * 10), note };
   }
 
-  if (!values.size && !errors.length) {
-    warnings.push('未读取到任何测试值，请检查“测试输入”表的“值”列。');
+  if (!Object.keys(values).length && !errors.length) {
+    warnings.push('未读取到任何测试值，请检查各分组工作表的“值”列。');
   }
 
   const draft: EvaluationDraft = {
