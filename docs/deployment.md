@@ -79,7 +79,31 @@ EXPOSE 80
 5. 构建产物不包含源码路径、token 和个人数据。
 6. 无外网请求；浏览器 DevTools Network 只包含本站资源。
 
-## 4. 后续接入 tvsms
+## 4. WorkBuddy 云端预览部署
+
+除本机和内网部署外，当前纯前端构建产物也可以发布为 WorkBuddy 在线预览应用。
+
+适用场景：
+
+- 快速给 HJ / 相关同事看最新 UI 与交互
+- 不依赖部门服务器时的临时演示
+- 发布当前 `dist/` 生成产物
+
+流程：
+
+```powershell
+cd D:\01_HJ_Work\00_Person\04_Project\08_Rtings-Calculate
+npm run build
+```
+
+然后将 `dist/` 目录作为静态站点发布。注意：
+
+- 发布的是生产构建产物，不是源码目录。
+- 每次代码更新后，需要重新构建并重新发布，线上内容才会更新。
+- 当前应用数据保存在浏览器 localStorage；不同设备不会自动同步草稿。
+- 这类链接适合预览和演示，正式内网部署仍按第 3 节方案执行。
+
+## 5. 后续接入 tvsms
 
 项目管理系统源码：`D:\01_HJ_Work\00_Person\04_Project\05_tvsms`。
 
@@ -106,7 +130,7 @@ GET    /api/rules/:version/trace  读取指定评测的计算追踪
 
 以上为接口草案，实际字段在 tvsms 集成前确认。
 
-## 5. 发布检查清单
+## 6. 发布检查清单
 
 - [ ] `npm run typecheck`
 - [ ] `npm test`
