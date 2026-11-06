@@ -4,12 +4,16 @@
 
 ## 当前状态
 
-- 阶段：导出模板与部署规划（6/6）；评分核心、录入、导入与对比已跑通
-- Web 进度：Corporate Clean 多页面导航；总览、对比、测试项对比、追溯、评分录入、Excel 导入分离；图表放大；支持 Excel/PNG 导出
-- 已实现：工程师手工输入、按分组分 Sheet 的 Excel 模板下载/解析/校验、本机草稿自动保存
-- 已确认：P01~P12 已写入 `docs/requirements.md`
-- 本地启动：`npm run dev`；生产预览：`npm run build && npm run preview`
-- 源工作簿：`Rtings计算文档.xlsx`（仅作只读规则来源，不修改）
+- 阶段：多机型对比 / 规则融合 / 云端架构设计
+- Web 进度：首页多机型对比、产品介绍、历史机型追溯、测试项对比、评分录入、Excel 导入
+- 评分规则：已接入融合版 v3，支持 CSV 锚点插值、类别/恒等映射、缺失重归一与 107 款真实数据回归
+- 文档入口：
+  - `docs/requirements.md`
+  - `docs/scoring-rules.md`
+  - `docs/export-templates.md`
+  - `docs/deployment.md`
+  - `docs/data-architecture.md`
+  - `docs/project-log.md`
 
 ## 核心目标
 
