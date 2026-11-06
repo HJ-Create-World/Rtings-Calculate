@@ -146,6 +146,12 @@ function clearFilters() {
         @click="emit('toggle', product.id)"
       >
         {{ product.label }}
+        <span
+          v-if="product.source === 'cloud' || product.source === 'local'"
+          class="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-medium text-blue-700"
+        >
+          {{ product.source === 'cloud' ? '云端' : '本机' }}
+        </span>
       </button>
     </div>
 

@@ -1,6 +1,7 @@
 import { computed, ref, watch } from 'vue';
 import type { ScoreNode } from '../core/types';
-import { getV3BaselineById, rtingsBaselinesV3, rtingsRule } from '../data/rtingsRule';
+import { rtingsRule } from '../data/rtingsRule';
+import { useEvaluationLibrary } from './useEvaluationLibrary';
 
 function collectTestItems(nodeId: string): ScoreNode[] {
   return rtingsRule.nodes
@@ -12,6 +13,8 @@ function collectTestItems(nodeId: string): ScoreNode[] {
 }
 
 export function useDrilldown() {
+  const { allBaselines, refreshEvaluationLibrary, getEvaluationProductById } = useEvaluationLibrary();
+  void refreshEvaluationLibrary();
   const groups = rtingsRule.nodes.filter(node => node.parentId === rtingsRule.rootId);
   const groupOptions = groups.map(group => ({ value: group.id, label: group.label }));
   const selectedGroupId = ref(groups[0]?.id ?? '');
@@ -37,9 +40,11 @@ export function useDrilldown() {
     selectedTestItemIds.value = testItems.value.slice(0, 6).map(item => item.id);
   });
 
-  const selectedProductIds = ref(rtingsBaselinesV3.items.slice(0, 6).map(baseline => baseline.id));
+  const selectedProductIds = ref(allBaselines.value.slice(0, 6).map(baseline => baseline.id));
   const selectedProducts = computed(() =>
-    selectedProductIds.value.map(id => getV3BaselineById(id)!)
+    selectedProductIds.value
+      .map(id => getEvaluationProductById(id))
+      .filter((product): product is NonNullable<typeof product> => Boolean(product))
   );
 
   const selectedTestItems = computed(() =>
@@ -84,7 +89,7 @@ export function useDrilldown() {
   }
 
   return {
-    allBaselines: rtingsBaselinesV3.items,
+    allBaselines,
     groupOptions,
     selectedGroupId,
     testItemOptions,

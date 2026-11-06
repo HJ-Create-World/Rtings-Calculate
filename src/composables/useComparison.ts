@@ -1,13 +1,18 @@
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import type { ScoreNode } from '../core/types';
-import { getV3BaselineById, rtingsBaselinesV3, rtingsRule } from '../data/rtingsRule';
+import { rtingsRule } from '../data/rtingsRule';
+import { useEvaluationLibrary } from './useEvaluationLibrary';
 
 export function useComparison() {
-  const allBaselines = rtingsBaselinesV3.items;
-  const selectedIds = ref<string[]>(allBaselines.slice(0, 6).map(baseline => baseline.id));
+  const { allBaselines, refreshEvaluationLibrary, getEvaluationProductById } = useEvaluationLibrary();
+  void refreshEvaluationLibrary();
+
+  const selectedIds = ref<string[]>(allBaselines.value.slice(0, 6).map(baseline => baseline.id));
 
   const selectedProducts = computed(() =>
-    selectedIds.value.map(id => getV3BaselineById(id)!)
+    selectedIds.value
+      .map(id => getEvaluationProductById(id))
+      .filter((product): product is NonNullable<typeof product> => Boolean(product))
   );
 
   const topGroups = computed(() =>
@@ -32,6 +37,16 @@ export function useComparison() {
         (group: ScoreNode) => baseline.expectedScores[group.id] ?? null
       )
     }))
+  );
+
+  watch(
+    allBaselines,
+    products => {
+      if (!selectedIds.value.length && products.length) {
+        selectedIds.value = products.slice(0, 6).map(product => product.id);
+      }
+    },
+    { immediate: true }
   );
 
   function toggleProduct(productId: string) {

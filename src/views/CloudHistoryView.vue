@@ -87,8 +87,16 @@ const detailItems = computed(() => {
   if (!selectedDraft.value || !selectedResult.value) return [];
   const result = selectedResult.value;
   const parentMap = new Map(rtingsRule.nodes.map(node => [node.id, node]));
-  return rtingsRule.nodes
-    .filter(node => node.parentId === selectedGroupId.value && node.inputType !== 'aggregate')
+
+  function collectLeafNodes(nodeId: string): typeof rtingsRule.nodes {
+    return rtingsRule.nodes
+      .filter(node => node.parentId === nodeId)
+      .flatMap(node =>
+        node.inputType === 'aggregate' ? collectLeafNodes(node.id) : [node]
+      );
+  }
+
+  return collectLeafNodes(selectedGroupId.value)
     .map(node => ({
       node,
       parentLabel: parentMap.get(node.parentId ?? '')?.label ?? '',
@@ -180,9 +188,13 @@ async function exportExcel() {
     </div>
   </section>
 
-  <section v-if="selectedRecord && selectedDraft && selectedResult" :class="cardClass" class="p-6">
-    <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-      <div>
+  <section
+    v-if="selectedRecord && selectedDraft && selectedResult"
+    :class="cardClass"
+    class="mb-6 p-6"
+  >
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div class="min-w-0">
         <h2 :class="['text-2xl md:text-3xl', sectionTitleClass]">
           {{ selectedRecord.brand }} {{ selectedRecord.model }}
         </h2>
@@ -191,70 +203,78 @@ async function exportExcel() {
           {{ selectedRecord.rule_version }}
         </p>
       </div>
-      <div class="rounded-xl bg-blue-50 p-4 text-right">
-        <p class="text-xs text-blue-700">Mixed Usage</p>
-        <strong class="block text-3xl font-semibold text-blue-700">
-          {{ formatScore(selectedResult.value) }}
-        </strong>
-        <span :class="['mt-2 inline-flex rounded-full px-2 py-1 text-xs', statusClass(selectedResult.status)]">
-          {{ statusLabel(selectedResult.status) }}
-        </span>
+      <div class="flex shrink-0 flex-col items-start gap-4 sm:flex-row sm:items-center">
+        <div class="rounded-xl bg-blue-50 px-4 py-3 text-right">
+          <p class="text-xs text-blue-700">Mixed Usage</p>
+          <strong class="block text-2xl font-semibold text-blue-700">
+            {{ formatScore(selectedResult.value) }}
+          </strong>
+          <span :class="['mt-2 inline-flex rounded-full px-2 py-1 text-xs', statusClass(selectedResult.status)]">
+            {{ statusLabel(selectedResult.status) }}
+          </span>
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <button :class="primaryButtonClass" @click="loadForEdit">载入并修改</button>
+          <button :class="secondaryButtonClass" :disabled="exporting" @click="exportExcel">
+            {{ exporting ? '导出中…' : '导出完整 Excel' }}
+          </button>
+        </div>
       </div>
     </div>
+  </section>
 
-    <div class="mt-6 flex flex-wrap gap-3">
-      <button :class="primaryButtonClass" @click="loadForEdit">载入并修改</button>
-      <button :class="secondaryButtonClass" :disabled="exporting" @click="exportExcel">
-        {{ exporting ? '导出中…' : '导出完整 Excel' }}
-      </button>
-    </div>
-
-    <ChartCard
-      class="mt-6 !border-0 !p-0 !shadow-none"
-      title="能力轮廓"
-      description="云端评测的顶层分组得分"
-    >
+  <section v-if="selectedRecord && selectedDraft && selectedResult" class="mb-6">
+    <ChartCard title="能力轮廓" description="云端评测的顶层分组得分">
       <GroupRadarChart
         :labels="topGroups.map(group => group.label)"
         :series="radarSeries"
-        height="420px"
+        height="460px"
       />
     </ChartCard>
+  </section>
 
-    <div class="mt-8">
-      <h3 class="text-xl font-semibold tracking-tight text-gray-900">历史输入与评分</h3>
-      <p :class="['mt-2 text-sm', mutedTextClass]">选择子类目查看当时保存的输入值和计算得分</p>
-      <OptionChips
-        class="mt-4"
-        v-model="selectedGroupId"
-        :options="topGroups.map(group => ({ value: group.id, label: group.label }))"
-      />
-      <div class="mt-4 overflow-x-auto rounded-xl border border-gray-200">
-        <table class="min-w-full divide-y divide-gray-200 text-sm">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-4 py-3 text-left font-semibold text-gray-900">子类维度</th>
-              <th class="px-4 py-3 text-left font-semibold text-gray-900">测试项</th>
-              <th class="px-4 py-3 text-left font-semibold text-gray-900">历史输入</th>
-              <th class="px-4 py-3 text-right font-semibold text-gray-900">单项评分</th>
-              <th class="px-4 py-3 text-left font-semibold text-gray-900">提示</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <tr
-              v-for="item in detailItems"
-              :key="item.node.id"
-              class="transition-colors duration-200 hover:bg-gray-50"
-            >
-              <td class="px-4 py-3 text-gray-700">{{ item.parentLabel }}</td>
-              <td class="px-4 py-3 text-gray-900">{{ item.node.label }}</td>
-              <td class="px-4 py-3 text-gray-700">{{ item.input ?? '未填写' }}</td>
-              <td class="px-4 py-3 text-right font-medium text-gray-900">{{ formatScore(item.score) }}</td>
-              <td class="px-4 py-3 text-xs text-amber-700">{{ item.warning || '—' }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+  <section
+    v-if="selectedRecord && selectedDraft && selectedResult"
+    :class="cardClass"
+    class="p-6"
+  >
+    <h3 class="text-xl font-semibold tracking-tight text-gray-900">历史输入与评分</h3>
+    <p :class="['mt-2 text-sm', mutedTextClass]">选择子类目查看当时保存的输入值和计算得分</p>
+    <OptionChips
+      class="mt-4"
+      v-model="selectedGroupId"
+      :options="topGroups.map(group => ({ value: group.id, label: group.label }))"
+    />
+    <div class="mt-4 overflow-x-auto rounded-xl border border-gray-200">
+      <table class="min-w-full divide-y divide-gray-200 text-sm">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="w-32 px-4 py-3 text-left font-semibold text-gray-900">子类维度</th>
+            <th class="px-4 py-3 text-left font-semibold text-gray-900">测试项</th>
+            <th class="w-36 px-4 py-3 text-left font-semibold text-gray-900">历史输入</th>
+            <th class="w-28 px-4 py-3 text-right font-semibold text-gray-900">单项评分</th>
+            <th class="w-72 px-4 py-3 text-left font-semibold text-gray-900">提示</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr v-if="!detailItems.length">
+            <td colspan="5" class="px-4 py-6 text-center text-sm text-gray-500">
+              当前分组没有可展示的具体测试项。
+            </td>
+          </tr>
+          <tr
+            v-for="item in detailItems"
+            :key="item.node.id"
+            class="transition-colors duration-200 hover:bg-gray-50"
+          >
+            <td class="px-4 py-3 text-gray-700">{{ item.parentLabel }}</td>
+            <td class="px-4 py-3 text-gray-900">{{ item.node.label }}</td>
+            <td class="px-4 py-3 text-gray-700">{{ item.input ?? '未填写' }}</td>
+            <td class="px-4 py-3 text-right font-medium text-gray-900">{{ formatScore(item.score) }}</td>
+            <td class="px-4 py-3 text-xs text-amber-700">{{ item.warning || '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </section>
 </template>

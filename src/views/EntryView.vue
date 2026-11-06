@@ -430,9 +430,10 @@ function itemScoreTitle(node: ScoreNode): string {
                 min="0"
                 max="10"
                 step="0.1"
-                placeholder="0~10"
-                :class="[inputClass, 'w-28']"
-                @input="updateValue(node.id, { subjectiveScore: ($event.target as HTMLInputElement).valueAsNumber })"
+                inputmode="decimal"
+                placeholder="输入评分，如 9.5"
+                :class="[inputClass, 'w-32']"
+                @input="updateValue(node.id, { subjectiveScore: Math.round(($event.target as HTMLInputElement).valueAsNumber * 10) })"
               />
             </td>
             <td class="px-4 py-3 text-gray-700">

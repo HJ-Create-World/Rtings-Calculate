@@ -1,34 +1,41 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import ChartCard from '../components/ChartCard.vue';
 import GroupRadarChart from '../components/charts/GroupRadarChart.vue';
 import OptionChips from '../components/OptionChips.vue';
-import { rtingsBaselinesV3, rtingsRule } from '../data/rtingsRule';
+import { rtingsRule } from '../data/rtingsRule';
+import { useEvaluationLibrary } from '../composables/useEvaluationLibrary';
 import { formatScore } from '../utils/format';
 import { cardClass, inputClass, mutedTextClass, primaryButtonClass, sectionTitleClass } from '../utils/ui';
+
+const { allBaselines, refreshEvaluationLibrary } = useEvaluationLibrary();
 
 const search = ref('');
 const brand = ref('');
 const year = ref('');
-const selectedId = ref(rtingsBaselinesV3.items[0]?.id ?? '');
+const selectedId = ref('');
 const expanded = ref(false);
 const visibleCount = 24;
 
+onMounted(() => {
+  void refreshEvaluationLibrary();
+});
+
 const brands = computed(() =>
-  [...new Set(rtingsBaselinesV3.items.map(item => item.brand ?? '未分类'))].sort((a, b) =>
+  [...new Set(allBaselines.value.map(item => item.brand ?? '未分类'))].sort((a, b) =>
     a.localeCompare(b, 'zh-CN')
   )
 );
 
 const years = computed(() =>
-  [...new Set(rtingsBaselinesV3.items.map(item => item.releaseYear).filter(Boolean) as number[])].sort(
+  [...new Set(allBaselines.value.map(item => item.releaseYear).filter(Boolean) as number[])].sort(
     (a, b) => b - a
   )
 );
 
 const filteredBaselines = computed(() => {
   const text = search.value.trim().toLowerCase();
-  return rtingsBaselinesV3.items
+  return allBaselines.value
     .filter(baseline => {
       const matchesText =
         !text ||
@@ -51,7 +58,7 @@ const visibleBaselines = computed(() =>
 
 const selectedBaseline = computed(
   () =>
-    rtingsBaselinesV3.items.find(baseline => baseline.id === selectedId.value) ??
+    allBaselines.value.find(baseline => baseline.id === selectedId.value) ??
     filteredBaselines.value[0]
 );
 
@@ -116,7 +123,9 @@ const leafRanking = computed(() => {
     <article :class="cardClass" class="p-6 lg:col-span-2">
       <div class="flex items-center justify-between gap-4">
         <h2 :class="['text-xl md:text-2xl', sectionTitleClass]">历史机型库</h2>
-        <span :class="['text-xs', mutedTextClass]">{{ filteredBaselines.length }} 台</span>
+        <span :class="['text-xs', mutedTextClass]">
+          含云端 / 本机 · {{ filteredBaselines.length }} 台
+        </span>
       </div>
 
       <div class="mt-4 grid gap-3">
@@ -146,7 +155,15 @@ const leafRanking = computed(() => {
           "
           @click="selectedId = baseline.id"
         >
-          <span class="block font-medium">{{ baseline.label }}</span>
+          <span class="flex items-center justify-between gap-2">
+            <span class="block font-medium">{{ baseline.label }}</span>
+            <span
+              v-if="baseline.source === 'cloud' || baseline.source === 'local'"
+              class="rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-medium text-blue-700"
+            >
+              {{ baseline.source === 'cloud' ? '云端' : '本机' }}
+            </span>
+          </span>
           <span :class="['mt-1 block text-xs', mutedTextClass]">
             {{ baseline.releaseYear ?? '—' }} · {{ formatScore(baseline.expectedTotal) }}
           </span>
