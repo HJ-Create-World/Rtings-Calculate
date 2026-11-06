@@ -116,6 +116,20 @@ export async function getCloudEvaluation(clientId: string): Promise<CloudEvaluat
   return rows as CloudEvaluation | null;
 }
 
+export function cloudEvaluationToDraft(record: CloudEvaluation): EvaluationDraft {
+  return {
+    id: record.client_id,
+    brand: record.brand ?? '',
+    model: record.model ?? '',
+    testDate: record.test_date ?? '',
+    engineer: record.engineer ?? '',
+    remark: record.remark ?? '',
+    ruleVersion: record.rule_version,
+    values: record.inputs ?? {},
+    updatedAt: record.updated_at
+  };
+}
+
 export function cloudErrorMessage(error: unknown): string {
   if (!error) return '未知错误';
   if (typeof error === 'string') return error;

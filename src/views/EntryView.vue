@@ -5,6 +5,13 @@ import { useEvaluationDraft } from '../composables/useEvaluationDraft';
 import { rtingsRule } from '../data/rtingsRule';
 import type { ScoreNode } from '../core/types';
 import { cloudErrorMessage, saveEvaluationToCloud } from '../services/cloud';
+import {
+  deleteLocalEvaluation,
+  listLocalEvaluations,
+  saveLocalEvaluation,
+  validateDraftMeta
+} from '../services/localEvaluations';
+import type { LocalEvaluation } from '../services/localEvaluations';
 import { formatScore, statusClass, statusLabel, warningLabel } from '../utils/format';
 import { cardClass, inputClass, mutedTextClass, primaryButtonClass, secondaryButtonClass, sectionTitleClass } from '../utils/ui';
 
@@ -75,16 +82,52 @@ const visibleItems = computed(() => {
 });
 
 const metaFields = [
-  { key: 'brand', label: '品牌' },
-  { key: 'model', label: '型号' },
-  { key: 'testDate', label: '测试日期' },
-  { key: 'engineer', label: '测试工程师' }
+  { key: 'brand', label: '品牌', required: true, type: 'text' },
+  { key: 'model', label: '型号', required: true, type: 'text' },
+  { key: 'testDate', label: '测试日期', required: true, type: 'date' },
+  { key: 'engineer', label: '测试工程师', required: true, type: 'text' }
 ] as const;
 
+const metaErrors = ref<Partial<Record<'brand' | 'model' | 'testDate' | 'engineer', string>>>({});
 const cloudSaving = ref(false);
 const cloudMessage = ref<{ type: 'success' | 'error'; text: string } | null>(null);
+const localSaving = ref(false);
+const localMessage = ref<{ type: 'success' | 'error'; text: string } | null>(null);
+const localEvaluations = ref<LocalEvaluation[]>(listLocalEvaluations());
+
+function refreshLocalEvaluations() {
+  localEvaluations.value = listLocalEvaluations();
+}
+
+function saveToLocal() {
+  localMessage.value = null;
+  const validation = validateDraftMeta(draft.value);
+  metaErrors.value = validation.errors;
+  if (!validation.valid) {
+    localMessage.value = { type: 'error', text: '请先填写品牌、型号、测试日期和测试工程师' };
+    return;
+  }
+
+  localSaving.value = true;
+  try {
+    saveLocalEvaluation(draft.value, result.value.value);
+    refreshLocalEvaluations();
+    localMessage.value = { type: 'success', text: '已保存到本机历史库' };
+  } catch {
+    localMessage.value = { type: 'error', text: '本机保存失败，请检查浏览器存储权限' };
+  } finally {
+    localSaving.value = false;
+  }
+}
 
 async function saveToCloud() {
+  const validation = validateDraftMeta(draft.value);
+  metaErrors.value = validation.errors;
+  if (!validation.valid) {
+    cloudMessage.value = { type: 'error', text: '请先填写品牌、型号、测试日期和测试工程师' };
+    return;
+  }
+
   cloudSaving.value = true;
   cloudMessage.value = null;
   try {
@@ -101,6 +144,17 @@ async function saveToCloud() {
   } finally {
     cloudSaving.value = false;
   }
+}
+
+function loadLocalEvaluation(record: LocalEvaluation) {
+  draft.value = JSON.parse(JSON.stringify(record.draft));
+  metaErrors.value = {};
+  localMessage.value = { type: 'success', text: '已载入本机保存的评测' };
+}
+
+function removeLocalEvaluation(id: string) {
+  deleteLocalEvaluation(id);
+  refreshLocalEvaluations();
 }
 
 function objectiveValue(node: ScoreNode): string {
@@ -148,14 +202,24 @@ function itemScoreTitle(node: ScoreNode): string {
     <article :class="cardClass" class="p-6 lg:col-span-3">
       <h2 :class="['text-xl md:text-2xl', sectionTitleClass]">产品档案</h2>
       <div class="mt-4 grid gap-4 md:grid-cols-2">
-        <label v-for="field in metaFields" :key="field.key" class="grid gap-2 text-sm">
-          <span class="text-gray-700">{{ field.label }}</span>
+        <label
+          v-for="field in metaFields"
+          :key="field.key"
+          class="grid gap-2 text-sm"
+        >
+          <span class="text-gray-700">
+            {{ field.label }}
+            <span v-if="field.required" class="text-red-500">*</span>
+          </span>
           <input
             :value="draft[field.key]"
-            type="text"
-            :class="inputClass"
+            :type="field.type ?? 'text'"
+            :class="[inputClass, metaErrors[field.key] ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '']"
             @input="updateMeta({ [field.key]: ($event.target as HTMLInputElement).value })"
           />
+          <span v-if="metaErrors[field.key]" class="text-xs text-red-600">
+            {{ metaErrors[field.key] }}
+          </span>
         </label>
         <label class="grid gap-2 text-sm md:col-span-2">
           <span class="text-gray-700">备注</span>
@@ -189,6 +253,14 @@ function itemScoreTitle(node: ScoreNode): string {
       </div>
       <button :class="secondaryButtonClass" class="mt-4 w-full" @click="resetDraft">清空草稿</button>
       <button
+        :class="secondaryButtonClass"
+        class="mt-3 w-full"
+        :disabled="localSaving"
+        @click="saveToLocal"
+      >
+        {{ localSaving ? '保存中…' : '保存到本机' }}
+      </button>
+      <button
         :class="primaryButtonClass"
         class="mt-3 w-full"
         :disabled="cloudSaving"
@@ -207,7 +279,72 @@ function itemScoreTitle(node: ScoreNode): string {
       >
         {{ cloudMessage.text }}
       </p>
+      <p
+        v-if="localMessage"
+        :class="[
+          'mt-3 rounded-lg p-3 text-xs',
+          localMessage.type === 'success'
+            ? 'bg-green-50 text-green-700'
+            : 'bg-red-50 text-red-600'
+        ]"
+      >
+        {{ localMessage.text }}
+      </p>
     </article>
+  </section>
+
+  <section v-if="localEvaluations.length" :class="cardClass" class="mb-6 p-6">
+    <div class="mb-4 flex items-center justify-between gap-4">
+      <h2 class="text-xl font-semibold tracking-tight text-gray-900">本机保存记录</h2>
+      <span :class="['text-xs', mutedTextClass]">{{ localEvaluations.length }} 条</span>
+    </div>
+    <div class="overflow-x-auto rounded-xl border border-gray-200">
+      <table class="min-w-full divide-y divide-gray-200 text-sm">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-3 text-left font-semibold text-gray-900">品牌 / 型号</th>
+            <th class="px-4 py-3 text-left font-semibold text-gray-900">测试日期</th>
+            <th class="px-4 py-3 text-left font-semibold text-gray-900">工程师</th>
+            <th class="px-4 py-3 text-right font-semibold text-gray-900">总分</th>
+            <th class="px-4 py-3 text-right font-semibold text-gray-900">操作</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr
+            v-for="record in localEvaluations"
+            :key="record.draft.id"
+            class="transition-colors duration-200 hover:bg-gray-50"
+          >
+            <td class="px-4 py-3">
+              <p class="font-medium text-gray-900">{{ record.draft.brand }} {{ record.draft.model }}</p>
+              <p :class="['text-xs', mutedTextClass]">{{ record.draft.engineer || '—' }}</p>
+            </td>
+            <td class="px-4 py-3 text-gray-700">{{ record.draft.testDate || '—' }}</td>
+            <td class="px-4 py-3 text-gray-700">{{ record.draft.engineer || '—' }}</td>
+            <td class="px-4 py-3 text-right font-medium text-blue-700">
+              {{ formatScore(record.expectedTotal) }}
+            </td>
+            <td class="px-4 py-3 text-right">
+              <button
+                type="button"
+                :class="secondaryButtonClass"
+                class="!px-3 !py-1 !text-xs"
+                @click="loadLocalEvaluation(record)"
+              >
+                载入修改
+              </button>
+              <button
+                type="button"
+                class="ml-2 rounded-lg px-3 py-1 text-xs font-medium text-red-600 transition-all duration-200 ease-out hover:bg-red-50 active:translate-y-0 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                @click="removeLocalEvaluation(record.draft.id)"
+              >
+                删除
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </section>
 
   <section v-if="!hasAnyInput" class="mb-6">

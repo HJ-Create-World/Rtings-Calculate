@@ -5,6 +5,7 @@ import HistoryView from '../views/HistoryView.vue';
 import DrilldownView from '../views/DrilldownView.vue';
 import EntryView from '../views/EntryView.vue';
 import ImportView from '../views/ImportView.vue';
+import CloudHistoryView from '../views/CloudHistoryView.vue';
 
 export const router = createRouter({
   history: createWebHashHistory(),
@@ -15,6 +16,7 @@ export const router = createRouter({
     { path: '/drilldown', name: 'drilldown', component: DrilldownView },
     { path: '/entry', name: 'entry', component: EntryView },
     { path: '/import', name: 'import', component: ImportView },
+    { path: '/cloud', name: 'cloudHistory', component: CloudHistoryView },
     { path: '/trace', redirect: '/history' }
   ],
   scrollBehavior() {

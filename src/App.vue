@@ -11,7 +11,8 @@ const navItems = [
   { to: '/history', label: '历史追溯', title: '历史机型追溯', description: '选择已入库机型，查看评分轮廓与关键维度' },
   { to: '/drilldown', label: '测试项对比', title: '测试项对比', description: '选择分组、测试项和产品，进行节点级差异分析' },
   { to: '/entry', label: '评分录入', title: '评分录入', description: '填写产品档案、客观测试值和主观评分' },
-  { to: '/import', label: 'Excel 导入', title: 'Excel 导入', description: '下载模板、导入测试值并检查校验结果' }
+  { to: '/import', label: 'Excel 导入', title: 'Excel 导入', description: '下载模板、导入测试值并检查校验结果' },
+  { to: '/cloud', label: '云端历史', title: '云端历史', description: '查看云端评测输入，载入修改并导出完整报告' }
 ];
 
 const currentPath = computed(() => route.path);

@@ -98,20 +98,21 @@ function loadDraft(): EvaluationDraft {
   }
 }
 
-export function useEvaluationDraft() {
-  const draft = ref<EvaluationDraft>(loadDraft());
+const draft = ref<EvaluationDraft>(loadDraft());
 
-  watch(
-    draft,
-    value => {
-      if (typeof localStorage === 'undefined') return;
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ ...value, updatedAt: new Date().toISOString() })
-      );
-    },
-    { deep: true }
-  );
+watch(
+  draft,
+  value => {
+    if (typeof localStorage === 'undefined') return;
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ ...value, updatedAt: new Date().toISOString() })
+    );
+  },
+  { deep: true }
+);
+
+export function useEvaluationDraft() {
 
   const inputs = computed<EvaluationInputs>(() => buildDraftInputs(draft.value));
   const result = computed(() => evaluateRule(rtingsRule, inputs.value));
