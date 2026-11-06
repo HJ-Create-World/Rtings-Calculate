@@ -1,0 +1,12690 @@
+{
+ "meta": {
+  "name": "Rtings TV 评分规则 — 融合版 (工程师拆解 × CSV数据反推)",
+  "version": "3.0",
+  "date": "2026-11-06",
+  "sources": [
+   "rtings_data.csv (107款电视实测+官方得分)",
+   "Rtings计算文档.xlsx (工程师人工拆解: 权重树/得分范围/7·8分门槛)",
+   "本方反推回归 (约束最小二乘, 逐款验证)"
+  ],
+  "evidenceLevels": {
+   "A": "精确验证: 用CSV中107款产品的官方得分逐款验证, 最大误差≤0.1 (显示精度)",
+   "B": "结构验证: 结构/形状由数据证实, 个别产品有已知例外 (已在note中列明)",
+   "C": "仅结构有据: 权重或阈值来自工程师人工拆解, CSV无对应数据无法数值验证",
+   "D": "纯人工判断: 无客观数据, 由工程师主观打分 (主观评分项)"
+  }
+ },
+ "total": {
+  "name": "Mixed Usage 总分",
+  "evidence": "A",
+  "verification": {
+   "n": 107,
+   "maxError": 0.05,
+   "meanError": 0.026
+  },
+  "weights": [
+   {
+    "name": "Brightness 亮度",
+    "w": 0.25
+   },
+   {
+    "name": "Black Level 黑位",
+    "w": 0.22
+   },
+   {
+    "name": "Color 色彩",
+    "w": 0.22
+   },
+   {
+    "name": "Motion Handling 运动处理",
+    "w": 0.1
+   },
+   {
+    "name": "Processing 处理",
+    "w": 0.07
+   },
+   {
+    "name": "Game Mode Responsiveness 游戏响应",
+    "w": 0.07
+   },
+   {
+    "name": "Direct Reflections 直射反射",
+    "w": 0.05
+   },
+   {
+    "name": "Ambient Black Level Raise 环境黑电平",
+    "w": 0.02
+   }
+  ],
+  "rule": "加权平均; 子项缺失时按可用子项权重 renormalize; 分数四舍五入到0.1"
+ },
+ "groups": [
+  {
+   "name": "Brightness",
+   "evidence": "A",
+   "verification": {
+    "n": 107,
+    "maxError": 0.05
+   },
+   "weights": [
+    {
+     "name": "HDR Brightness",
+     "w": 0.7,
+     "evidence": "B",
+     "note": "工程师结构含Yellow Skyscraper(.2)与ABL(.175); CSV无此两列, 仅能用6个实测列验证(Hallway/Landscape/P2/P10/P25/P50/P100)"
+    },
+    {
+     "name": "SDR Brightness",
+     "w": 0.3,
+     "evidence": "A"
+    }
+   ]
+  },
+  {
+   "name": "SDR Brightness (child detail)",
+   "evidence": "A",
+   "verification": {
+    "n": 107,
+    "maxError": 0.05
+   },
+   "weights": [
+    {
+     "name": "Real Scene Peak Brightness",
+     "w": 0.5
+    },
+    {
+     "name": "Peak 2% Window",
+     "w": 0.05
+    },
+    {
+     "name": "Peak 10% Window",
+     "w": 0.125
+    },
+    {
+     "name": "Peak 25% Window",
+     "w": 0.15
+    },
+    {
+     "name": "Peak 50% Window",
+     "w": 0.125
+    },
+    {
+     "name": "Peak 100% Window",
+     "w": 0.05
+    }
+   ]
+  },
+  {
+   "name": "Black Level",
+   "evidence": "A",
+   "verification": {
+    "n": 107,
+    "maxError": 0.05
+   },
+   "weights": [
+    {
+     "name": "Contrast",
+     "w": 0.5,
+     "evidence": "A"
+    },
+    {
+     "name": "Black Uniformity",
+     "w": 0.3,
+     "evidence": "B",
+     "note": "BU本身 = Std. Dev. ×0.5 + Native Std. Dev. ×0.5 (验证 maxErr 0.05)"
+    },
+    {
+     "name": "Lighting Zone Precision",
+     "w": 0.2,
+     "evidence": "C",
+     "note": "score-only列, 无子项数据; 工程师按分区数评估"
+    }
+   ]
+  },
+  {
+   "name": "Contrast (child detail)",
+   "evidence": "A",
+   "verification": {
+    "n": 107,
+    "maxError": 0.04
+   },
+   "weights": [
+    {
+     "name": "Contrast with LD-ON",
+     "w": 0.8
+    },
+    {
+     "name": "Native Contrast (LD-OFF)",
+     "w": 0.2
+    }
+   ]
+  },
+  {
+   "name": "Black Uniformity (child detail)",
+   "evidence": "A",
+   "verification": {
+    "n": 107,
+    "maxError": 0.05
+   },
+   "weights": [
+    {
+     "name": "Std. Dev. (LD-ON)",
+     "w": 0.5
+    },
+    {
+     "name": "Native Std. Dev.",
+     "w": 0.5
+    }
+   ]
+  },
+  {
+   "name": "Color",
+   "evidence": "A",
+   "verification": {
+    "n": 107,
+    "maxError": 0.05
+   },
+   "weights": [
+    {
+     "name": "HDR Color Volume",
+     "w": 0.4,
+     "evidence": "A"
+    },
+    {
+     "name": "SDR Color Volume",
+     "w": 0.3,
+     "evidence": "A"
+    },
+    {
+     "name": "SDR Pre-Calibration Color Accuracy",
+     "w": 0.15,
+     "evidence": "A"
+    },
+    {
+     "name": "HDR Pre-Calibration Color Accuracy",
+     "w": 0.15,
+     "evidence": "A"
+    },
+    {
+     "name": "SDR Post-Calibration Color Accuracy",
+     "w": 0,
+     "note": "分数存在但权重≈0 (反推), 工程师表未列",
+     "evidence": "B"
+    },
+    {
+     "name": "HDR Post-Calibration Color Accuracy",
+     "w": 0,
+     "note": "同上",
+     "evidence": "B"
+    }
+   ]
+  },
+  {
+   "name": "SDR Color Volume (child detail)",
+   "evidence": "A",
+   "verification": {
+    "n": 107,
+    "maxError": 0.04
+   },
+   "weights": [
+    {
+     "name": "CIELAB DCI-P3 Coverage",
+     "w": 0.6
+    },
+    {
+     "name": "CIELAB BT.2020 Coverage",
+     "w": 0.4
+    }
+   ]
+  },
+  {
+   "name": "HDR Color Volume (child detail)",
+   "evidence": "A",
+   "verification": {
+    "n": 107,
+    "maxError": 0
+   },
+   "weights": [
+    {
+     "name": "10 000 cd/m² BT.2020 Coverage ITP",
+     "w": 1
+    }
+   ]
+  },
+  {
+   "name": "Pre/Post Calibration (child detail)",
+   "evidence": "A",
+   "verification": {
+    "n": 107,
+    "maxError": 0.04
+   },
+   "weights": [
+    {
+     "name": "White Balance dE",
+     "w": 0.4
+    },
+    {
+     "name": "Color dE",
+     "w": 0.4
+    },
+    {
+     "name": "Color Temperature",
+     "w": 0.2
+    },
+    {
+     "note": "SDR用dE 2000/CIELAB色温; HDR用dE ITP; Post-Cal结构同Pre-Cal"
+    }
+   ]
+  },
+  {
+   "name": "Motion Handling",
+   "evidence": "B",
+   "verification": {
+    "n": 107,
+    "maxError": 0.311,
+    "meanError": 0.029,
+    "note": "106/107款误差≤0.05; 唯一例外 Samsung QN900F 8K (0.31, 无Transition子项)"
+   },
+   "weights": [
+    {
+     "name": "Judder",
+     "w": 0.32,
+     "evidence": "A"
+    },
+    {
+     "name": "Stutter",
+     "w": 0.24,
+     "evidence": "A"
+    },
+    {
+     "name": "Transition Artifacts",
+     "w": 0.21,
+     "evidence": "B",
+     "note": "Transition = ColorArtifacts×0.7 + EdgeArtifacts×0.3 (验证 maxErr 0.05)"
+    },
+    {
+     "name": "Response Time",
+     "w": 0.17,
+     "evidence": "A"
+    },
+    {
+     "name": "Micro Judder",
+     "w": 0.03,
+     "evidence": "A"
+    },
+    {
+     "name": "Lighting Zone Transitions",
+     "w": 0.03,
+     "evidence": "C",
+     "note": "score-only列"
+    }
+   ],
+   "note": "工程师结构在107款上验证: 106款误差≤0.05, QN900F 8K例外0.31"
+  },
+  {
+   "name": "Judder (child detail)",
+   "evidence": "A",
+   "verification": {
+    "n": 107,
+    "maxError": 0
+   },
+   "weights": [
+    {
+     "name": "Judder 24p",
+     "w": 0.1
+    },
+    {
+     "name": "Judder 25p",
+     "w": 0.1
+    },
+    {
+     "name": "Judder 24p via 60p",
+     "w": 0.2
+    },
+    {
+     "name": "Judder 25p via 60p",
+     "w": 0.2
+    },
+    {
+     "name": "Judder 24p via 60i",
+     "w": 0.2
+    },
+    {
+     "name": "Judder 24p via Native Apps",
+     "w": 0.1
+    },
+    {
+     "name": "Judder 25p via Native Apps",
+     "w": 0.1
+    }
+   ]
+  },
+  {
+   "name": "Micro Judder (child detail)",
+   "evidence": "A",
+   "verification": {
+    "n": 107,
+    "maxError": 0
+   },
+   "weights": [
+    {
+     "name": "Micro Judder-Free 24p",
+     "w": 0.15
+    },
+    {
+     "name": "Micro Judder-Free 25p",
+     "w": 0.15
+    },
+    {
+     "name": "via 60p 24p",
+     "w": 0.2
+    },
+    {
+     "name": "via 60p 25p",
+     "w": 0.2
+    },
+    {
+     "name": "via Native Apps 24p",
+     "w": 0.15
+    },
+    {
+     "name": "via Native Apps 25p",
+     "w": 0.15
+    },
+    {
+     "note": "CSV中 native 24p 与 native 25p 两列数据恒同, 合计0.30"
+    }
+   ]
+  },
+  {
+   "name": "Stutter (child detail)",
+   "evidence": "A",
+   "verification": {
+    "n": 107,
+    "maxError": 0.05
+   },
+   "weights": [
+    {
+     "name": "Sample And Hold",
+     "w": 0.7
+    },
+    {
+     "name": "Frame Hold Time @ 24 fps",
+     "w": 0.3
+    }
+   ]
+  },
+  {
+   "name": "Response Time (child detail)",
+   "evidence": "A",
+   "verification": {
+    "n": 107,
+    "maxError": 0.05
+   },
+   "weights": [
+    {
+     "name": "First Response Time",
+     "w": 0.3
+    },
+    {
+     "name": "Total Response Time",
+     "w": 0.45
+    },
+    {
+     "name": "Worst 10% Response Time",
+     "w": 0.25
+    }
+   ]
+  },
+  {
+   "name": "Transition Artifacts (child detail)",
+   "evidence": "A",
+   "verification": {
+    "n": 106,
+    "maxError": 0.05
+   },
+   "weights": [
+    {
+     "name": "Color Artifacts",
+     "w": 0.7
+    },
+    {
+     "name": "Edge Artifacts",
+     "w": 0.3
+    }
+   ]
+  },
+  {
+   "name": "Processing",
+   "evidence": "A",
+   "verification": {
+    "n": 107,
+    "maxError": 0.05
+   },
+   "weights": [
+    {
+     "name": "Low-Quality Content Smoothing",
+     "w": 0.3,
+     "evidence": "A",
+     "note": "= Smoothing×0.7 + Detail Preservation×0.3"
+    },
+    {
+     "name": "Upscaling: Sharpness Processing",
+     "w": 0.3,
+     "evidence": "C",
+     "note": "score-only; 工程师按默认状态锐化表现评级"
+    },
+    {
+     "name": "PQ EOTF Tracking",
+     "w": 0.25,
+     "evidence": "A"
+    },
+    {
+     "name": "HDR Native Gradient",
+     "w": 0.15,
+     "evidence": "A"
+    }
+   ]
+  },
+  {
+   "name": "PQ EOTF Tracking (child detail)",
+   "evidence": "A",
+   "verification": {
+    "n": 107,
+    "maxError": 0.04
+   },
+   "weights": [
+    {
+     "name": "600 Nit Tracking Delta",
+     "w": 0.1
+    },
+    {
+     "name": "1000 Nit Tracking Delta",
+     "w": 0.8
+    },
+    {
+     "name": "4000 Nit Tracking Delta",
+     "w": 0.1
+    }
+   ]
+  },
+  {
+   "name": "HDR Native Gradient (child detail)",
+   "evidence": "A",
+   "verification": {
+    "n": 107,
+    "maxError": 0.05
+   },
+   "weights": [
+    {
+     "name": "100% Black→50% Gray",
+     "w": 0.125
+    },
+    {
+     "name": "100% Black→50% Red",
+     "w": 0.125
+    },
+    {
+     "name": "100% Black→50% Green",
+     "w": 0.125
+    },
+    {
+     "name": "100% Black→50% Blue",
+     "w": 0.125
+    },
+    {
+     "name": "50% Gray→100% White",
+     "w": 0.125
+    },
+    {
+     "name": "50% Red→100% Red",
+     "w": 0.125
+    },
+    {
+     "name": "50% Green→100% Green",
+     "w": 0.125
+    },
+    {
+     "name": "50% Blue→100% Blue",
+     "w": 0.125
+    }
+   ]
+  },
+  {
+   "name": "Game Mode Responsiveness",
+   "evidence": "C",
+   "verification": {
+    "note": "CSV缺 CAD@60Hz 数据列, 工程师结构无法直接验证; 最佳近似解见下",
+    "maxError": 0.506,
+    "meanError": 0.096
+   },
+   "weightsEngineer": [
+    {
+     "name": "Input Lag",
+     "w": 0.25
+    },
+    {
+     "name": "CAD @60Hz",
+     "w": 0.2
+    },
+    {
+     "name": "CAD @120Hz",
+     "w": 0.2
+    },
+    {
+     "name": "CAD @Max Refresh",
+     "w": 0.1
+    },
+    {
+     "name": "Variable Refresh Rate",
+     "w": 0.15
+    },
+    {
+     "name": "Supported Resolutions",
+     "w": 0.1
+    }
+   ],
+   "weightsApproxCSV": [
+    {
+     "name": "8k@60Hz 延迟",
+     "w": 0.24
+    },
+    {
+     "name": "CAD @120Hz",
+     "w": 0.3
+    },
+    {
+     "name": "CAD @Max",
+     "w": 0.11
+    },
+    {
+     "name": "4k@Max 延迟",
+     "w": 0.1
+    },
+    {
+     "name": "Supported Resolutions",
+     "w": 0.08
+    },
+    {
+     "name": "VRR",
+     "w": 0.08
+    },
+    {
+     "name": "4k@120 延迟",
+     "w": 0.08
+    },
+    {
+     "note": "近似解 (验证 max 0.506 / mean 0.096); 与工程师结构不一致, 待补测 CAD@60Hz 后重标定"
+    }
+   ],
+   "note": "⚠️ 唯一无法锁定权重的分类目. 建议软件实现时: 有CAD@60数据用工程师结构; 否则用CSV近似解"
+  },
+  {
+   "name": "Input Lag (child detail)",
+   "evidence": "A",
+   "verification": {
+    "n": 107,
+    "maxError": 0.05
+   },
+   "weightsEngineer": [
+    {
+     "name": "1080p@60Hz",
+     "w": 0.05
+    },
+    {
+     "name": "1080p@120Hz",
+     "w": 0.05
+    },
+    {
+     "name": "1080p@Max",
+     "w": 0.1
+    },
+    {
+     "name": "4k@60Hz",
+     "w": 0.1
+    },
+    {
+     "name": "4k@60 4:4:4",
+     "w": 0.1
+    },
+    {
+     "name": "4k@120Hz",
+     "w": 0.2
+    },
+    {
+     "name": "4k@Max",
+     "w": 0.4
+    },
+    {
+     "note": "工程师权重在107款验证 maxErr 0.05 — 精确成立 (CSV另有8k@60子项, 数据列与4k@60恒同)"
+    }
+   ],
+   "weights": [
+    {
+     "name": "1080p@60Hz",
+     "w": 0.05
+    },
+    {
+     "name": "1080p@120Hz",
+     "w": 0.05
+    },
+    {
+     "name": "1080p@Max",
+     "w": 0.1
+    },
+    {
+     "name": "4k@60Hz",
+     "w": 0.1
+    },
+    {
+     "name": "4k@60 4:4:4",
+     "w": 0.1
+    },
+    {
+     "name": "4k@120Hz",
+     "w": 0.2
+    },
+    {
+     "name": "4k@Max",
+     "w": 0.4
+    }
+   ]
+  },
+  {
+   "name": "CAD groups (child detail)",
+   "evidence": "A",
+   "verification": {
+    "n": 107,
+    "maxError": 0.04
+   },
+   "weights": [
+    {
+     "name": "Avg. CAD",
+     "w": 0.6
+    },
+    {
+     "name": "Worst 10% CAD",
+     "w": 0.2
+    },
+    {
+     "name": "Best 10% CAD",
+     "w": 0.2
+    },
+    {
+     "note": "三组(@60/@120/@Max)同构"
+    }
+   ]
+  },
+  {
+   "name": "Variable Refresh Rate (child detail)",
+   "evidence": "A",
+   "verification": {
+    "n": 99,
+    "maxError": 0.05
+   },
+   "weights": [
+    {
+     "name": "4k VRR Maximum",
+     "w": 0.75
+    },
+    {
+     "name": "1080p VRR Maximum",
+     "w": 0.25
+    },
+    {
+     "note": "工程师权重验证 maxErr 0.05 精确成立 (99款有VRR)"
+    }
+   ]
+  },
+  {
+   "name": "Supported Resolutions (child detail)",
+   "evidence": "B",
+   "verification": {
+    "n": 107,
+    "maxError": 0.098,
+    "meanError": 0.014
+   },
+   "weightsEngineer": [
+    {
+     "name": "480p",
+     "w": 0.0781
+    },
+    {
+     "name": "720p",
+     "w": 0.0781
+    },
+    {
+     "name": "1080p@60 4:4:4",
+     "w": 0.1563
+    },
+    {
+     "name": "1080p@120",
+     "w": 0.0938
+    },
+    {
+     "name": "1080p Max",
+     "w": 0.0313
+    },
+    {
+     "name": "4k@60",
+     "w": 0.1563
+    },
+    {
+     "name": "4k@60 4:4:4",
+     "w": 0.1563
+    },
+    {
+     "name": "4k@120",
+     "w": 0.0938
+    },
+    {
+     "name": "4k@120 4:4:4",
+     "w": 0.0938
+    },
+    {
+     "name": "4k Max",
+     "w": 0.0313
+    },
+    {
+     "name": "8k@30/24",
+     "w": 0.0313
+    },
+    {
+     "note": "工程师权重(含720p)在CSV验证 mean 0.117 max 0.559 — 有偏差; 反推的等效权重(720p并入后) mean 0.014"
+    }
+   ],
+   "weights": [
+    {
+     "name": "480p ≡ 4k@60 (数据恒同)",
+     "w": 0.31
+    },
+    {
+     "name": "1080p@60 4:4:4 ≡ 4k@60 4:4:4",
+     "w": 0.32
+    },
+    {
+     "name": "1080p@120",
+     "w": 0.09
+    },
+    {
+     "name": "1080p Max",
+     "w": 0.03
+    },
+    {
+     "name": "4k@120 ≡ 4k@120 4:4:4",
+     "w": 0.19
+    },
+    {
+     "name": "4k Max",
+     "w": 0.02
+    },
+    {
+     "name": "8k@60",
+     "w": 0.04
+    },
+    {
+     "note": "CSV多列数据完全相同(如480p与4k@60逐款得分一致), 反推权重为合并列的等效值"
+    }
+   ]
+  },
+  {
+   "name": "Direct Reflections",
+   "evidence": "A",
+   "verification": {
+    "n": 107,
+    "maxError": 0
+   },
+   "weights": [
+    {
+     "name": "Peak Direct Reflection Intensity",
+     "w": 1
+    }
+   ]
+  },
+  {
+   "name": "Ambient Black Level Raise",
+   "evidence": "A",
+   "verification": {
+    "n": 107,
+    "maxError": 0
+   },
+   "weights": [
+    {
+     "name": "Black Luminance @ 1000 lx",
+     "w": 1
+    },
+    {
+     "name": "Black Luminance @ 0 lx",
+     "w": 0,
+     "note": "恒0分, 废弃"
+    }
+   ]
+  }
+ ],
+ "leafScales": {
+  "categorical": [
+   {
+    "name": "Screen Finish",
+    "id": "53",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Glossy",
+      "score": "10",
+      "n": 85
+     },
+     {
+      "value": "Matte",
+      "score": "10",
+      "n": 22
+     }
+    ]
+   },
+   {
+    "name": "Local Dimming",
+    "id": "527",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "No",
+      "score": "0",
+      "n": 56
+     },
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 51
+     }
+    ],
+    "note": "Yes→10 / No→0"
+   },
+   {
+    "name": "Color Calibration",
+    "id": "2639",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 95
+     },
+     {
+      "value": "No",
+      "score": "0",
+      "n": 12
+     }
+    ]
+   },
+   {
+    "name": "480p @ 59.94Hz (Widescreen)",
+    "id": "18909",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 107
+     }
+    ]
+   },
+   {
+    "name": "1080p @ 60Hz @ 4:4:4",
+    "id": "107",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 106
+     },
+     {
+      "value": "No",
+      "score": "0",
+      "n": 1
+     }
+    ]
+   },
+   {
+    "name": "1080p @ 120Hz",
+    "id": "125",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 88
+     },
+     {
+      "value": "No",
+      "score": "0",
+      "n": 18
+     },
+     {
+      "value": "Yes (Forced Resolution Required)",
+      "score": "10",
+      "n": 1
+     }
+    ]
+   },
+   {
+    "name": "4k @ 60Hz",
+    "id": "139",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 107
+     }
+    ]
+   },
+   {
+    "name": "4k @ 120Hz",
+    "id": "2219",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 82
+     },
+     {
+      "value": "No",
+      "score": "0",
+      "n": 25
+     }
+    ]
+   },
+   {
+    "name": "4k @ 60Hz @ 4:4:4",
+    "id": "138",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 106
+     },
+     {
+      "value": "No",
+      "score": "0",
+      "n": 1
+     }
+    ]
+   },
+   {
+    "name": "4k @ 120Hz @ 4:4:4",
+    "id": "12243",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 82
+     },
+     {
+      "value": "No",
+      "score": "0",
+      "n": 25
+     }
+    ]
+   },
+   {
+    "name": "8k @ 60Hz",
+    "id": "2620",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "No",
+      "score": "0",
+      "n": 105
+     },
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 2
+     }
+    ]
+   },
+   {
+    "name": "Variable Refresh Rate",
+    "id": "2190",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 98
+     },
+     {
+      "value": "Yes (except 43   50 )",
+      "score": "10",
+      "n": 1
+     },
+     {
+      "value": "No",
+      "score": "0",
+      "n": 8
+     }
+    ]
+   },
+   {
+    "name": "4k VRR Minimum",
+    "id": "2192",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "< 20 Hz",
+      "score": "10",
+      "n": 82
+     },
+     {
+      "value": "48 Hz",
+      "score": "6.6",
+      "n": 16
+     },
+     {
+      "value": "No VRR support",
+      "score": "0",
+      "n": 8
+     },
+     {
+      "value": "40 Hz",
+      "score": "7",
+      "n": 1
+     }
+    ]
+   },
+   {
+    "name": "1080p VRR Minimum",
+    "id": "2240",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "< 20 Hz",
+      "score": "10",
+      "n": 87
+     },
+     {
+      "value": "48 Hz",
+      "score": "6.6",
+      "n": 11
+     },
+     {
+      "value": "No VRR support",
+      "score": "0",
+      "n": 8
+     },
+     {
+      "value": "40 Hz",
+      "score": "7",
+      "n": 1
+     }
+    ]
+   },
+   {
+    "name": "FreeSync",
+    "id": "5040",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "0",
+      "n": 89
+     },
+     {
+      "value": "No",
+      "score": "0",
+      "n": 18
+     }
+    ]
+   },
+   {
+    "name": "4k @ 120Hz",
+    "id": "8106",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 82
+     },
+     {
+      "value": "No",
+      "score": "0",
+      "n": 25
+     }
+    ]
+   },
+   {
+    "name": "1080p @ 120Hz",
+    "id": "7753",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 89
+     },
+     {
+      "value": "No",
+      "score": "0",
+      "n": 18
+     }
+    ]
+   },
+   {
+    "name": "1440p @ 120Hz",
+    "id": "7795",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 76
+     },
+     {
+      "value": "No",
+      "score": "0",
+      "n": 31
+     }
+    ]
+   },
+   {
+    "name": "Auto Low Latency Mode (ALLM)",
+    "id": "2642",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 107
+     }
+    ]
+   },
+   {
+    "name": "4k @ 120Hz",
+    "id": "8107",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 82
+     },
+     {
+      "value": "No",
+      "score": "0",
+      "n": 25
+     }
+    ]
+   },
+   {
+    "name": "1080p @ 120Hz",
+    "id": "7749",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 89
+     },
+     {
+      "value": "No",
+      "score": "0",
+      "n": 18
+     }
+    ]
+   },
+   {
+    "name": "VRR",
+    "id": "7750",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 99
+     },
+     {
+      "value": "No",
+      "score": "0",
+      "n": 8
+     }
+    ]
+   },
+   {
+    "name": "1440p @ 120Hz",
+    "id": "7793",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 74
+     },
+     {
+      "value": "No",
+      "score": "0",
+      "n": 33
+     }
+    ]
+   },
+   {
+    "name": "VRR",
+    "id": "7796",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 99
+     },
+     {
+      "value": "No",
+      "score": "0",
+      "n": 8
+     }
+    ]
+   },
+   {
+    "name": "Micro Judder-Free 25p",
+    "id": "36113",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 104
+     },
+     {
+      "value": "No",
+      "score": "0",
+      "n": 3
+     }
+    ]
+   },
+   {
+    "name": "Micro Judder-Free 25p via 60p",
+    "id": "36115",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 75
+     },
+     {
+      "value": "No",
+      "score": "0",
+      "n": 32
+     }
+    ]
+   },
+   {
+    "name": "Micro Judder-Free 25p via Native Apps",
+    "id": "36117",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 106
+     },
+     {
+      "value": "No",
+      "score": "0",
+      "n": 1
+     }
+    ]
+   },
+   {
+    "name": "Micro Judder-Free 24p",
+    "id": "36112",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 107
+     }
+    ]
+   },
+   {
+    "name": "Micro Judder-Free 24p via 60p",
+    "id": "36114",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 82
+     },
+     {
+      "value": "No",
+      "score": "0",
+      "n": 25
+     }
+    ]
+   },
+   {
+    "name": "Micro Judder-Free 24p via Native Apps",
+    "id": "36116",
+    "evidence": "A",
+    "mapping": [
+     {
+      "value": "Yes",
+      "score": "10",
+      "n": 106
+     },
+     {
+      "value": "No",
+      "score": "0",
+      "n": 1
+     }
+    ]
+   }
+  ],
+  "identity": [
+   {
+    "name": "Smoothing",
+    "id": "18015",
+    "rule": "得分 = 原始值 (0-10评级)",
+    "evidence": "A"
+   },
+   {
+    "name": "Detail Preservation",
+    "id": "18016",
+    "rule": "得分 = 原始值 (0-10评级)",
+    "evidence": "A"
+   },
+   {
+    "name": "100% Black To 50% Gray",
+    "id": "18399",
+    "rule": "得分 = 原始值 (0-10评级)",
+    "evidence": "A"
+   },
+   {
+    "name": "100% Black To 50% Red",
+    "id": "18401",
+    "rule": "得分 = 原始值 (0-10评级)",
+    "evidence": "A"
+   },
+   {
+    "name": "100% Black To 50% Green",
+    "id": "18403",
+    "rule": "得分 = 原始值 (0-10评级)",
+    "evidence": "A"
+   },
+   {
+    "name": "100% Black To 50% Blue",
+    "id": "18405",
+    "rule": "得分 = 原始值 (0-10评级)",
+    "evidence": "A"
+   },
+   {
+    "name": "50% Gray To 100% White",
+    "id": "18400",
+    "rule": "得分 = 原始值 (0-10评级)",
+    "evidence": "A"
+   },
+   {
+    "name": "50% Red To 100% Red",
+    "id": "18402",
+    "rule": "得分 = 原始值 (0-10评级)",
+    "evidence": "A"
+   },
+   {
+    "name": "50% Green To 100% Green",
+    "id": "18404",
+    "rule": "得分 = 原始值 (0-10评级)",
+    "evidence": "A"
+   },
+   {
+    "name": "50% Blue To 100% Blue",
+    "id": "18406",
+    "rule": "得分 = 原始值 (0-10评级)",
+    "evidence": "A"
+   },
+   {
+    "name": "Judder 24p",
+    "id": "36315",
+    "rule": "得分 = 原始值 (0-10评级)",
+    "evidence": "A"
+   },
+   {
+    "name": "Judder 25p",
+    "id": "36316",
+    "rule": "得分 = 原始值 (0-10评级)",
+    "evidence": "A"
+   },
+   {
+    "name": "Judder 25p via 60p",
+    "id": "36314",
+    "rule": "得分 = 原始值 (0-10评级)",
+    "evidence": "A"
+   },
+   {
+    "name": "Judder 24p via 60p",
+    "id": "36313",
+    "rule": "得分 = 原始值 (0-10评级)",
+    "evidence": "A"
+   },
+   {
+    "name": "Judder 24p via 60i",
+    "id": "36317",
+    "rule": "得分 = 原始值 (0-10评级)",
+    "evidence": "A"
+   },
+   {
+    "name": "Judder 24p via Native Apps",
+    "id": "36318",
+    "rule": "得分 = 原始值 (0-10评级)",
+    "evidence": "A"
+   },
+   {
+    "name": "Judder 25p via Native Apps",
+    "id": "36319",
+    "rule": "得分 = 原始值 (0-10评级)",
+    "evidence": "A"
+   },
+   {
+    "name": "Edge Artifacts",
+    "id": "39027",
+    "rule": "得分 = 原始值 (0-10评级)",
+    "evidence": "A"
+   },
+   {
+    "name": "Color Artifacts",
+    "id": "39013",
+    "rule": "得分 = 原始值 (0-10评级)",
+    "evidence": "A"
+   }
+  ],
+  "numericAnchors": [
+   {
+    "name": "Resolution",
+    "id": "208",
+    "n": 107,
+    "min": 4,
+    "max": 8,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      4,
+      10
+     ],
+     [
+      8,
+      10
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Native Refresh Rate",
+    "id": "219",
+    "n": 107,
+    "min": 60,
+    "max": 180,
+    "direction": "increasing",
+    "anchors": [
+     [
+      60,
+      0
+     ],
+     [
+      120,
+      9.5
+     ],
+     [
+      144,
+      9.5
+     ],
+     [
+      165,
+      9.5
+     ],
+     [
+      180,
+      9.5
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Hallway Lights (~1950 cd/m²)",
+    "id": "12470",
+    "n": 107,
+    "min": 185,
+    "max": 2085,
+    "direction": "increasing",
+    "anchors": [
+     [
+      185,
+      1.6
+     ],
+     [
+      209,
+      1.9
+     ],
+     [
+      225.8,
+      2
+     ],
+     [
+      252.8,
+      2.2
+     ],
+     [
+      272,
+      2.4
+     ],
+     [
+      285,
+      2.5
+     ],
+     [
+      302.6,
+      2.7
+     ],
+     [
+      325.9,
+      2.9
+     ],
+     [
+      345,
+      3
+     ],
+     [
+      381.3,
+      3.3
+     ],
+     [
+      408.6,
+      3.6
+     ],
+     [
+      427,
+      3.7
+     ],
+     [
+      448,
+      3.9
+     ],
+     [
+      458,
+      4
+     ],
+     [
+      463,
+      4
+     ],
+     [
+      539,
+      4.7
+     ],
+     [
+      561,
+      4.8
+     ],
+     [
+      647,
+      5.5
+     ],
+     [
+      677,
+      5.7
+     ],
+     [
+      719,
+      6
+     ],
+     [
+      751.3,
+      6.2
+     ],
+     [
+      787.1,
+      6.4
+     ],
+     [
+      799,
+      6.5
+     ],
+     [
+      804,
+      6.5
+     ],
+     [
+      873.5,
+      6.9
+     ],
+     [
+      933.7,
+      7.2
+     ],
+     [
+      968,
+      7.4
+     ],
+     [
+      1004,
+      7.5
+     ],
+     [
+      1026,
+      7.6
+     ],
+     [
+      1041,
+      7.7
+     ],
+     [
+      1060,
+      7.7
+     ],
+     [
+      1074,
+      7.8
+     ],
+     [
+      1114,
+      7.9
+     ],
+     [
+      1194,
+      8.2
+     ],
+     [
+      1401,
+      9
+     ],
+     [
+      1501,
+      9.3
+     ],
+     [
+      2085,
+      10
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Landscape Pool (~300 cd/m²)",
+    "id": "12472",
+    "n": 107,
+    "min": 113.1,
+    "max": 597,
+    "direction": "increasing",
+    "anchors": [
+     [
+      113.1,
+      5.2
+     ],
+     [
+      134.2,
+      6
+     ],
+     [
+      139,
+      6.2
+     ],
+     [
+      148,
+      6.4
+     ],
+     [
+      162,
+      6.9
+     ],
+     [
+      170,
+      7.1
+     ],
+     [
+      175.7,
+      7.3
+     ],
+     [
+      192,
+      7.8
+     ],
+     [
+      195,
+      7.9
+     ],
+     [
+      199,
+      8
+     ],
+     [
+      203.2,
+      8.2
+     ],
+     [
+      208,
+      8.3
+     ],
+     [
+      213,
+      8.5
+     ],
+     [
+      217,
+      8.6
+     ],
+     [
+      223,
+      8.8
+     ],
+     [
+      226,
+      8.8
+     ],
+     [
+      235,
+      9.1
+     ],
+     [
+      245.1,
+      9.3
+     ],
+     [
+      247,
+      9.4
+     ],
+     [
+      252,
+      9.5
+     ],
+     [
+      253,
+      9.5
+     ],
+     [
+      257.5,
+      9.6
+     ],
+     [
+      265,
+      9.7
+     ],
+     [
+      273,
+      9.8
+     ],
+     [
+      277,
+      9.9
+     ],
+     [
+      287,
+      10
+     ],
+     [
+      298.7,
+      10
+     ],
+     [
+      301,
+      10
+     ],
+     [
+      307,
+      10
+     ],
+     [
+      330,
+      10
+     ],
+     [
+      342,
+      10
+     ],
+     [
+      366,
+      10
+     ],
+     [
+      374,
+      10
+     ],
+     [
+      398,
+      10
+     ],
+     [
+      460,
+      10
+     ],
+     [
+      544,
+      10
+     ],
+     [
+      597,
+      10
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Peak 2% Window",
+    "id": "141",
+    "n": 107,
+    "min": 144,
+    "max": 10841,
+    "direction": "increasing",
+    "anchors": [
+     [
+      144,
+      1.7
+     ],
+     [
+      215,
+      2.4
+     ],
+     [
+      274,
+      3
+     ],
+     [
+      288,
+      3.1
+     ],
+     [
+      305,
+      3.3
+     ],
+     [
+      342,
+      3.7
+     ],
+     [
+      354,
+      3.8
+     ],
+     [
+      360,
+      3.9
+     ],
+     [
+      424,
+      4.5
+     ],
+     [
+      455,
+      4.8
+     ],
+     [
+      472,
+      5
+     ],
+     [
+      500,
+      5.3
+     ],
+     [
+      544,
+      5.6
+     ],
+     [
+      626,
+      6.1
+     ],
+     [
+      666,
+      6.3
+     ],
+     [
+      714,
+      6.6
+     ],
+     [
+      758,
+      6.7
+     ],
+     [
+      825,
+      7
+     ],
+     [
+      854,
+      7.1
+     ],
+     [
+      872,
+      7.1
+     ],
+     [
+      972,
+      7.4
+     ],
+     [
+      1141,
+      7.9
+     ],
+     [
+      1301,
+      8.2
+     ],
+     [
+      1440,
+      8.4
+     ],
+     [
+      1628,
+      8.6
+     ],
+     [
+      1662,
+      8.6
+     ],
+     [
+      1873,
+      8.8
+     ],
+     [
+      1954,
+      8.8
+     ],
+     [
+      2052,
+      8.9
+     ],
+     [
+      2242,
+      9
+     ],
+     [
+      2303,
+      9
+     ],
+     [
+      2564,
+      9.1
+     ],
+     [
+      2597,
+      9.1
+     ],
+     [
+      2921,
+      9.3
+     ],
+     [
+      4246,
+      9.5
+     ],
+     [
+      5658,
+      9.7
+     ],
+     [
+      10841,
+      10
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Peak 10% Window",
+    "id": "461",
+    "n": 107,
+    "min": 215,
+    "max": 5060,
+    "direction": "increasing",
+    "anchors": [
+     [
+      215,
+      2.4
+     ],
+     [
+      274,
+      3
+     ],
+     [
+      286,
+      3.1
+     ],
+     [
+      297,
+      3.2
+     ],
+     [
+      306,
+      3.3
+     ],
+     [
+      354,
+      3.8
+     ],
+     [
+      367,
+      3.9
+     ],
+     [
+      423,
+      4.5
+     ],
+     [
+      456,
+      4.9
+     ],
+     [
+      493,
+      5.2
+     ],
+     [
+      534,
+      5.6
+     ],
+     [
+      563,
+      5.8
+     ],
+     [
+      642,
+      6.2
+     ],
+     [
+      698,
+      6.5
+     ],
+     [
+      754,
+      6.7
+     ],
+     [
+      777,
+      6.8
+     ],
+     [
+      840,
+      7
+     ],
+     [
+      887,
+      7.2
+     ],
+     [
+      960,
+      7.4
+     ],
+     [
+      1054,
+      7.6
+     ],
+     [
+      1135,
+      7.8
+     ],
+     [
+      1193,
+      8
+     ],
+     [
+      1308,
+      8.2
+     ],
+     [
+      1459,
+      8.5
+     ],
+     [
+      1505,
+      8.5
+     ],
+     [
+      1561,
+      8.5
+     ],
+     [
+      1762,
+      8.7
+     ],
+     [
+      2062,
+      8.9
+     ],
+     [
+      2124,
+      8.9
+     ],
+     [
+      2354,
+      9
+     ],
+     [
+      2764,
+      9.2
+     ],
+     [
+      2898,
+      9.2
+     ],
+     [
+      3024,
+      9.3
+     ],
+     [
+      3493,
+      9.4
+     ],
+     [
+      4124,
+      9.5
+     ],
+     [
+      4524,
+      9.6
+     ],
+     [
+      5060,
+      9.6
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Peak 25% Window",
+    "id": "462",
+    "n": 107,
+    "min": 215,
+    "max": 3338,
+    "direction": "increasing",
+    "anchors": [
+     [
+      215,
+      3.2
+     ],
+     [
+      274,
+      3.9
+     ],
+     [
+      286,
+      4
+     ],
+     [
+      296,
+      4.1
+     ],
+     [
+      305,
+      4.2
+     ],
+     [
+      354,
+      4.7
+     ],
+     [
+      368,
+      4.9
+     ],
+     [
+      422,
+      5.4
+     ],
+     [
+      456,
+      5.7
+     ],
+     [
+      473,
+      5.8
+     ],
+     [
+      496,
+      6
+     ],
+     [
+      510,
+      6.1
+     ],
+     [
+      562,
+      6.4
+     ],
+     [
+      574,
+      6.5
+     ],
+     [
+      614,
+      6.7
+     ],
+     [
+      640,
+      6.8
+     ],
+     [
+      701,
+      7.1
+     ],
+     [
+      765,
+      7.4
+     ],
+     [
+      782,
+      7.4
+     ],
+     [
+      791,
+      7.5
+     ],
+     [
+      805,
+      7.5
+     ],
+     [
+      890,
+      7.8
+     ],
+     [
+      918,
+      7.9
+     ],
+     [
+      991,
+      8.1
+     ],
+     [
+      1097,
+      8.4
+     ],
+     [
+      1366,
+      8.6
+     ],
+     [
+      1400,
+      8.7
+     ],
+     [
+      1482,
+      8.7
+     ],
+     [
+      1606,
+      8.8
+     ],
+     [
+      1790,
+      8.9
+     ],
+     [
+      1937,
+      9
+     ],
+     [
+      2044,
+      9.1
+     ],
+     [
+      2231,
+      9.2
+     ],
+     [
+      2474,
+      9.3
+     ],
+     [
+      2607,
+      9.3
+     ],
+     [
+      2991,
+      9.4
+     ],
+     [
+      3338,
+      9.5
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Peak 50% Window",
+    "id": "96",
+    "n": 107,
+    "min": 215,
+    "max": 1814,
+    "direction": "increasing",
+    "anchors": [
+     [
+      215,
+      3.9
+     ],
+     [
+      268,
+      4.4
+     ],
+     [
+      276,
+      4.5
+     ],
+     [
+      285,
+      4.6
+     ],
+     [
+      293,
+      4.7
+     ],
+     [
+      300,
+      4.8
+     ],
+     [
+      312,
+      4.9
+     ],
+     [
+      331,
+      5
+     ],
+     [
+      351,
+      5.2
+     ],
+     [
+      355,
+      5.3
+     ],
+     [
+      368,
+      5.4
+     ],
+     [
+      384,
+      5.5
+     ],
+     [
+      430,
+      5.9
+     ],
+     [
+      453,
+      6
+     ],
+     [
+      456,
+      6
+     ],
+     [
+      469,
+      6.1
+     ],
+     [
+      497,
+      6.3
+     ],
+     [
+      565,
+      6.8
+     ],
+     [
+      603,
+      7
+     ],
+     [
+      609,
+      7
+     ],
+     [
+      624,
+      7.1
+     ],
+     [
+      632,
+      7.2
+     ],
+     [
+      686,
+      7.4
+     ],
+     [
+      711,
+      7.5
+     ],
+     [
+      765,
+      7.8
+     ],
+     [
+      820,
+      8
+     ],
+     [
+      894,
+      8.3
+     ],
+     [
+      923,
+      8.3
+     ],
+     [
+      1038,
+      8.5
+     ],
+     [
+      1108,
+      8.6
+     ],
+     [
+      1196,
+      8.7
+     ],
+     [
+      1217,
+      8.8
+     ],
+     [
+      1327,
+      8.9
+     ],
+     [
+      1418,
+      9
+     ],
+     [
+      1503,
+      9
+     ],
+     [
+      1767,
+      9.2
+     ],
+     [
+      1814,
+      9.3
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Peak 100% Window",
+    "id": "463",
+    "n": 107,
+    "min": 137,
+    "max": 993,
+    "direction": "increasing",
+    "anchors": [
+     [
+      137,
+      2.8
+     ],
+     [
+      149,
+      3
+     ],
+     [
+      156,
+      3.1
+     ],
+     [
+      194,
+      3.7
+     ],
+     [
+      216,
+      4
+     ],
+     [
+      226,
+      4.1
+     ],
+     [
+      258,
+      4.6
+     ],
+     [
+      276,
+      4.8
+     ],
+     [
+      285,
+      4.9
+     ],
+     [
+      292,
+      5
+     ],
+     [
+      300,
+      5.1
+     ],
+     [
+      305,
+      5.1
+     ],
+     [
+      350,
+      5.6
+     ],
+     [
+      355,
+      5.6
+     ],
+     [
+      367,
+      5.7
+     ],
+     [
+      403,
+      6
+     ],
+     [
+      425,
+      6.2
+     ],
+     [
+      453,
+      6.4
+     ],
+     [
+      457,
+      6.4
+     ],
+     [
+      471,
+      6.5
+     ],
+     [
+      485,
+      6.5
+     ],
+     [
+      497,
+      6.6
+     ],
+     [
+      518,
+      6.7
+     ],
+     [
+      561,
+      6.9
+     ],
+     [
+      604,
+      7.1
+     ],
+     [
+      619,
+      7.2
+     ],
+     [
+      631,
+      7.2
+     ],
+     [
+      668,
+      7.4
+     ],
+     [
+      688,
+      7.5
+     ],
+     [
+      695,
+      7.5
+     ],
+     [
+      717,
+      7.6
+     ],
+     [
+      752,
+      7.7
+     ],
+     [
+      794,
+      7.8
+     ],
+     [
+      844,
+      8
+     ],
+     [
+      912,
+      8.2
+     ],
+     [
+      981,
+      8.5
+     ],
+     [
+      993,
+      8.5
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Peak 2% Window",
+    "id": "609",
+    "n": 107,
+    "min": 117,
+    "max": 11310,
+    "direction": "increasing",
+    "anchors": [
+     [
+      117,
+      3.4
+     ],
+     [
+      156,
+      4.1
+     ],
+     [
+      203,
+      4.6
+     ],
+     [
+      227,
+      4.9
+     ],
+     [
+      248,
+      5
+     ],
+     [
+      289,
+      5.4
+     ],
+     [
+      305,
+      5.6
+     ],
+     [
+      347,
+      6
+     ],
+     [
+      358,
+      6.1
+     ],
+     [
+      385,
+      6.4
+     ],
+     [
+      414,
+      6.6
+     ],
+     [
+      427,
+      6.8
+     ],
+     [
+      447,
+      7
+     ],
+     [
+      459,
+      7.1
+     ],
+     [
+      496,
+      7.5
+     ],
+     [
+      513,
+      7.6
+     ],
+     [
+      527,
+      7.7
+     ],
+     [
+      561,
+      7.9
+     ],
+     [
+      586,
+      8
+     ],
+     [
+      623,
+      8.2
+     ],
+     [
+      651,
+      8.3
+     ],
+     [
+      674,
+      8.4
+     ],
+     [
+      742,
+      8.6
+     ],
+     [
+      801,
+      8.8
+     ],
+     [
+      936,
+      9.1
+     ],
+     [
+      1060,
+      9.2
+     ],
+     [
+      1155,
+      9.3
+     ],
+     [
+      1233,
+      9.4
+     ],
+     [
+      1473,
+      9.5
+     ],
+     [
+      1728,
+      9.5
+     ],
+     [
+      1961,
+      9.6
+     ],
+     [
+      2147,
+      9.6
+     ],
+     [
+      2555,
+      9.7
+     ],
+     [
+      2733,
+      9.7
+     ],
+     [
+      4191,
+      9.8
+     ],
+     [
+      5703,
+      9.9
+     ],
+     [
+      11310,
+      10
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Real Scene Peak Brightness",
+    "id": "619",
+    "n": 107,
+    "min": 191,
+    "max": 1612,
+    "direction": "increasing",
+    "anchors": [
+     [
+      191,
+      4.5
+     ],
+     [
+      215,
+      4.7
+     ],
+     [
+      236.163,
+      4.9
+     ],
+     [
+      258.274,
+      5.1
+     ],
+     [
+      278,
+      5.3
+     ],
+     [
+      303.39,
+      5.5
+     ],
+     [
+      312,
+      5.6
+     ],
+     [
+      320.331,
+      5.7
+     ],
+     [
+      350.149,
+      6
+     ],
+     [
+      370.214,
+      6.2
+     ],
+     [
+      378.987,
+      6.3
+     ],
+     [
+      397.014,
+      6.5
+     ],
+     [
+      402.602,
+      6.5
+     ],
+     [
+      408,
+      6.6
+     ],
+     [
+      424.904,
+      6.8
+     ],
+     [
+      439.876,
+      6.9
+     ],
+     [
+      475,
+      7.3
+     ],
+     [
+      507.7,
+      7.6
+     ],
+     [
+      524,
+      7.7
+     ],
+     [
+      550,
+      7.8
+     ],
+     [
+      573,
+      7.9
+     ],
+     [
+      592.538,
+      8
+     ],
+     [
+      619,
+      8.2
+     ],
+     [
+      657,
+      8.3
+     ],
+     [
+      672.664,
+      8.4
+     ],
+     [
+      696,
+      8.5
+     ],
+     [
+      768,
+      8.7
+     ],
+     [
+      781,
+      8.7
+     ],
+     [
+      800,
+      8.8
+     ],
+     [
+      827.904,
+      8.9
+     ],
+     [
+      886.6,
+      9
+     ],
+     [
+      943.829,
+      9.1
+     ],
+     [
+      1005,
+      9.2
+     ],
+     [
+      1075,
+      9.3
+     ],
+     [
+      1145,
+      9.3
+     ],
+     [
+      1389.91,
+      9.4
+     ],
+     [
+      1612,
+      9.5
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Peak 10% Window",
+    "id": "610",
+    "n": 107,
+    "min": 225,
+    "max": 4850,
+    "direction": "increasing",
+    "anchors": [
+     [
+      225,
+      4.8
+     ],
+     [
+      248,
+      5
+     ],
+     [
+      283,
+      5.3
+     ],
+     [
+      298,
+      5.5
+     ],
+     [
+      325,
+      5.8
+     ],
+     [
+      349,
+      6
+     ],
+     [
+      358,
+      6.1
+     ],
+     [
+      386,
+      6.4
+     ],
+     [
+      416,
+      6.7
+     ],
+     [
+      439,
+      6.9
+     ],
+     [
+      445,
+      7
+     ],
+     [
+      453,
+      7.1
+     ],
+     [
+      479,
+      7.3
+     ],
+     [
+      503,
+      7.5
+     ],
+     [
+      515,
+      7.6
+     ],
+     [
+      524,
+      7.7
+     ],
+     [
+      596,
+      8.1
+     ],
+     [
+      642,
+      8.3
+     ],
+     [
+      676,
+      8.4
+     ],
+     [
+      712,
+      8.5
+     ],
+     [
+      820,
+      8.9
+     ],
+     [
+      862,
+      9
+     ],
+     [
+      934,
+      9.1
+     ],
+     [
+      939,
+      9.1
+     ],
+     [
+      983,
+      9.2
+     ],
+     [
+      1076,
+      9.3
+     ],
+     [
+      1291,
+      9.4
+     ],
+     [
+      1509,
+      9.5
+     ],
+     [
+      1656,
+      9.5
+     ],
+     [
+      1970,
+      9.6
+     ],
+     [
+      2222,
+      9.6
+     ],
+     [
+      2438,
+      9.7
+     ],
+     [
+      2790,
+      9.7
+     ],
+     [
+      3188,
+      9.7
+     ],
+     [
+      3947,
+      9.8
+     ],
+     [
+      4628,
+      9.8
+     ],
+     [
+      4850,
+      9.8
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Peak 25% Window",
+    "id": "611",
+    "n": 107,
+    "min": 222,
+    "max": 3291,
+    "direction": "increasing",
+    "anchors": [
+     [
+      222,
+      4.8
+     ],
+     [
+      247,
+      5
+     ],
+     [
+      283,
+      5.3
+     ],
+     [
+      298,
+      5.5
+     ],
+     [
+      322,
+      5.7
+     ],
+     [
+      350,
+      6
+     ],
+     [
+      356,
+      6.1
+     ],
+     [
+      391,
+      6.4
+     ],
+     [
+      414,
+      6.6
+     ],
+     [
+      439,
+      6.9
+     ],
+     [
+      446,
+      7
+     ],
+     [
+      457,
+      7.1
+     ],
+     [
+      473,
+      7.3
+     ],
+     [
+      497,
+      7.5
+     ],
+     [
+      516,
+      7.6
+     ],
+     [
+      560,
+      7.9
+     ],
+     [
+      595,
+      8.1
+     ],
+     [
+      670,
+      8.4
+     ],
+     [
+      689,
+      8.4
+     ],
+     [
+      757,
+      8.7
+     ],
+     [
+      781,
+      8.7
+     ],
+     [
+      854,
+      8.9
+     ],
+     [
+      889,
+      9
+     ],
+     [
+      926,
+      9.1
+     ],
+     [
+      1010,
+      9.2
+     ],
+     [
+      1090,
+      9.3
+     ],
+     [
+      1243,
+      9.4
+     ],
+     [
+      1406,
+      9.4
+     ],
+     [
+      1545,
+      9.5
+     ],
+     [
+      1613,
+      9.5
+     ],
+     [
+      1761,
+      9.6
+     ],
+     [
+      1979,
+      9.6
+     ],
+     [
+      2117,
+      9.6
+     ],
+     [
+      2172,
+      9.6
+     ],
+     [
+      2504,
+      9.7
+     ],
+     [
+      3072,
+      9.7
+     ],
+     [
+      3291,
+      9.8
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Peak 100% Window",
+    "id": "613",
+    "n": 107,
+    "min": 134,
+    "max": 987,
+    "direction": "increasing",
+    "anchors": [
+     [
+      134,
+      3.7
+     ],
+     [
+      137,
+      3.8
+     ],
+     [
+      176,
+      4.3
+     ],
+     [
+      209,
+      4.7
+     ],
+     [
+      226,
+      4.8
+     ],
+     [
+      243,
+      5
+     ],
+     [
+      259,
+      5.1
+     ],
+     [
+      269,
+      5.2
+     ],
+     [
+      283,
+      5.3
+     ],
+     [
+      302,
+      5.5
+     ],
+     [
+      310,
+      5.6
+     ],
+     [
+      318,
+      5.7
+     ],
+     [
+      342,
+      5.9
+     ],
+     [
+      349,
+      6
+     ],
+     [
+      370,
+      6.2
+     ],
+     [
+      386,
+      6.4
+     ],
+     [
+      415,
+      6.7
+     ],
+     [
+      430,
+      6.8
+     ],
+     [
+      439,
+      6.9
+     ],
+     [
+      448,
+      7
+     ],
+     [
+      457,
+      7.1
+     ],
+     [
+      500,
+      7.5
+     ],
+     [
+      521,
+      7.6
+     ],
+     [
+      536,
+      7.7
+     ],
+     [
+      558,
+      7.9
+     ],
+     [
+      587,
+      8
+     ],
+     [
+      605,
+      8.1
+     ],
+     [
+      620,
+      8.2
+     ],
+     [
+      670,
+      8.4
+     ],
+     [
+      701,
+      8.5
+     ],
+     [
+      707,
+      8.5
+     ],
+     [
+      720,
+      8.5
+     ],
+     [
+      734,
+      8.6
+     ],
+     [
+      787,
+      8.8
+     ],
+     [
+      820,
+      8.9
+     ],
+     [
+      940,
+      9.1
+     ],
+     [
+      987,
+      9.2
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Peak 50% Window",
+    "id": "612",
+    "n": 107,
+    "min": 221,
+    "max": 1767,
+    "direction": "increasing",
+    "anchors": [
+     [
+      221,
+      4.8
+     ],
+     [
+      244,
+      5
+     ],
+     [
+      260,
+      5.1
+     ],
+     [
+      282,
+      5.3
+     ],
+     [
+      298,
+      5.5
+     ],
+     [
+      316,
+      5.7
+     ],
+     [
+      332,
+      5.8
+     ],
+     [
+      342,
+      5.9
+     ],
+     [
+      350,
+      6
+     ],
+     [
+      357,
+      6.1
+     ],
+     [
+      382,
+      6.3
+     ],
+     [
+      391,
+      6.4
+     ],
+     [
+      415,
+      6.7
+     ],
+     [
+      439,
+      6.9
+     ],
+     [
+      446,
+      7
+     ],
+     [
+      484,
+      7.4
+     ],
+     [
+      529,
+      7.7
+     ],
+     [
+      551,
+      7.8
+     ],
+     [
+      560,
+      7.9
+     ],
+     [
+      579,
+      8
+     ],
+     [
+      595,
+      8.1
+     ],
+     [
+      646,
+      8.3
+     ],
+     [
+      685,
+      8.4
+     ],
+     [
+      709,
+      8.5
+     ],
+     [
+      781,
+      8.7
+     ],
+     [
+      803,
+      8.8
+     ],
+     [
+      844,
+      8.9
+     ],
+     [
+      894,
+      9
+     ],
+     [
+      916,
+      9.1
+     ],
+     [
+      1053,
+      9.2
+     ],
+     [
+      1165,
+      9.3
+     ],
+     [
+      1189,
+      9.3
+     ],
+     [
+      1220,
+      9.3
+     ],
+     [
+      1307,
+      9.4
+     ],
+     [
+      1440,
+      9.5
+     ],
+     [
+      1571,
+      9.5
+     ],
+     [
+      1767,
+      9.6
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Std. Dev.",
+    "id": "641",
+    "n": 50,
+    "min": 0.14,
+    "max": 1.857,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      0.14,
+      10
+     ],
+     [
+      0.154,
+      10
+     ],
+     [
+      0.183,
+      10
+     ],
+     [
+      0.193,
+      10
+     ],
+     [
+      0.198,
+      10
+     ],
+     [
+      0.202,
+      10
+     ],
+     [
+      0.207,
+      10
+     ],
+     [
+      0.218,
+      10
+     ],
+     [
+      0.233,
+      10
+     ],
+     [
+      0.248,
+      10
+     ],
+     [
+      0.254,
+      10
+     ],
+     [
+      0.255,
+      10
+     ],
+     [
+      0.261,
+      10
+     ],
+     [
+      0.269,
+      10
+     ],
+     [
+      0.27,
+      10
+     ],
+     [
+      0.285,
+      9.9
+     ],
+     [
+      0.294,
+      9.9
+     ],
+     [
+      0.302,
+      9.9
+     ],
+     [
+      0.318,
+      9.8
+     ],
+     [
+      0.35,
+      9.6
+     ],
+     [
+      0.351,
+      9.6
+     ],
+     [
+      0.375,
+      9.4
+     ],
+     [
+      0.392,
+      9.2
+     ],
+     [
+      0.397,
+      9.2
+     ],
+     [
+      0.406,
+      9.1
+     ],
+     [
+      0.459,
+      8.6
+     ],
+     [
+      0.462,
+      8.5
+     ],
+     [
+      0.482,
+      8.4
+     ],
+     [
+      0.537,
+      7.9
+     ],
+     [
+      0.562,
+      7.7
+     ],
+     [
+      0.574,
+      7.6
+     ],
+     [
+      0.61,
+      7.5
+     ],
+     [
+      0.694,
+      7.2
+     ],
+     [
+      0.78,
+      7
+     ],
+     [
+      0.781,
+      7
+     ],
+     [
+      0.869,
+      6.8
+     ],
+     [
+      0.961,
+      6.6
+     ],
+     [
+      0.972,
+      6.6
+     ],
+     [
+      0.993,
+      6.5
+     ],
+     [
+      1.016,
+      6.5
+     ],
+     [
+      1.091,
+      6.3
+     ],
+     [
+      1.118,
+      6.3
+     ],
+     [
+      1.161,
+      6.2
+     ],
+     [
+      1.206,
+      6.1
+     ],
+     [
+      1.253,
+      6
+     ],
+     [
+      1.391,
+      5.8
+     ],
+     [
+      1.466,
+      5.7
+     ],
+     [
+      1.485,
+      5.6
+     ],
+     [
+      1.857,
+      5
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Native Std. Dev.",
+    "id": "130",
+    "n": 107,
+    "min": 0.028,
+    "max": 2.889,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      0.028,
+      10
+     ],
+     [
+      0.124,
+      10
+     ],
+     [
+      0.155,
+      10
+     ],
+     [
+      0.167,
+      10
+     ],
+     [
+      0.177,
+      10
+     ],
+     [
+      0.181,
+      10
+     ],
+     [
+      0.185,
+      10
+     ],
+     [
+      0.201,
+      10
+     ],
+     [
+      0.21,
+      10
+     ],
+     [
+      0.267,
+      10
+     ],
+     [
+      0.33,
+      9.7
+     ],
+     [
+      0.419,
+      9
+     ],
+     [
+      0.438,
+      8.8
+     ],
+     [
+      0.477,
+      8.4
+     ],
+     [
+      0.5,
+      8.2
+     ],
+     [
+      0.524,
+      8
+     ],
+     [
+      0.54,
+      7.8
+     ],
+     [
+      0.552,
+      7.8
+     ],
+     [
+      0.562,
+      7.7
+     ],
+     [
+      0.591,
+      7.5
+     ],
+     [
+      0.619,
+      7.4
+     ],
+     [
+      0.631,
+      7.4
+     ],
+     [
+      0.682,
+      7.2
+     ],
+     [
+      0.749,
+      7
+     ],
+     [
+      0.806,
+      6.9
+     ],
+     [
+      0.826,
+      6.8
+     ],
+     [
+      0.834,
+      6.8
+     ],
+     [
+      0.902,
+      6.7
+     ],
+     [
+      0.958,
+      6.6
+     ],
+     [
+      1.034,
+      6.4
+     ],
+     [
+      1.189,
+      6.2
+     ],
+     [
+      1.223,
+      6.1
+     ],
+     [
+      1.314,
+      5.9
+     ],
+     [
+      1.61,
+      5.4
+     ],
+     [
+      2.01,
+      4.8
+     ],
+     [
+      2.654,
+      3.9
+     ],
+     [
+      2.889,
+      3.6
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Peak 10% Window",
+    "id": "7777",
+    "n": 107,
+    "min": 215,
+    "max": 5050,
+    "direction": "increasing",
+    "anchors": [
+     [
+      215,
+      2.4
+     ],
+     [
+      276,
+      3
+     ],
+     [
+      289,
+      3.1
+     ],
+     [
+      304,
+      3.3
+     ],
+     [
+      335,
+      3.6
+     ],
+     [
+      356,
+      3.8
+     ],
+     [
+      373,
+      4
+     ],
+     [
+      417,
+      4.5
+     ],
+     [
+      455,
+      4.8
+     ],
+     [
+      485,
+      5.1
+     ],
+     [
+      539,
+      5.6
+     ],
+     [
+      572,
+      5.8
+     ],
+     [
+      665,
+      6.3
+     ],
+     [
+      698,
+      6.5
+     ],
+     [
+      750,
+      6.7
+     ],
+     [
+      754,
+      6.7
+     ],
+     [
+      794,
+      6.9
+     ],
+     [
+      876,
+      7.1
+     ],
+     [
+      930,
+      7.3
+     ],
+     [
+      1048,
+      7.6
+     ],
+     [
+      1147,
+      7.9
+     ],
+     [
+      1262,
+      8.1
+     ],
+     [
+      1321,
+      8.3
+     ],
+     [
+      1420,
+      8.4
+     ],
+     [
+      1466,
+      8.5
+     ],
+     [
+      1629,
+      8.6
+     ],
+     [
+      1949,
+      8.8
+     ],
+     [
+      2103,
+      8.9
+     ],
+     [
+      2129,
+      8.9
+     ],
+     [
+      2416,
+      9.1
+     ],
+     [
+      2544,
+      9.1
+     ],
+     [
+      2874,
+      9.2
+     ],
+     [
+      2919,
+      9.3
+     ],
+     [
+      3285,
+      9.4
+     ],
+     [
+      3513,
+      9.4
+     ],
+     [
+      4547,
+      9.6
+     ],
+     [
+      5050,
+      9.6
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Peak 50% Window",
+    "id": "7779",
+    "n": 107,
+    "min": 215,
+    "max": 1796,
+    "direction": "increasing",
+    "anchors": [
+     [
+      215,
+      3.9
+     ],
+     [
+      265,
+      4.4
+     ],
+     [
+      272,
+      4.5
+     ],
+     [
+      276,
+      4.5
+     ],
+     [
+      296,
+      4.7
+     ],
+     [
+      298,
+      4.7
+     ],
+     [
+      305,
+      4.8
+     ],
+     [
+      335,
+      5.1
+     ],
+     [
+      349,
+      5.2
+     ],
+     [
+      356,
+      5.3
+     ],
+     [
+      372,
+      5.4
+     ],
+     [
+      391,
+      5.5
+     ],
+     [
+      417,
+      5.8
+     ],
+     [
+      444,
+      6
+     ],
+     [
+      454,
+      6
+     ],
+     [
+      473,
+      6.2
+     ],
+     [
+      509,
+      6.4
+     ],
+     [
+      540,
+      6.6
+     ],
+     [
+      592,
+      6.9
+     ],
+     [
+      616,
+      7.1
+     ],
+     [
+      619,
+      7.1
+     ],
+     [
+      649,
+      7.3
+     ],
+     [
+      693,
+      7.5
+     ],
+     [
+      703,
+      7.5
+     ],
+     [
+      757,
+      7.7
+     ],
+     [
+      819,
+      8
+     ],
+     [
+      887,
+      8.2
+     ],
+     [
+      930,
+      8.4
+     ],
+     [
+      955,
+      8.4
+     ],
+     [
+      1141,
+      8.7
+     ],
+     [
+      1188,
+      8.7
+     ],
+     [
+      1271,
+      8.8
+     ],
+     [
+      1328,
+      8.9
+     ],
+     [
+      1370,
+      8.9
+     ],
+     [
+      1425,
+      9
+     ],
+     [
+      1736,
+      9.2
+     ],
+     [
+      1796,
+      9.2
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Peak 2% Window",
+    "id": "7770",
+    "n": 107,
+    "min": 139,
+    "max": 11020,
+    "direction": "increasing",
+    "anchors": [
+     [
+      139,
+      1.6
+     ],
+     [
+      203,
+      2.3
+     ],
+     [
+      262,
+      2.9
+     ],
+     [
+      288,
+      3.1
+     ],
+     [
+      305,
+      3.3
+     ],
+     [
+      337,
+      3.6
+     ],
+     [
+      350,
+      3.8
+     ],
+     [
+      362,
+      3.9
+     ],
+     [
+      399,
+      4.3
+     ],
+     [
+      441,
+      4.7
+     ],
+     [
+      465,
+      4.9
+     ],
+     [
+      522,
+      5.5
+     ],
+     [
+      546,
+      5.6
+     ],
+     [
+      600,
+      6
+     ],
+     [
+      663,
+      6.3
+     ],
+     [
+      712,
+      6.5
+     ],
+     [
+      744,
+      6.7
+     ],
+     [
+      775,
+      6.8
+     ],
+     [
+      851,
+      7.1
+     ],
+     [
+      881,
+      7.2
+     ],
+     [
+      918,
+      7.3
+     ],
+     [
+      1123,
+      7.8
+     ],
+     [
+      1281,
+      8.2
+     ],
+     [
+      1326,
+      8.3
+     ],
+     [
+      1472,
+      8.5
+     ],
+     [
+      1653,
+      8.6
+     ],
+     [
+      1914,
+      8.8
+     ],
+     [
+      1969,
+      8.8
+     ],
+     [
+      2058,
+      8.9
+     ],
+     [
+      2122,
+      8.9
+     ],
+     [
+      2237,
+      9
+     ],
+     [
+      2468,
+      9.1
+     ],
+     [
+      2701,
+      9.2
+     ],
+     [
+      2894,
+      9.2
+     ],
+     [
+      4328,
+      9.5
+     ],
+     [
+      5635,
+      9.7
+     ],
+     [
+      11020,
+      10
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Peak 25% Window",
+    "id": "7778",
+    "n": 107,
+    "min": 215,
+    "max": 3366,
+    "direction": "increasing",
+    "anchors": [
+     [
+      215,
+      3.2
+     ],
+     [
+      275,
+      3.9
+     ],
+     [
+      289,
+      4
+     ],
+     [
+      303,
+      4.2
+     ],
+     [
+      335,
+      4.5
+     ],
+     [
+      356,
+      4.8
+     ],
+     [
+      373,
+      4.9
+     ],
+     [
+      421,
+      5.4
+     ],
+     [
+      440,
+      5.5
+     ],
+     [
+      456,
+      5.7
+     ],
+     [
+      481,
+      5.9
+     ],
+     [
+      492,
+      5.9
+     ],
+     [
+      514,
+      6.1
+     ],
+     [
+      540,
+      6.3
+     ],
+     [
+      592,
+      6.6
+     ],
+     [
+      611,
+      6.7
+     ],
+     [
+      641,
+      6.8
+     ],
+     [
+      702,
+      7.1
+     ],
+     [
+      775,
+      7.4
+     ],
+     [
+      790,
+      7.5
+     ],
+     [
+      792,
+      7.5
+     ],
+     [
+      846,
+      7.7
+     ],
+     [
+      908,
+      7.9
+     ],
+     [
+      972,
+      8
+     ],
+     [
+      1044,
+      8.2
+     ],
+     [
+      1320,
+      8.6
+     ],
+     [
+      1368,
+      8.6
+     ],
+     [
+      1408,
+      8.7
+     ],
+     [
+      1554,
+      8.8
+     ],
+     [
+      1714,
+      8.9
+     ],
+     [
+      1876,
+      9
+     ],
+     [
+      2100,
+      9.1
+     ],
+     [
+      2229,
+      9.2
+     ],
+     [
+      2246,
+      9.2
+     ],
+     [
+      2506,
+      9.3
+     ],
+     [
+      3002,
+      9.4
+     ],
+     [
+      3366,
+      9.5
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Peak 100% Window",
+    "id": "7780",
+    "n": 107,
+    "min": 141,
+    "max": 984,
+    "direction": "increasing",
+    "anchors": [
+     [
+      141,
+      2.8
+     ],
+     [
+      149,
+      3
+     ],
+     [
+      171,
+      3.3
+     ],
+     [
+      196,
+      3.7
+     ],
+     [
+      215,
+      4
+     ],
+     [
+      222,
+      4.1
+     ],
+     [
+      257,
+      4.5
+     ],
+     [
+      275,
+      4.8
+     ],
+     [
+      281,
+      4.8
+     ],
+     [
+      295,
+      5
+     ],
+     [
+      304,
+      5.1
+     ],
+     [
+      335,
+      5.4
+     ],
+     [
+      350,
+      5.6
+     ],
+     [
+      359,
+      5.7
+     ],
+     [
+      372,
+      5.8
+     ],
+     [
+      395,
+      6
+     ],
+     [
+      425,
+      6.2
+     ],
+     [
+      450,
+      6.3
+     ],
+     [
+      457,
+      6.4
+     ],
+     [
+      470,
+      6.5
+     ],
+     [
+      480,
+      6.5
+     ],
+     [
+      511,
+      6.7
+     ],
+     [
+      541,
+      6.8
+     ],
+     [
+      556,
+      6.9
+     ],
+     [
+      599,
+      7.1
+     ],
+     [
+      639,
+      7.3
+     ],
+     [
+      658,
+      7.3
+     ],
+     [
+      668,
+      7.4
+     ],
+     [
+      677,
+      7.4
+     ],
+     [
+      708,
+      7.5
+     ],
+     [
+      733,
+      7.6
+     ],
+     [
+      749,
+      7.7
+     ],
+     [
+      785,
+      7.8
+     ],
+     [
+      823,
+      7.9
+     ],
+     [
+      946,
+      8.4
+     ],
+     [
+      971,
+      8.4
+     ],
+     [
+      984,
+      8.5
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Landscape Pool (~300 cd/m²)",
+    "id": "12661",
+    "n": 107,
+    "min": 111,
+    "max": 544,
+    "direction": "increasing",
+    "anchors": [
+     [
+      111,
+      5.1
+     ],
+     [
+      132.9,
+      6
+     ],
+     [
+      145,
+      6.3
+     ],
+     [
+      153,
+      6.6
+     ],
+     [
+      160.5,
+      6.8
+     ],
+     [
+      168,
+      7.1
+     ],
+     [
+      178,
+      7.4
+     ],
+     [
+      193,
+      7.8
+     ],
+     [
+      199.3,
+      8
+     ],
+     [
+      202,
+      8.1
+     ],
+     [
+      208,
+      8.3
+     ],
+     [
+      210,
+      8.4
+     ],
+     [
+      215,
+      8.5
+     ],
+     [
+      215.6,
+      8.5
+     ],
+     [
+      220.8,
+      8.7
+     ],
+     [
+      226.4,
+      8.8
+     ],
+     [
+      232,
+      9
+     ],
+     [
+      235,
+      9.1
+     ],
+     [
+      244.9,
+      9.3
+     ],
+     [
+      252,
+      9.5
+     ],
+     [
+      255.4,
+      9.5
+     ],
+     [
+      259,
+      9.6
+     ],
+     [
+      263,
+      9.7
+     ],
+     [
+      277.5,
+      9.9
+     ],
+     [
+      285.8,
+      9.9
+     ],
+     [
+      291,
+      10
+     ],
+     [
+      295,
+      10
+     ],
+     [
+      303,
+      10
+     ],
+     [
+      311,
+      10
+     ],
+     [
+      327,
+      10
+     ],
+     [
+      347,
+      10
+     ],
+     [
+      374,
+      10
+     ],
+     [
+      392.1,
+      10
+     ],
+     [
+      408.3,
+      10
+     ],
+     [
+      441,
+      10
+     ],
+     [
+      479,
+      10
+     ],
+     [
+      544,
+      10
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "CIELAB DCI-P3 Coverage",
+    "id": "28334",
+    "n": 107,
+    "min": 62.75,
+    "max": 99.98,
+    "direction": "increasing",
+    "anchors": [
+     [
+      62.75,
+      5.1
+     ],
+     [
+      70.05,
+      5.8
+     ],
+     [
+      72.06,
+      6
+     ],
+     [
+      77.21,
+      6.6
+     ],
+     [
+      78.34,
+      6.7
+     ],
+     [
+      80.79,
+      7
+     ],
+     [
+      82.09,
+      7.1
+     ],
+     [
+      82.58,
+      7.2
+     ],
+     [
+      83.71,
+      7.3
+     ],
+     [
+      84.2,
+      7.4
+     ],
+     [
+      85.15,
+      7.5
+     ],
+     [
+      85.5,
+      7.6
+     ],
+     [
+      86.45,
+      7.7
+     ],
+     [
+      87.23,
+      7.8
+     ],
+     [
+      87.41,
+      7.8
+     ],
+     [
+      87.81,
+      7.9
+     ],
+     [
+      87.96,
+      7.9
+     ],
+     [
+      88.48,
+      8
+     ],
+     [
+      89.18,
+      8.1
+     ],
+     [
+      89.73,
+      8.2
+     ],
+     [
+      90.62,
+      8.3
+     ],
+     [
+      91.13,
+      8.4
+     ],
+     [
+      91.82,
+      8.6
+     ],
+     [
+      92.63,
+      8.7
+     ],
+     [
+      93.2,
+      8.8
+     ],
+     [
+      93.62,
+      8.9
+     ],
+     [
+      94.07,
+      9
+     ],
+     [
+      94.39,
+      9
+     ],
+     [
+      95.8,
+      9.3
+     ],
+     [
+      96.59,
+      9.4
+     ],
+     [
+      98.11,
+      9.7
+     ],
+     [
+      98.31,
+      9.7
+     ],
+     [
+      99.45,
+      9.9
+     ],
+     [
+      99.75,
+      10
+     ],
+     [
+      99.82,
+      10
+     ],
+     [
+      99.97,
+      10
+     ],
+     [
+      99.98,
+      10
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "CIELAB BT.2020 Coverage",
+    "id": "28336",
+    "n": 107,
+    "min": 42,
+    "max": 87.07,
+    "direction": "increasing",
+    "anchors": [
+     [
+      42,
+      4.2
+     ],
+     [
+      46.97,
+      4.7
+     ],
+     [
+      47.9,
+      4.8
+     ],
+     [
+      52.49,
+      5.2
+     ],
+     [
+      54.22,
+      5.4
+     ],
+     [
+      56.41,
+      5.6
+     ],
+     [
+      56.48,
+      5.6
+     ],
+     [
+      56.8,
+      5.7
+     ],
+     [
+      57.84,
+      5.8
+     ],
+     [
+      58.68,
+      5.9
+     ],
+     [
+      59.09,
+      5.9
+     ],
+     [
+      60.32,
+      6
+     ],
+     [
+      60.87,
+      6.1
+     ],
+     [
+      61.11,
+      6.1
+     ],
+     [
+      61.48,
+      6.1
+     ],
+     [
+      62.28,
+      6.2
+     ],
+     [
+      63.03,
+      6.3
+     ],
+     [
+      63.86,
+      6.4
+     ],
+     [
+      65.11,
+      6.5
+     ],
+     [
+      65.52,
+      6.6
+     ],
+     [
+      66.54,
+      6.7
+     ],
+     [
+      66.99,
+      6.7
+     ],
+     [
+      67.31,
+      6.7
+     ],
+     [
+      69.38,
+      6.9
+     ],
+     [
+      70.17,
+      7
+     ],
+     [
+      70.58,
+      7.1
+     ],
+     [
+      71.16,
+      7.1
+     ],
+     [
+      71.42,
+      7.1
+     ],
+     [
+      75.9,
+      7.6
+     ],
+     [
+      78.5,
+      7.9
+     ],
+     [
+      80.55,
+      8.1
+     ],
+     [
+      81.8,
+      8.2
+     ],
+     [
+      83.4,
+      8.3
+     ],
+     [
+      84.66,
+      8.5
+     ],
+     [
+      85.92,
+      8.6
+     ],
+     [
+      86.95,
+      8.7
+     ],
+     [
+      87.07,
+      8.7
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "1 000 cd/m² DCI P3 Coverage ITP",
+    "id": "926",
+    "n": 107,
+    "min": 31.1,
+    "max": 99.8,
+    "direction": "increasing",
+    "anchors": [
+     [
+      31.1,
+      3.1
+     ],
+     [
+      42.5,
+      4.3
+     ],
+     [
+      46.5,
+      4.7
+     ],
+     [
+      46.9,
+      4.7
+     ],
+     [
+      51.7,
+      5.2
+     ],
+     [
+      54.4,
+      5.4
+     ],
+     [
+      57.8,
+      5.8
+     ],
+     [
+      58.3,
+      5.8
+     ],
+     [
+      60,
+      6
+     ],
+     [
+      61.3,
+      6.1
+     ],
+     [
+      62.7,
+      6.3
+     ],
+     [
+      65.3,
+      6.5
+     ],
+     [
+      67.5,
+      6.8
+     ],
+     [
+      70.3,
+      7
+     ],
+     [
+      71.3,
+      7.1
+     ],
+     [
+      74.2,
+      7.4
+     ],
+     [
+      75.6,
+      7.6
+     ],
+     [
+      78.1,
+      7.8
+     ],
+     [
+      79,
+      7.9
+     ],
+     [
+      79.7,
+      8
+     ],
+     [
+      80.8,
+      8.1
+     ],
+     [
+      82.8,
+      8.3
+     ],
+     [
+      83.8,
+      8.4
+     ],
+     [
+      85.2,
+      8.5
+     ],
+     [
+      86.2,
+      8.6
+     ],
+     [
+      87.1,
+      8.7
+     ],
+     [
+      87.8,
+      8.8
+     ],
+     [
+      88.2,
+      8.8
+     ],
+     [
+      88.5,
+      8.9
+     ],
+     [
+      91.4,
+      9.1
+     ],
+     [
+      91.9,
+      9.2
+     ],
+     [
+      95.5,
+      9.6
+     ],
+     [
+      96.3,
+      9.6
+     ],
+     [
+      97.7,
+      9.8
+     ],
+     [
+      98.8,
+      9.9
+     ],
+     [
+      99.7,
+      10
+     ],
+     [
+      99.8,
+      10
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "10 000 cd/m² BT.2020 Coverage ITP",
+    "id": "927",
+    "n": 107,
+    "min": 16,
+    "max": 71.8,
+    "direction": "increasing",
+    "anchors": [
+     [
+      16,
+      4.5
+     ],
+     [
+      18.6,
+      5
+     ],
+     [
+      20.1,
+      5.3
+     ],
+     [
+      20.5,
+      5.4
+     ],
+     [
+      23.8,
+      5.9
+     ],
+     [
+      25.5,
+      6.2
+     ],
+     [
+      26.6,
+      6.4
+     ],
+     [
+      27.1,
+      6.4
+     ],
+     [
+      27.6,
+      6.5
+     ],
+     [
+      27.9,
+      6.6
+     ],
+     [
+      28.6,
+      6.7
+     ],
+     [
+      30.2,
+      6.9
+     ],
+     [
+      32.4,
+      7.2
+     ],
+     [
+      32.8,
+      7.2
+     ],
+     [
+      34.1,
+      7.4
+     ],
+     [
+      34.3,
+      7.4
+     ],
+     [
+      35.3,
+      7.5
+     ],
+     [
+      35.8,
+      7.6
+     ],
+     [
+      36.2,
+      7.6
+     ],
+     [
+      37.2,
+      7.7
+     ],
+     [
+      38.8,
+      7.9
+     ],
+     [
+      40,
+      8
+     ],
+     [
+      42.8,
+      8.3
+     ],
+     [
+      47,
+      8.6
+     ],
+     [
+      48.8,
+      8.7
+     ],
+     [
+      49.7,
+      8.8
+     ],
+     [
+      50.3,
+      8.8
+     ],
+     [
+      52.5,
+      8.9
+     ],
+     [
+      54.4,
+      9
+     ],
+     [
+      54.8,
+      9
+     ],
+     [
+      55.2,
+      9
+     ],
+     [
+      58,
+      9.1
+     ],
+     [
+      60.3,
+      9.2
+     ],
+     [
+      63.4,
+      9.2
+     ],
+     [
+      66.7,
+      9.3
+     ],
+     [
+      69,
+      9.4
+     ],
+     [
+      71.8,
+      9.4
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "White Balance dE 2000",
+    "id": "150",
+    "n": 107,
+    "min": 0.6,
+    "max": 8.84,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      0.6,
+      9.5
+     ],
+     [
+      0.93,
+      9.3
+     ],
+     [
+      0.99,
+      9.2
+     ],
+     [
+      1.2,
+      9.1
+     ],
+     [
+      1.37,
+      8.9
+     ],
+     [
+      1.48,
+      8.8
+     ],
+     [
+      1.58,
+      8.8
+     ],
+     [
+      1.7,
+      8.7
+     ],
+     [
+      1.87,
+      8.5
+     ],
+     [
+      1.98,
+      8.4
+     ],
+     [
+      2.03,
+      8.4
+     ],
+     [
+      2.17,
+      8.3
+     ],
+     [
+      2.28,
+      8.2
+     ],
+     [
+      2.44,
+      8
+     ],
+     [
+      2.52,
+      8
+     ],
+     [
+      2.57,
+      7.9
+     ],
+     [
+      2.69,
+      7.8
+     ],
+     [
+      2.77,
+      7.7
+     ],
+     [
+      2.97,
+      7.5
+     ],
+     [
+      3.13,
+      7.4
+     ],
+     [
+      3.25,
+      7.2
+     ],
+     [
+      3.36,
+      7.1
+     ],
+     [
+      3.5,
+      6.9
+     ],
+     [
+      3.64,
+      6.8
+     ],
+     [
+      3.93,
+      6.4
+     ],
+     [
+      4.12,
+      6.1
+     ],
+     [
+      4.28,
+      5.9
+     ],
+     [
+      4.42,
+      5.7
+     ],
+     [
+      4.53,
+      5.6
+     ],
+     [
+      4.84,
+      5.2
+     ],
+     [
+      5.05,
+      4.9
+     ],
+     [
+      5.18,
+      4.8
+     ],
+     [
+      5.6,
+      4.3
+     ],
+     [
+      6.07,
+      3.7
+     ],
+     [
+      6.44,
+      3.2
+     ],
+     [
+      8.13,
+      1.1
+     ],
+     [
+      8.84,
+      0.4
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Color dE 2000",
+    "id": "154",
+    "n": 107,
+    "min": 0.686,
+    "max": 6.22,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      0.686,
+      9.5
+     ],
+     [
+      0.8209,
+      9.3
+     ],
+     [
+      0.9347,
+      9.3
+     ],
+     [
+      1.1077,
+      9.1
+     ],
+     [
+      1.1983,
+      9.1
+     ],
+     [
+      1.29,
+      9
+     ],
+     [
+      1.3513,
+      8.9
+     ],
+     [
+      1.4,
+      8.9
+     ],
+     [
+      1.4319,
+      8.9
+     ],
+     [
+      1.47,
+      8.8
+     ],
+     [
+      1.52,
+      8.8
+     ],
+     [
+      1.5734,
+      8.8
+     ],
+     [
+      1.6688,
+      8.7
+     ],
+     [
+      1.8,
+      8.6
+     ],
+     [
+      1.85,
+      8.5
+     ],
+     [
+      1.9715,
+      8.4
+     ],
+     [
+      2.01,
+      8.4
+     ],
+     [
+      2.04,
+      8.4
+     ],
+     [
+      2.08,
+      8.3
+     ],
+     [
+      2.1288,
+      8.3
+     ],
+     [
+      2.1961,
+      8.2
+     ],
+     [
+      2.26,
+      8.2
+     ],
+     [
+      2.3594,
+      8.1
+     ],
+     [
+      2.4,
+      8.1
+     ],
+     [
+      2.442,
+      8
+     ],
+     [
+      2.52,
+      8
+     ],
+     [
+      2.59,
+      7.9
+     ],
+     [
+      2.6954,
+      7.8
+     ],
+     [
+      2.7869,
+      7.7
+     ],
+     [
+      3.022,
+      7.5
+     ],
+     [
+      3.05,
+      7.4
+     ],
+     [
+      3.2196,
+      7.3
+     ],
+     [
+      3.3575,
+      7.1
+     ],
+     [
+      3.5628,
+      6.9
+     ],
+     [
+      4.8,
+      5.2
+     ],
+     [
+      5.8109,
+      4
+     ],
+     [
+      6.22,
+      3.5
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Color Temperature",
+    "id": "1937",
+    "n": 107,
+    "min": 5501,
+    "max": 8490,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      5501,
+      2.9
+     ],
+     [
+      5798.15,
+      4.8
+     ],
+     [
+      5926.05,
+      5.6
+     ],
+     [
+      6017,
+      6.1
+     ],
+     [
+      6053,
+      6.3
+     ],
+     [
+      6111,
+      6.6
+     ],
+     [
+      6160,
+      6.9
+     ],
+     [
+      6223.45,
+      7.3
+     ],
+     [
+      6287.05,
+      7.9
+     ],
+     [
+      6310,
+      8.1
+     ],
+     [
+      6339.78,
+      8.5
+     ],
+     [
+      6381.35,
+      9.1
+     ],
+     [
+      6408.9,
+      9.4
+     ],
+     [
+      6430,
+      9.6
+     ],
+     [
+      6491.7,
+      10
+     ],
+     [
+      6500.1,
+      10
+     ],
+     [
+      6512,
+      10
+     ],
+     [
+      6535.4,
+      9.9
+     ],
+     [
+      6558.1,
+      9.7
+     ],
+     [
+      6583,
+      9.5
+     ],
+     [
+      6601.1,
+      9.3
+     ],
+     [
+      6608,
+      9.2
+     ],
+     [
+      6630,
+      8.9
+     ],
+     [
+      6665,
+      8.4
+     ],
+     [
+      6676,
+      8.3
+     ],
+     [
+      6717.5,
+      7.8
+     ],
+     [
+      6780,
+      7.3
+     ],
+     [
+      6813.15,
+      7.1
+     ],
+     [
+      6870.45,
+      6.7
+     ],
+     [
+      6897,
+      6.6
+     ],
+     [
+      6963.5,
+      6.2
+     ],
+     [
+      6993,
+      6
+     ],
+     [
+      7049.6,
+      5.7
+     ],
+     [
+      7165,
+      5
+     ],
+     [
+      7383,
+      3.6
+     ],
+     [
+      7558,
+      2.6
+     ],
+     [
+      8490,
+      0.6
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "White Balance dE 2000",
+    "id": "151",
+    "n": 107,
+    "min": 0.11,
+    "max": 4.19,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      0.11,
+      9.9
+     ],
+     [
+      0.14,
+      9.9
+     ],
+     [
+      0.15,
+      9.9
+     ],
+     [
+      0.16,
+      9.9
+     ],
+     [
+      0.18,
+      9.9
+     ],
+     [
+      0.19,
+      9.8
+     ],
+     [
+      0.2,
+      9.8
+     ],
+     [
+      0.21,
+      9.8
+     ],
+     [
+      0.22,
+      9.8
+     ],
+     [
+      0.23,
+      9.8
+     ],
+     [
+      0.24,
+      9.8
+     ],
+     [
+      0.26,
+      9.8
+     ],
+     [
+      0.28,
+      9.8
+     ],
+     [
+      0.29,
+      9.8
+     ],
+     [
+      0.3,
+      9.8
+     ],
+     [
+      0.32,
+      9.7
+     ],
+     [
+      0.34,
+      9.7
+     ],
+     [
+      0.36,
+      9.7
+     ],
+     [
+      0.38,
+      9.7
+     ],
+     [
+      0.4,
+      9.7
+     ],
+     [
+      0.44,
+      9.6
+     ],
+     [
+      0.49,
+      9.6
+     ],
+     [
+      0.57,
+      9.5
+     ],
+     [
+      0.6,
+      9.5
+     ],
+     [
+      0.85,
+      9.3
+     ],
+     [
+      0.91,
+      9.3
+     ],
+     [
+      3.03,
+      7.5
+     ],
+     [
+      4.19,
+      6
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Color dE 2000",
+    "id": "155",
+    "n": 107,
+    "min": 0.3922,
+    "max": 3.1178,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      0.3922,
+      9.7
+     ],
+     [
+      0.49,
+      9.6
+     ],
+     [
+      0.5231,
+      9.6
+     ],
+     [
+      0.6159,
+      9.5
+     ],
+     [
+      0.657,
+      9.5
+     ],
+     [
+      0.72,
+      9.4
+     ],
+     [
+      0.74,
+      9.4
+     ],
+     [
+      0.76,
+      9.4
+     ],
+     [
+      0.79,
+      9.4
+     ],
+     [
+      0.8242,
+      9.3
+     ],
+     [
+      0.85,
+      9.3
+     ],
+     [
+      0.8701,
+      9.3
+     ],
+     [
+      0.9,
+      9.3
+     ],
+     [
+      0.9212,
+      9.3
+     ],
+     [
+      0.9544,
+      9.2
+     ],
+     [
+      0.9747,
+      9.2
+     ],
+     [
+      0.98,
+      9.2
+     ],
+     [
+      1.0269,
+      9.2
+     ],
+     [
+      1.07,
+      9.2
+     ],
+     [
+      1.1388,
+      9.1
+     ],
+     [
+      1.1681,
+      9.1
+     ],
+     [
+      1.18,
+      9.1
+     ],
+     [
+      1.2321,
+      9
+     ],
+     [
+      1.277,
+      9
+     ],
+     [
+      1.3048,
+      9
+     ],
+     [
+      1.35,
+      8.9
+     ],
+     [
+      1.38,
+      8.9
+     ],
+     [
+      1.3978,
+      8.9
+     ],
+     [
+      1.501,
+      8.8
+     ],
+     [
+      1.58,
+      8.8
+     ],
+     [
+      1.7286,
+      8.6
+     ],
+     [
+      1.8,
+      8.6
+     ],
+     [
+      1.86,
+      8.5
+     ],
+     [
+      1.97,
+      8.4
+     ],
+     [
+      2.4,
+      8.1
+     ],
+     [
+      3.08,
+      7.4
+     ],
+     [
+      3.1178,
+      7.4
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Color Temperature",
+    "id": "1938",
+    "n": 107,
+    "min": 5930,
+    "max": 6865.35,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      5930,
+      5.6
+     ],
+     [
+      6398,
+      9.3
+     ],
+     [
+      6459.6,
+      9.9
+     ],
+     [
+      6469.9,
+      9.9
+     ],
+     [
+      6476.75,
+      10
+     ],
+     [
+      6486,
+      10
+     ],
+     [
+      6492,
+      10
+     ],
+     [
+      6493.1,
+      10
+     ],
+     [
+      6495.8,
+      10
+     ],
+     [
+      6499.8,
+      10
+     ],
+     [
+      6500.8,
+      10
+     ],
+     [
+      6501.3,
+      10
+     ],
+     [
+      6502,
+      10
+     ],
+     [
+      6502.7,
+      10
+     ],
+     [
+      6504,
+      10
+     ],
+     [
+      6507.3,
+      10
+     ],
+     [
+      6508,
+      10
+     ],
+     [
+      6509.55,
+      10
+     ],
+     [
+      6510.5,
+      10
+     ],
+     [
+      6511.8,
+      10
+     ],
+     [
+      6513.15,
+      10
+     ],
+     [
+      6515,
+      10
+     ],
+     [
+      6517,
+      10
+     ],
+     [
+      6518.7,
+      10
+     ],
+     [
+      6520,
+      10
+     ],
+     [
+      6524,
+      10
+     ],
+     [
+      6527.55,
+      9.9
+     ],
+     [
+      6530.9,
+      9.9
+     ],
+     [
+      6534,
+      9.9
+     ],
+     [
+      6537,
+      9.9
+     ],
+     [
+      6544.55,
+      9.8
+     ],
+     [
+      6553,
+      9.8
+     ],
+     [
+      6565.7,
+      9.7
+     ],
+     [
+      6598.7,
+      9.3
+     ],
+     [
+      6646.4,
+      8.7
+     ],
+     [
+      6801.45,
+      7.1
+     ],
+     [
+      6865.35,
+      6.7
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "White Balance Calibration",
+    "id": "2638",
+    "n": 106,
+    "min": 1,
+    "max": 24,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      1,
+      10
+     ],
+     [
+      10,
+      10
+     ],
+     [
+      11,
+      10
+     ],
+     [
+      14,
+      10
+     ],
+     [
+      20,
+      10
+     ],
+     [
+      22,
+      10
+     ],
+     [
+      24,
+      10
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Color dE ITP",
+    "id": "29346",
+    "n": 107,
+    "min": 4,
+    "max": 51.6,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      4,
+      9.3
+     ],
+     [
+      5.3,
+      8.9
+     ],
+     [
+      5.4,
+      8.9
+     ],
+     [
+      5.5,
+      8.8
+     ],
+     [
+      6.1,
+      8.6
+     ],
+     [
+      6.5,
+      8.4
+     ],
+     [
+      6.7,
+      8.4
+     ],
+     [
+      7.2,
+      8.1
+     ],
+     [
+      7.3,
+      8.1
+     ],
+     [
+      7.8,
+      7.9
+     ],
+     [
+      8.1,
+      7.8
+     ],
+     [
+      8.5,
+      7.6
+     ],
+     [
+      8.6,
+      7.6
+     ],
+     [
+      9.4,
+      7.4
+     ],
+     [
+      9.5,
+      7.4
+     ],
+     [
+      9.7,
+      7.3
+     ],
+     [
+      10.1,
+      7.3
+     ],
+     [
+      10.6,
+      7.2
+     ],
+     [
+      11.2,
+      7
+     ],
+     [
+      11.4,
+      7
+     ],
+     [
+      11.9,
+      6.9
+     ],
+     [
+      12.3,
+      6.9
+     ],
+     [
+      12.6,
+      6.8
+     ],
+     [
+      12.8,
+      6.8
+     ],
+     [
+      13,
+      6.8
+     ],
+     [
+      13.5,
+      6.7
+     ],
+     [
+      14.2,
+      6.6
+     ],
+     [
+      15,
+      6.5
+     ],
+     [
+      16.2,
+      6.4
+     ],
+     [
+      17.2,
+      6.2
+     ],
+     [
+      17.8,
+      6.2
+     ],
+     [
+      18.2,
+      6.1
+     ],
+     [
+      19.2,
+      6.1
+     ],
+     [
+      22.2,
+      5.9
+     ],
+     [
+      25.4,
+      5.7
+     ],
+     [
+      49.6,
+      5
+     ],
+     [
+      51.6,
+      4.9
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "White Balance dE ITP",
+    "id": "29345",
+    "n": 107,
+    "min": 2.7,
+    "max": 41.45,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      2.7,
+      9.6
+     ],
+     [
+      3.91,
+      9.3
+     ],
+     [
+      4.7,
+      9.1
+     ],
+     [
+      4.85,
+      9
+     ],
+     [
+      4.96,
+      9
+     ],
+     [
+      5.32,
+      8.9
+     ],
+     [
+      5.5,
+      8.8
+     ],
+     [
+      6.16,
+      8.6
+     ],
+     [
+      6.4,
+      8.5
+     ],
+     [
+      6.56,
+      8.4
+     ],
+     [
+      6.67,
+      8.4
+     ],
+     [
+      7.14,
+      8.2
+     ],
+     [
+      7.64,
+      8
+     ],
+     [
+      8.03,
+      7.8
+     ],
+     [
+      8.18,
+      7.7
+     ],
+     [
+      8.37,
+      7.7
+     ],
+     [
+      8.45,
+      7.7
+     ],
+     [
+      8.7,
+      7.6
+     ],
+     [
+      8.97,
+      7.5
+     ],
+     [
+      9.13,
+      7.5
+     ],
+     [
+      9.34,
+      7.4
+     ],
+     [
+      9.77,
+      7.3
+     ],
+     [
+      10,
+      7.3
+     ],
+     [
+      10.16,
+      7.2
+     ],
+     [
+      10.5,
+      7.2
+     ],
+     [
+      10.57,
+      7.2
+     ],
+     [
+      10.83,
+      7.1
+     ],
+     [
+      11.3,
+      7
+     ],
+     [
+      12.25,
+      6.9
+     ],
+     [
+      12.55,
+      6.8
+     ],
+     [
+      13.19,
+      6.7
+     ],
+     [
+      14.66,
+      6.5
+     ],
+     [
+      14.9,
+      6.5
+     ],
+     [
+      15.97,
+      6.4
+     ],
+     [
+      18.83,
+      6.1
+     ],
+     [
+      34.51,
+      5.5
+     ],
+     [
+      41.45,
+      5.3
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Color Temperature",
+    "id": "29347",
+    "n": 107,
+    "min": 5811,
+    "max": 9089,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      5811,
+      4.9
+     ],
+     [
+      6032,
+      6.2
+     ],
+     [
+      6099,
+      6.5
+     ],
+     [
+      6184,
+      7
+     ],
+     [
+      6250,
+      7.5
+     ],
+     [
+      6308,
+      8.1
+     ],
+     [
+      6375,
+      9
+     ],
+     [
+      6418,
+      9.5
+     ],
+     [
+      6452,
+      9.8
+     ],
+     [
+      6493,
+      10
+     ],
+     [
+      6540,
+      9.9
+     ],
+     [
+      6562,
+      9.7
+     ],
+     [
+      6587,
+      9.5
+     ],
+     [
+      6604,
+      9.3
+     ],
+     [
+      6637,
+      8.8
+     ],
+     [
+      6675,
+      8.3
+     ],
+     [
+      6717,
+      7.8
+     ],
+     [
+      6776,
+      7.3
+     ],
+     [
+      6837,
+      6.9
+     ],
+     [
+      6852,
+      6.8
+     ],
+     [
+      6865,
+      6.7
+     ],
+     [
+      6932,
+      6.4
+     ],
+     [
+      6994,
+      6
+     ],
+     [
+      7056,
+      5.7
+     ],
+     [
+      7078,
+      5.6
+     ],
+     [
+      7116,
+      5.3
+     ],
+     [
+      7140,
+      5.2
+     ],
+     [
+      7159,
+      5.1
+     ],
+     [
+      7254,
+      4.5
+     ],
+     [
+      7307,
+      4.1
+     ],
+     [
+      7438,
+      3.3
+     ],
+     [
+      7633,
+      2.2
+     ],
+     [
+      7789,
+      1.5
+     ],
+     [
+      7973,
+      1
+     ],
+     [
+      8018,
+      1
+     ],
+     [
+      8405,
+      0.7
+     ],
+     [
+      9089,
+      0.3
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Color dE ITP",
+    "id": "29351",
+    "n": 107,
+    "min": 3.2,
+    "max": 30.6,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      3.2,
+      9.5
+     ],
+     [
+      3.8,
+      9.3
+     ],
+     [
+      4.2,
+      9.2
+     ],
+     [
+      4.4,
+      9.2
+     ],
+     [
+      4.5,
+      9.1
+     ],
+     [
+      4.8,
+      9.1
+     ],
+     [
+      4.9,
+      9
+     ],
+     [
+      5,
+      9
+     ],
+     [
+      5.3,
+      8.9
+     ],
+     [
+      5.6,
+      8.8
+     ],
+     [
+      5.7,
+      8.8
+     ],
+     [
+      5.9,
+      8.7
+     ],
+     [
+      6.1,
+      8.6
+     ],
+     [
+      6.2,
+      8.6
+     ],
+     [
+      6.8,
+      8.3
+     ],
+     [
+      7,
+      8.2
+     ],
+     [
+      7.2,
+      8.1
+     ],
+     [
+      7.6,
+      8
+     ],
+     [
+      7.9,
+      7.9
+     ],
+     [
+      8.3,
+      7.7
+     ],
+     [
+      8.6,
+      7.6
+     ],
+     [
+      8.8,
+      7.6
+     ],
+     [
+      9.2,
+      7.5
+     ],
+     [
+      9.8,
+      7.3
+     ],
+     [
+      10.1,
+      7.3
+     ],
+     [
+      10.5,
+      7.2
+     ],
+     [
+      10.6,
+      7.2
+     ],
+     [
+      11,
+      7.1
+     ],
+     [
+      11.8,
+      6.9
+     ],
+     [
+      12.3,
+      6.9
+     ],
+     [
+      12.8,
+      6.8
+     ],
+     [
+      14.5,
+      6.6
+     ],
+     [
+      17.9,
+      6.2
+     ],
+     [
+      26.9,
+      5.7
+     ],
+     [
+      30.6,
+      5.6
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "White Balance dE ITP",
+    "id": "29350",
+    "n": 107,
+    "min": 2.23,
+    "max": 19.7,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      2.23,
+      9.7
+     ],
+     [
+      2.36,
+      9.6
+     ],
+     [
+      2.72,
+      9.6
+     ],
+     [
+      3.03,
+      9.5
+     ],
+     [
+      3.2,
+      9.5
+     ],
+     [
+      3.31,
+      9.4
+     ],
+     [
+      3.58,
+      9.4
+     ],
+     [
+      3.65,
+      9.4
+     ],
+     [
+      3.84,
+      9.3
+     ],
+     [
+      4.1,
+      9.2
+     ],
+     [
+      4.2,
+      9.2
+     ],
+     [
+      4.36,
+      9.2
+     ],
+     [
+      4.6,
+      9.1
+     ],
+     [
+      4.81,
+      9.1
+     ],
+     [
+      4.9,
+      9
+     ],
+     [
+      4.96,
+      9
+     ],
+     [
+      5.2,
+      8.9
+     ],
+     [
+      5.5,
+      8.8
+     ],
+     [
+      5.65,
+      8.8
+     ],
+     [
+      5.71,
+      8.8
+     ],
+     [
+      5.9,
+      8.7
+     ],
+     [
+      6.3,
+      8.5
+     ],
+     [
+      6.45,
+      8.5
+     ],
+     [
+      6.68,
+      8.4
+     ],
+     [
+      6.89,
+      8.3
+     ],
+     [
+      6.95,
+      8.2
+     ],
+     [
+      7.35,
+      8.1
+     ],
+     [
+      7.57,
+      8
+     ],
+     [
+      8.09,
+      7.8
+     ],
+     [
+      8.21,
+      7.7
+     ],
+     [
+      8.7,
+      7.6
+     ],
+     [
+      8.8,
+      7.6
+     ],
+     [
+      9.15,
+      7.5
+     ],
+     [
+      10.66,
+      7.1
+     ],
+     [
+      13.24,
+      6.7
+     ],
+     [
+      17.35,
+      6.2
+     ],
+     [
+      19.7,
+      6
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Color Temperature",
+    "id": "29352",
+    "n": 107,
+    "min": 6211,
+    "max": 7971,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      6211,
+      7.2
+     ],
+     [
+      6335,
+      8.4
+     ],
+     [
+      6358,
+      8.8
+     ],
+     [
+      6424,
+      9.6
+     ],
+     [
+      6437,
+      9.7
+     ],
+     [
+      6447,
+      9.8
+     ],
+     [
+      6462,
+      9.9
+     ],
+     [
+      6474,
+      9.9
+     ],
+     [
+      6484,
+      10
+     ],
+     [
+      6493,
+      10
+     ],
+     [
+      6499,
+      10
+     ],
+     [
+      6511,
+      10
+     ],
+     [
+      6517,
+      10
+     ],
+     [
+      6525,
+      9.9
+     ],
+     [
+      6528,
+      9.9
+     ],
+     [
+      6530,
+      9.9
+     ],
+     [
+      6538,
+      9.9
+     ],
+     [
+      6547,
+      9.8
+     ],
+     [
+      6555,
+      9.8
+     ],
+     [
+      6567,
+      9.7
+     ],
+     [
+      6574,
+      9.6
+     ],
+     [
+      6587,
+      9.5
+     ],
+     [
+      6596,
+      9.3
+     ],
+     [
+      6603,
+      9.3
+     ],
+     [
+      6615,
+      9.1
+     ],
+     [
+      6649,
+      8.7
+     ],
+     [
+      6674,
+      8.3
+     ],
+     [
+      6695,
+      8.1
+     ],
+     [
+      6729,
+      7.7
+     ],
+     [
+      6804,
+      7.1
+     ],
+     [
+      6880,
+      6.7
+     ],
+     [
+      6900,
+      6.5
+     ],
+     [
+      6983,
+      6.1
+     ],
+     [
+      7192,
+      4.9
+     ],
+     [
+      7374,
+      3.7
+     ],
+     [
+      7636,
+      2.2
+     ],
+     [
+      7971,
+      1
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "600 Nit Tracking Delta",
+    "id": "13904",
+    "n": 107,
+    "min": 0.001024045649,
+    "max": 0.05045579883,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      0.00102405,
+      9.6
+     ],
+     [
+      0.00130809,
+      9.5
+     ],
+     [
+      0.00163523,
+      9.4
+     ],
+     [
+      0.00196097,
+      9.3
+     ],
+     [
+      0.0022395,
+      9.2
+     ],
+     [
+      0.00258404,
+      9.1
+     ],
+     [
+      0.00266088,
+      9
+     ],
+     [
+      0.00285635,
+      9
+     ],
+     [
+      0.00316541,
+      8.8
+     ],
+     [
+      0.00329379,
+      8.8
+     ],
+     [
+      0.00333677,
+      8.8
+     ],
+     [
+      0.00356524,
+      8.7
+     ],
+     [
+      0.00368185,
+      8.6
+     ],
+     [
+      0.00407079,
+      8.5
+     ],
+     [
+      0.00433233,
+      8.3
+     ],
+     [
+      0.00446502,
+      8.3
+     ],
+     [
+      0.00460725,
+      8.2
+     ],
+     [
+      0.0049774,
+      8.1
+     ],
+     [
+      0.00534051,
+      7.9
+     ],
+     [
+      0.00577884,
+      7.8
+     ],
+     [
+      0.00610386,
+      7.7
+     ],
+     [
+      0.00635387,
+      7.6
+     ],
+     [
+      0.0066245,
+      7.5
+     ],
+     [
+      0.00673644,
+      7.5
+     ],
+     [
+      0.00721066,
+      7.3
+     ],
+     [
+      0.00781683,
+      7.1
+     ],
+     [
+      0.0083162,
+      7
+     ],
+     [
+      0.0086577,
+      6.9
+     ],
+     [
+      0.00974239,
+      6.5
+     ],
+     [
+      0.0106636,
+      6.3
+     ],
+     [
+      0.0119448,
+      6
+     ],
+     [
+      0.014464,
+      5.5
+     ],
+     [
+      0.0153099,
+      5.4
+     ],
+     [
+      0.0156388,
+      5.3
+     ],
+     [
+      0.0230368,
+      4.6
+     ],
+     [
+      0.0313083,
+      3.9
+     ],
+     [
+      0.0504558,
+      2.6
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "4000 Nit Tracking Delta",
+    "id": "13906",
+    "n": 107,
+    "min": 0.001233157149,
+    "max": 0.04801773416,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      0.00123316,
+      9.6
+     ],
+     [
+      0.00160972,
+      9.4
+     ],
+     [
+      0.00182434,
+      9.4
+     ],
+     [
+      0.00209533,
+      9.3
+     ],
+     [
+      0.00252515,
+      9.1
+     ],
+     [
+      0.0027296,
+      9
+     ],
+     [
+      0.00296308,
+      8.9
+     ],
+     [
+      0.0031659,
+      8.8
+     ],
+     [
+      0.00346049,
+      8.7
+     ],
+     [
+      0.00361973,
+      8.6
+     ],
+     [
+      0.00368031,
+      8.6
+     ],
+     [
+      0.00375197,
+      8.6
+     ],
+     [
+      0.00408214,
+      8.4
+     ],
+     [
+      0.00430963,
+      8.4
+     ],
+     [
+      0.00457109,
+      8.2
+     ],
+     [
+      0.00476009,
+      8.2
+     ],
+     [
+      0.00497437,
+      8.1
+     ],
+     [
+      0.00504258,
+      8.1
+     ],
+     [
+      0.00524823,
+      8
+     ],
+     [
+      0.00552496,
+      7.9
+     ],
+     [
+      0.00556616,
+      7.9
+     ],
+     [
+      0.00591176,
+      7.7
+     ],
+     [
+      0.00648612,
+      7.5
+     ],
+     [
+      0.00669823,
+      7.5
+     ],
+     [
+      0.00714916,
+      7.3
+     ],
+     [
+      0.00790766,
+      7.1
+     ],
+     [
+      0.00835222,
+      6.9
+     ],
+     [
+      0.00927015,
+      6.7
+     ],
+     [
+      0.0106207,
+      6.3
+     ],
+     [
+      0.010679,
+      6.3
+     ],
+     [
+      0.0136714,
+      5.7
+     ],
+     [
+      0.0144971,
+      5.5
+     ],
+     [
+      0.0154071,
+      5.3
+     ],
+     [
+      0.0164537,
+      5.2
+     ],
+     [
+      0.0270672,
+      4.2
+     ],
+     [
+      0.0314187,
+      3.9
+     ],
+     [
+      0.0480177,
+      2.8
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "1000 Nit Tracking Delta",
+    "id": "13905",
+    "n": 107,
+    "min": 0.001065914453,
+    "max": 0.04410583007,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      0.00106591,
+      9.6
+     ],
+     [
+      0.00137404,
+      9.5
+     ],
+     [
+      0.0016482,
+      9.4
+     ],
+     [
+      0.00203081,
+      9.3
+     ],
+     [
+      0.00225881,
+      9.2
+     ],
+     [
+      0.00256339,
+      9.1
+     ],
+     [
+      0.00271986,
+      9
+     ],
+     [
+      0.00306046,
+      8.9
+     ],
+     [
+      0.00312288,
+      8.9
+     ],
+     [
+      0.00326002,
+      8.8
+     ],
+     [
+      0.00341732,
+      8.7
+     ],
+     [
+      0.00354375,
+      8.7
+     ],
+     [
+      0.00368575,
+      8.6
+     ],
+     [
+      0.00384075,
+      8.5
+     ],
+     [
+      0.0042816,
+      8.4
+     ],
+     [
+      0.00432324,
+      8.3
+     ],
+     [
+      0.00452105,
+      8.3
+     ],
+     [
+      0.00497944,
+      8.1
+     ],
+     [
+      0.00529095,
+      8
+     ],
+     [
+      0.00567898,
+      7.8
+     ],
+     [
+      0.00596198,
+      7.7
+     ],
+     [
+      0.00635344,
+      7.6
+     ],
+     [
+      0.00649686,
+      7.5
+     ],
+     [
+      0.00670366,
+      7.5
+     ],
+     [
+      0.00710743,
+      7.3
+     ],
+     [
+      0.00790027,
+      7.1
+     ],
+     [
+      0.00830376,
+      7
+     ],
+     [
+      0.00864409,
+      6.9
+     ],
+     [
+      0.00988651,
+      6.5
+     ],
+     [
+      0.0107318,
+      6.3
+     ],
+     [
+      0.0119068,
+      6
+     ],
+     [
+      0.014209,
+      5.6
+     ],
+     [
+      0.0148465,
+      5.4
+     ],
+     [
+      0.015481,
+      5.3
+     ],
+     [
+      0.0230861,
+      4.6
+     ],
+     [
+      0.0313653,
+      3.9
+     ],
+     [
+      0.0441058,
+      3
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "1080p @ 60Hz",
+    "id": "25",
+    "n": 107,
+    "min": 9,
+    "max": 42.7,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      9,
+      9.8
+     ],
+     [
+      9.5,
+      9.7
+     ],
+     [
+      9.8,
+      9.6
+     ],
+     [
+      9.9,
+      9.6
+     ],
+     [
+      10,
+      9.6
+     ],
+     [
+      10.1,
+      9.5
+     ],
+     [
+      10.2,
+      9.5
+     ],
+     [
+      10.3,
+      9.5
+     ],
+     [
+      10.4,
+      9.4
+     ],
+     [
+      10.5,
+      9.4
+     ],
+     [
+      10.6,
+      9.4
+     ],
+     [
+      10.8,
+      9.3
+     ],
+     [
+      11,
+      9.2
+     ],
+     [
+      11.1,
+      9.1
+     ],
+     [
+      11.2,
+      9.1
+     ],
+     [
+      11.3,
+      9.1
+     ],
+     [
+      11.7,
+      8.9
+     ],
+     [
+      12.3,
+      8.6
+     ],
+     [
+      13.1,
+      8.2
+     ],
+     [
+      13.4,
+      8.1
+     ],
+     [
+      14.1,
+      7.8
+     ],
+     [
+      14.3,
+      7.7
+     ],
+     [
+      14.5,
+      7.6
+     ],
+     [
+      14.7,
+      7.6
+     ],
+     [
+      14.9,
+      7.5
+     ],
+     [
+      17,
+      7.1
+     ],
+     [
+      18,
+      6.9
+     ],
+     [
+      37.4,
+      2.9
+     ],
+     [
+      42.7,
+      1.7
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "1080p @ 120Hz",
+    "id": "1466",
+    "n": 89,
+    "min": 4.8,
+    "max": 23.3,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      4.8,
+      9.8
+     ],
+     [
+      4.9,
+      9.8
+     ],
+     [
+      5.2,
+      9.7
+     ],
+     [
+      5.3,
+      9.7
+     ],
+     [
+      5.4,
+      9.7
+     ],
+     [
+      5.5,
+      9.6
+     ],
+     [
+      5.6,
+      9.6
+     ],
+     [
+      5.7,
+      9.6
+     ],
+     [
+      5.8,
+      9.5
+     ],
+     [
+      5.9,
+      9.5
+     ],
+     [
+      6,
+      9.4
+     ],
+     [
+      6.1,
+      9.4
+     ],
+     [
+      6.2,
+      9.4
+     ],
+     [
+      6.3,
+      9.3
+     ],
+     [
+      6.4,
+      9.3
+     ],
+     [
+      6.5,
+      9.2
+     ],
+     [
+      6.6,
+      9.2
+     ],
+     [
+      6.8,
+      9.1
+     ],
+     [
+      7,
+      9
+     ],
+     [
+      7.2,
+      8.9
+     ],
+     [
+      7.9,
+      8.5
+     ],
+     [
+      8.6,
+      8.1
+     ],
+     [
+      9.5,
+      7.7
+     ],
+     [
+      9.9,
+      7.5
+     ],
+     [
+      21.6,
+      4.6
+     ],
+     [
+      23.3,
+      4.3
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "4k @ 60Hz",
+    "id": "542",
+    "n": 107,
+    "min": 9.2,
+    "max": 37.7,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      9.2,
+      9.8
+     ],
+     [
+      9.4,
+      9.8
+     ],
+     [
+      9.6,
+      9.7
+     ],
+     [
+      9.7,
+      9.7
+     ],
+     [
+      9.8,
+      9.6
+     ],
+     [
+      9.9,
+      9.6
+     ],
+     [
+      10,
+      9.6
+     ],
+     [
+      10.1,
+      9.5
+     ],
+     [
+      10.2,
+      9.5
+     ],
+     [
+      10.3,
+      9.5
+     ],
+     [
+      10.5,
+      9.4
+     ],
+     [
+      10.6,
+      9.4
+     ],
+     [
+      10.8,
+      9.3
+     ],
+     [
+      11,
+      9.2
+     ],
+     [
+      11.2,
+      9.1
+     ],
+     [
+      11.6,
+      8.9
+     ],
+     [
+      11.9,
+      8.8
+     ],
+     [
+      12.5,
+      8.5
+     ],
+     [
+      13.1,
+      8.2
+     ],
+     [
+      13.5,
+      8
+     ],
+     [
+      13.8,
+      7.9
+     ],
+     [
+      14.1,
+      7.8
+     ],
+     [
+      14.4,
+      7.7
+     ],
+     [
+      14.6,
+      7.6
+     ],
+     [
+      14.8,
+      7.6
+     ],
+     [
+      17,
+      7.1
+     ],
+     [
+      18,
+      6.9
+     ],
+     [
+      37.4,
+      2.1
+     ],
+     [
+      37.7,
+      2
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "4k @ 120Hz",
+    "id": "2194",
+    "n": 82,
+    "min": 4.8,
+    "max": 23.6,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      4.8,
+      9.8
+     ],
+     [
+      4.9,
+      9.8
+     ],
+     [
+      5,
+      9.8
+     ],
+     [
+      5.1,
+      9.8
+     ],
+     [
+      5.2,
+      9.7
+     ],
+     [
+      5.3,
+      9.7
+     ],
+     [
+      5.4,
+      9.7
+     ],
+     [
+      5.5,
+      9.6
+     ],
+     [
+      5.6,
+      9.6
+     ],
+     [
+      5.7,
+      9.6
+     ],
+     [
+      5.8,
+      9.5
+     ],
+     [
+      5.9,
+      9.5
+     ],
+     [
+      6,
+      9.4
+     ],
+     [
+      6.1,
+      9.4
+     ],
+     [
+      6.3,
+      9.3
+     ],
+     [
+      6.4,
+      9.3
+     ],
+     [
+      6.5,
+      9.2
+     ],
+     [
+      6.8,
+      9.1
+     ],
+     [
+      6.9,
+      9
+     ],
+     [
+      7.1,
+      8.9
+     ],
+     [
+      7.3,
+      8.8
+     ],
+     [
+      8.6,
+      8.1
+     ],
+     [
+      9.5,
+      7.7
+     ],
+     [
+      9.8,
+      7.6
+     ],
+     [
+      23.2,
+      4.3
+     ],
+     [
+      23.6,
+      4.2
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "1080p @ 60Hz Outside Game Mode",
+    "id": "118",
+    "n": 107,
+    "min": 34.4,
+    "max": 307.7,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      34.4,
+      7.5
+     ],
+     [
+      43.1,
+      7
+     ],
+     [
+      75.2,
+      6.3
+     ],
+     [
+      78.5,
+      6.3
+     ],
+     [
+      82.2,
+      6.2
+     ],
+     [
+      84,
+      6.2
+     ],
+     [
+      85.6,
+      6.1
+     ],
+     [
+      89.6,
+      6
+     ],
+     [
+      89.7,
+      6
+     ],
+     [
+      91.4,
+      6
+     ],
+     [
+      94.6,
+      5.8
+     ],
+     [
+      95.4,
+      5.8
+     ],
+     [
+      98.1,
+      5.6
+     ],
+     [
+      105.7,
+      5
+     ],
+     [
+      108.1,
+      4.8
+     ],
+     [
+      108.5,
+      4.7
+     ],
+     [
+      108.7,
+      4.7
+     ],
+     [
+      109.1,
+      4.7
+     ],
+     [
+      114.1,
+      4.2
+     ],
+     [
+      115,
+      4.1
+     ],
+     [
+      115.4,
+      4
+     ],
+     [
+      117.8,
+      3.8
+     ],
+     [
+      124.5,
+      3
+     ],
+     [
+      124.8,
+      2.9
+     ],
+     [
+      125.2,
+      2.9
+     ],
+     [
+      126.8,
+      2.7
+     ],
+     [
+      129.7,
+      2.3
+     ],
+     [
+      141.9,
+      0.9
+     ],
+     [
+      147.2,
+      0.3
+     ],
+     [
+      155.9,
+      0
+     ],
+     [
+      160.8,
+      0
+     ],
+     [
+      161.4,
+      0
+     ],
+     [
+      165.1,
+      0
+     ],
+     [
+      181.9,
+      0
+     ],
+     [
+      213.3,
+      0
+     ],
+     [
+      273.3,
+      0
+     ],
+     [
+      307.7,
+      0
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "1080p @ Max Refresh Rate",
+    "id": "12237",
+    "n": 107,
+    "min": 2.9,
+    "max": 22.1,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      2.9,
+      9.2
+     ],
+     [
+      3.1,
+      9.2
+     ],
+     [
+      3.2,
+      9.1
+     ],
+     [
+      3.4,
+      9
+     ],
+     [
+      3.5,
+      9
+     ],
+     [
+      3.8,
+      8.7
+     ],
+     [
+      4,
+      8.6
+     ],
+     [
+      4.1,
+      8.5
+     ],
+     [
+      4.2,
+      8.5
+     ],
+     [
+      4.3,
+      8.5
+     ],
+     [
+      4.5,
+      8.4
+     ],
+     [
+      4.6,
+      8.4
+     ],
+     [
+      4.7,
+      8.3
+     ],
+     [
+      4.8,
+      8.3
+     ],
+     [
+      4.9,
+      8.3
+     ],
+     [
+      5.1,
+      8.2
+     ],
+     [
+      5.2,
+      8.2
+     ],
+     [
+      5.3,
+      8.2
+     ],
+     [
+      5.4,
+      8.2
+     ],
+     [
+      5.5,
+      8.2
+     ],
+     [
+      5.8,
+      8.1
+     ],
+     [
+      6.1,
+      8.1
+     ],
+     [
+      6.3,
+      8
+     ],
+     [
+      6.5,
+      8
+     ],
+     [
+      8,
+      7.8
+     ],
+     [
+      8.6,
+      7.7
+     ],
+     [
+      9.5,
+      7.6
+     ],
+     [
+      9.9,
+      7.5
+     ],
+     [
+      10.2,
+      7.5
+     ],
+     [
+      10.4,
+      7.4
+     ],
+     [
+      11,
+      7.2
+     ],
+     [
+      12.5,
+      6.8
+     ],
+     [
+      20.2,
+      4.9
+     ],
+     [
+      22.1,
+      4.5
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "4k @ 60Hz @ 4:4:4",
+    "id": "543",
+    "n": 106,
+    "min": 9.3,
+    "max": 37.8,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      9.3,
+      9.8
+     ],
+     [
+      9.4,
+      9.8
+     ],
+     [
+      9.6,
+      9.7
+     ],
+     [
+      9.7,
+      9.7
+     ],
+     [
+      9.8,
+      9.6
+     ],
+     [
+      9.9,
+      9.6
+     ],
+     [
+      10,
+      9.6
+     ],
+     [
+      10.1,
+      9.5
+     ],
+     [
+      10.3,
+      9.5
+     ],
+     [
+      10.4,
+      9.4
+     ],
+     [
+      10.5,
+      9.4
+     ],
+     [
+      10.6,
+      9.4
+     ],
+     [
+      10.8,
+      9.3
+     ],
+     [
+      10.9,
+      9.2
+     ],
+     [
+      11,
+      9.2
+     ],
+     [
+      11.3,
+      9.1
+     ],
+     [
+      11.7,
+      8.9
+     ],
+     [
+      11.9,
+      8.8
+     ],
+     [
+      12.1,
+      8.7
+     ],
+     [
+      12.9,
+      8.3
+     ],
+     [
+      13.4,
+      8.1
+     ],
+     [
+      13.8,
+      7.9
+     ],
+     [
+      14,
+      7.8
+     ],
+     [
+      14.1,
+      7.8
+     ],
+     [
+      14.4,
+      7.7
+     ],
+     [
+      14.7,
+      7.6
+     ],
+     [
+      15,
+      7.5
+     ],
+     [
+      17.8,
+      6.9
+     ],
+     [
+      18,
+      6.9
+     ],
+     [
+      37.8,
+      2
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "4k @ 60Hz With Interpolation",
+    "id": "639",
+    "n": 104,
+    "min": 10,
+    "max": 307.9,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      10,
+      9.7
+     ],
+     [
+      22.7,
+      8.8
+     ],
+     [
+      23.4,
+      8.7
+     ],
+     [
+      24.2,
+      8.6
+     ],
+     [
+      24.5,
+      8.6
+     ],
+     [
+      24.7,
+      8.5
+     ],
+     [
+      25.2,
+      8.5
+     ],
+     [
+      25.6,
+      8.4
+     ],
+     [
+      26.6,
+      8.3
+     ],
+     [
+      27.6,
+      8.2
+     ],
+     [
+      30.9,
+      7.9
+     ],
+     [
+      32.6,
+      7.7
+     ],
+     [
+      34.7,
+      7.5
+     ],
+     [
+      47,
+      6.8
+     ],
+     [
+      54.3,
+      6.7
+     ],
+     [
+      56.1,
+      6.6
+     ],
+     [
+      65.6,
+      6.5
+     ],
+     [
+      77.9,
+      6.3
+     ],
+     [
+      85.5,
+      6.1
+     ],
+     [
+      85.7,
+      6.1
+     ],
+     [
+      107.8,
+      4.8
+     ],
+     [
+      113.5,
+      4.2
+     ],
+     [
+      114.9,
+      4.1
+     ],
+     [
+      116.3,
+      3.9
+     ],
+     [
+      116.9,
+      3.9
+     ],
+     [
+      122,
+      3.3
+     ],
+     [
+      123.4,
+      3.1
+     ],
+     [
+      130.6,
+      2.2
+     ],
+     [
+      135.3,
+      1.7
+     ],
+     [
+      141.7,
+      0.9
+     ],
+     [
+      148,
+      0.2
+     ],
+     [
+      160.6,
+      0
+     ],
+     [
+      161.7,
+      0
+     ],
+     [
+      223,
+      0
+     ],
+     [
+      290,
+      0
+     ],
+     [
+      307.9,
+      0
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "4k @ Max Refresh Rate",
+    "id": "12239",
+    "n": 107,
+    "min": 3.6,
+    "max": 22.4,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      3.6,
+      8.9
+     ],
+     [
+      4.1,
+      8.5
+     ],
+     [
+      4.2,
+      8.5
+     ],
+     [
+      4.3,
+      8.5
+     ],
+     [
+      4.4,
+      8.4
+     ],
+     [
+      4.5,
+      8.4
+     ],
+     [
+      4.6,
+      8.4
+     ],
+     [
+      4.8,
+      8.3
+     ],
+     [
+      4.9,
+      8.3
+     ],
+     [
+      5,
+      8.3
+     ],
+     [
+      5.1,
+      8.2
+     ],
+     [
+      5.2,
+      8.2
+     ],
+     [
+      5.3,
+      8.2
+     ],
+     [
+      5.4,
+      8.2
+     ],
+     [
+      5.5,
+      8.2
+     ],
+     [
+      5.6,
+      8.1
+     ],
+     [
+      5.8,
+      8.1
+     ],
+     [
+      6,
+      8.1
+     ],
+     [
+      6.2,
+      8
+     ],
+     [
+      6.4,
+      8
+     ],
+     [
+      6.9,
+      7.9
+     ],
+     [
+      8.6,
+      7.7
+     ],
+     [
+      9.6,
+      7.6
+     ],
+     [
+      9.8,
+      7.5
+     ],
+     [
+      10.1,
+      7.5
+     ],
+     [
+      10.2,
+      7.5
+     ],
+     [
+      10.3,
+      7.4
+     ],
+     [
+      10.8,
+      7.3
+     ],
+     [
+      11,
+      7.2
+     ],
+     [
+      13.5,
+      6.4
+     ],
+     [
+      22.2,
+      4.5
+     ],
+     [
+      22.4,
+      4.4
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "4k @ 60Hz Outside Game Mode",
+    "id": "638",
+    "n": 107,
+    "min": 17.3,
+    "max": 316.1,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      17.3,
+      9.2
+     ],
+     [
+      42.7,
+      7
+     ],
+     [
+      66.7,
+      6.5
+     ],
+     [
+      68.4,
+      6.4
+     ],
+     [
+      70.4,
+      6.4
+     ],
+     [
+      72.2,
+      6.4
+     ],
+     [
+      75.1,
+      6.3
+     ],
+     [
+      77.6,
+      6.3
+     ],
+     [
+      80.3,
+      6.2
+     ],
+     [
+      82.2,
+      6.2
+     ],
+     [
+      89.3,
+      6
+     ],
+     [
+      89.5,
+      6
+     ],
+     [
+      89.6,
+      6
+     ],
+     [
+      90.7,
+      6
+     ],
+     [
+      107,
+      4.9
+     ],
+     [
+      107.6,
+      4.8
+     ],
+     [
+      108,
+      4.8
+     ],
+     [
+      108.2,
+      4.8
+     ],
+     [
+      108.3,
+      4.8
+     ],
+     [
+      108.6,
+      4.7
+     ],
+     [
+      114.1,
+      4.2
+     ],
+     [
+      115.1,
+      4.1
+     ],
+     [
+      119,
+      3.6
+     ],
+     [
+      124.7,
+      2.9
+     ],
+     [
+      124.9,
+      2.9
+     ],
+     [
+      126.8,
+      2.7
+     ],
+     [
+      130.9,
+      2.2
+     ],
+     [
+      132,
+      2.1
+     ],
+     [
+      141.2,
+      1
+     ],
+     [
+      144,
+      0.6
+     ],
+     [
+      146.8,
+      0.3
+     ],
+     [
+      157,
+      0
+     ],
+     [
+      160.6,
+      0
+     ],
+     [
+      170.3,
+      0
+     ],
+     [
+      215.7,
+      0
+     ],
+     [
+      281.6,
+      0
+     ],
+     [
+      316.1,
+      0
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "1080p Maximum Refresh Rate",
+    "id": "33776",
+    "n": 107,
+    "min": 60,
+    "max": 330,
+    "direction": "increasing",
+    "anchors": [
+     [
+      60,
+      0
+     ],
+     [
+      120,
+      0
+     ],
+     [
+      144,
+      6
+     ],
+     [
+      165,
+      7.5
+     ],
+     [
+      240,
+      8.4
+     ],
+     [
+      288,
+      8.7
+     ],
+     [
+      330,
+      9
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "4k Maximum Refresh Rate",
+    "id": "33777",
+    "n": 107,
+    "min": 60,
+    "max": 240,
+    "direction": "increasing",
+    "anchors": [
+     [
+      60,
+      0
+     ],
+     [
+      120,
+      0
+     ],
+     [
+      144,
+      6
+     ],
+     [
+      165,
+      7.5
+     ],
+     [
+      180,
+      7.8
+     ],
+     [
+      240,
+      8.4
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "4k VRR Maximum",
+    "id": "2191",
+    "n": 99,
+    "min": 60,
+    "max": 240,
+    "direction": "increasing",
+    "anchors": [
+     [
+      60,
+      6
+     ],
+     [
+      120,
+      7.5
+     ],
+     [
+      144,
+      8.5
+     ],
+     [
+      165,
+      9
+     ],
+     [
+      180,
+      9.2
+     ],
+     [
+      240,
+      9.5
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "1080p VRR Maximum",
+    "id": "2239",
+    "n": 99,
+    "min": 60,
+    "max": 330,
+    "direction": "increasing",
+    "anchors": [
+     [
+      60,
+      6
+     ],
+     [
+      120,
+      7.5
+     ],
+     [
+      144,
+      8.5
+     ],
+     [
+      165,
+      9
+     ],
+     [
+      240,
+      9.5
+     ],
+     [
+      288,
+      9.6
+     ],
+     [
+      330,
+      9.6
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Avg. CAD",
+    "id": "30870",
+    "n": 107,
+    "min": 20,
+    "max": 705,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      20,
+      9.8
+     ],
+     [
+      24,
+      9.8
+     ],
+     [
+      25,
+      9.8
+     ],
+     [
+      27,
+      9.8
+     ],
+     [
+      33,
+      9.7
+     ],
+     [
+      37,
+      9.7
+     ],
+     [
+      40,
+      9.6
+     ],
+     [
+      44,
+      9.6
+     ],
+     [
+      170,
+      7.4
+     ],
+     [
+      190,
+      7.1
+     ],
+     [
+      199,
+      6.9
+     ],
+     [
+      214,
+      6.7
+     ],
+     [
+      225,
+      6.6
+     ],
+     [
+      233,
+      6.5
+     ],
+     [
+      248,
+      6.3
+     ],
+     [
+      254,
+      6.2
+     ],
+     [
+      261,
+      6.1
+     ],
+     [
+      267,
+      6.1
+     ],
+     [
+      277,
+      6
+     ],
+     [
+      281,
+      5.9
+     ],
+     [
+      282,
+      5.9
+     ],
+     [
+      293,
+      5.8
+     ],
+     [
+      297,
+      5.7
+     ],
+     [
+      309,
+      5.6
+     ],
+     [
+      321,
+      5.4
+     ],
+     [
+      338,
+      5.2
+     ],
+     [
+      347,
+      5.1
+     ],
+     [
+      355,
+      5
+     ],
+     [
+      368,
+      4.9
+     ],
+     [
+      381,
+      4.7
+     ],
+     [
+      388,
+      4.6
+     ],
+     [
+      393,
+      4.6
+     ],
+     [
+      399,
+      4.5
+     ],
+     [
+      461,
+      3.7
+     ],
+     [
+      590,
+      1.8
+     ],
+     [
+      705,
+      0.4
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Worst 10% CAD",
+    "id": "30872",
+    "n": 107,
+    "min": 38,
+    "max": 1348,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      38,
+      9.8
+     ],
+     [
+      52,
+      9.8
+     ],
+     [
+      61,
+      9.7
+     ],
+     [
+      69,
+      9.7
+     ],
+     [
+      76,
+      9.6
+     ],
+     [
+      85,
+      9.6
+     ],
+     [
+      99,
+      9.5
+     ],
+     [
+      106,
+      9.5
+     ],
+     [
+      113,
+      9.4
+     ],
+     [
+      292,
+      7.6
+     ],
+     [
+      303,
+      7.5
+     ],
+     [
+      324,
+      7.3
+     ],
+     [
+      366,
+      6.8
+     ],
+     [
+      388,
+      6.6
+     ],
+     [
+      406,
+      6.4
+     ],
+     [
+      411,
+      6.4
+     ],
+     [
+      425,
+      6.3
+     ],
+     [
+      435,
+      6.2
+     ],
+     [
+      442,
+      6.1
+     ],
+     [
+      459,
+      5.9
+     ],
+     [
+      464,
+      5.9
+     ],
+     [
+      473,
+      5.8
+     ],
+     [
+      490,
+      5.6
+     ],
+     [
+      506,
+      5.4
+     ],
+     [
+      537,
+      5.2
+     ],
+     [
+      550,
+      5
+     ],
+     [
+      569,
+      4.9
+     ],
+     [
+      571,
+      4.8
+     ],
+     [
+      580,
+      4.7
+     ],
+     [
+      601,
+      4.5
+     ],
+     [
+      616,
+      4.2
+     ],
+     [
+      639,
+      3.7
+     ],
+     [
+      714,
+      1.5
+     ],
+     [
+      741,
+      0.8
+     ],
+     [
+      818,
+      0
+     ],
+     [
+      909,
+      0
+     ],
+     [
+      1348,
+      0
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Best 10% CAD",
+    "id": "30871",
+    "n": 107,
+    "min": 3,
+    "max": 262,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      3,
+      9.9
+     ],
+     [
+      5,
+      9.8
+     ],
+     [
+      7,
+      9.8
+     ],
+     [
+      13,
+      9.6
+     ],
+     [
+      14,
+      9.5
+     ],
+     [
+      15,
+      9.5
+     ],
+     [
+      23,
+      9.3
+     ],
+     [
+      55,
+      8.4
+     ],
+     [
+      71,
+      7.9
+     ],
+     [
+      82,
+      7.7
+     ],
+     [
+      83,
+      7.6
+     ],
+     [
+      86,
+      7.6
+     ],
+     [
+      91,
+      7.4
+     ],
+     [
+      98,
+      7.3
+     ],
+     [
+      101,
+      7.2
+     ],
+     [
+      104,
+      7.1
+     ],
+     [
+      111,
+      7
+     ],
+     [
+      114,
+      6.9
+     ],
+     [
+      117,
+      6.8
+     ],
+     [
+      119,
+      6.8
+     ],
+     [
+      120,
+      6.8
+     ],
+     [
+      122,
+      6.7
+     ],
+     [
+      127,
+      6.6
+     ],
+     [
+      128,
+      6.6
+     ],
+     [
+      131,
+      6.6
+     ],
+     [
+      133,
+      6.5
+     ],
+     [
+      140,
+      6.4
+     ],
+     [
+      145,
+      6.3
+     ],
+     [
+      152,
+      6.1
+     ],
+     [
+      158,
+      6
+     ],
+     [
+      163,
+      5.9
+     ],
+     [
+      188,
+      5.5
+     ],
+     [
+      212,
+      5.1
+     ],
+     [
+      250,
+      4.4
+     ],
+     [
+      262,
+      4.2
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Best 10% CAD",
+    "id": "30879",
+    "n": 82,
+    "min": 3,
+    "max": 186,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      3,
+      9.9
+     ],
+     [
+      5,
+      9.8
+     ],
+     [
+      6,
+      9.8
+     ],
+     [
+      7,
+      9.8
+     ],
+     [
+      10,
+      9.7
+     ],
+     [
+      13,
+      9.6
+     ],
+     [
+      14,
+      9.5
+     ],
+     [
+      15,
+      9.5
+     ],
+     [
+      21,
+      9.3
+     ],
+     [
+      27,
+      9.1
+     ],
+     [
+      64,
+      8.1
+     ],
+     [
+      69,
+      8
+     ],
+     [
+      80,
+      7.7
+     ],
+     [
+      81,
+      7.7
+     ],
+     [
+      83,
+      7.6
+     ],
+     [
+      88,
+      7.5
+     ],
+     [
+      98,
+      7.3
+     ],
+     [
+      100,
+      7.2
+     ],
+     [
+      101,
+      7.2
+     ],
+     [
+      106,
+      7.1
+     ],
+     [
+      109,
+      7
+     ],
+     [
+      112,
+      7
+     ],
+     [
+      114,
+      6.9
+     ],
+     [
+      115,
+      6.9
+     ],
+     [
+      118,
+      6.8
+     ],
+     [
+      119,
+      6.8
+     ],
+     [
+      120,
+      6.8
+     ],
+     [
+      122,
+      6.7
+     ],
+     [
+      126,
+      6.7
+     ],
+     [
+      128,
+      6.6
+     ],
+     [
+      132,
+      6.5
+     ],
+     [
+      137,
+      6.4
+     ],
+     [
+      148,
+      6.2
+     ],
+     [
+      149,
+      6.2
+     ],
+     [
+      154,
+      6.1
+     ],
+     [
+      161,
+      6
+     ],
+     [
+      174,
+      5.8
+     ],
+     [
+      186,
+      5.5
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Worst 10% CAD",
+    "id": "30880",
+    "n": 82,
+    "min": 35,
+    "max": 754,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      35,
+      9.8
+     ],
+     [
+      41,
+      9.8
+     ],
+     [
+      48,
+      9.8
+     ],
+     [
+      52,
+      9.8
+     ],
+     [
+      64,
+      9.7
+     ],
+     [
+      69,
+      9.7
+     ],
+     [
+      71,
+      9.7
+     ],
+     [
+      76,
+      9.6
+     ],
+     [
+      85,
+      9.6
+     ],
+     [
+      94,
+      9.5
+     ],
+     [
+      104,
+      9.5
+     ],
+     [
+      113,
+      9.4
+     ],
+     [
+      138,
+      9.2
+     ],
+     [
+      188,
+      8.7
+     ],
+     [
+      323,
+      7.3
+     ],
+     [
+      335,
+      7.2
+     ],
+     [
+      346,
+      7
+     ],
+     [
+      361,
+      6.9
+     ],
+     [
+      367,
+      6.8
+     ],
+     [
+      381,
+      6.7
+     ],
+     [
+      390,
+      6.6
+     ],
+     [
+      397,
+      6.5
+     ],
+     [
+      409,
+      6.4
+     ],
+     [
+      415,
+      6.4
+     ],
+     [
+      426,
+      6.2
+     ],
+     [
+      431,
+      6.2
+     ],
+     [
+      434,
+      6.2
+     ],
+     [
+      438,
+      6.1
+     ],
+     [
+      444,
+      6.1
+     ],
+     [
+      460,
+      5.9
+     ],
+     [
+      466,
+      5.8
+     ],
+     [
+      505,
+      5.5
+     ],
+     [
+      510,
+      5.4
+     ],
+     [
+      514,
+      5.4
+     ],
+     [
+      523,
+      5.3
+     ],
+     [
+      527,
+      5.2
+     ],
+     [
+      533,
+      5.2
+     ],
+     [
+      570,
+      4.8
+     ],
+     [
+      595,
+      4.6
+     ],
+     [
+      646,
+      3.5
+     ],
+     [
+      706,
+      1.7
+     ],
+     [
+      754,
+      0.5
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Avg. CAD",
+    "id": "30878",
+    "n": 82,
+    "min": 20,
+    "max": 429,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      20,
+      9.8
+     ],
+     [
+      22,
+      9.8
+     ],
+     [
+      24,
+      9.8
+     ],
+     [
+      25,
+      9.8
+     ],
+     [
+      27,
+      9.8
+     ],
+     [
+      28,
+      9.7
+     ],
+     [
+      30,
+      9.7
+     ],
+     [
+      34,
+      9.7
+     ],
+     [
+      35,
+      9.7
+     ],
+     [
+      38,
+      9.6
+     ],
+     [
+      45,
+      9.6
+     ],
+     [
+      49,
+      9.5
+     ],
+     [
+      52,
+      9.5
+     ],
+     [
+      191,
+      7.1
+     ],
+     [
+      200,
+      6.9
+     ],
+     [
+      204,
+      6.9
+     ],
+     [
+      214,
+      6.7
+     ],
+     [
+      222,
+      6.6
+     ],
+     [
+      225,
+      6.6
+     ],
+     [
+      226,
+      6.6
+     ],
+     [
+      230,
+      6.5
+     ],
+     [
+      243,
+      6.4
+     ],
+     [
+      244,
+      6.4
+     ],
+     [
+      247,
+      6.3
+     ],
+     [
+      252,
+      6.3
+     ],
+     [
+      261,
+      6.1
+     ],
+     [
+      263,
+      6.1
+     ],
+     [
+      264,
+      6.1
+     ],
+     [
+      272,
+      6
+     ],
+     [
+      274,
+      6
+     ],
+     [
+      280,
+      5.9
+     ],
+     [
+      290,
+      5.8
+     ],
+     [
+      296,
+      5.7
+     ],
+     [
+      310,
+      5.6
+     ],
+     [
+      329,
+      5.3
+     ],
+     [
+      337,
+      5.2
+     ],
+     [
+      340,
+      5.2
+     ],
+     [
+      351,
+      5.1
+     ],
+     [
+      368,
+      4.9
+     ],
+     [
+      404,
+      4.5
+     ],
+     [
+      429,
+      4.1
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Best 10% CAD",
+    "id": "30885",
+    "n": 107,
+    "min": 4,
+    "max": 262,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      4,
+      9.9
+     ],
+     [
+      6,
+      9.8
+     ],
+     [
+      7,
+      9.8
+     ],
+     [
+      12,
+      9.6
+     ],
+     [
+      14,
+      9.5
+     ],
+     [
+      15,
+      9.5
+     ],
+     [
+      20,
+      9.3
+     ],
+     [
+      48,
+      8.5
+     ],
+     [
+      72,
+      7.9
+     ],
+     [
+      79,
+      7.7
+     ],
+     [
+      82,
+      7.7
+     ],
+     [
+      86,
+      7.6
+     ],
+     [
+      93,
+      7.4
+     ],
+     [
+      98,
+      7.3
+     ],
+     [
+      107,
+      7.1
+     ],
+     [
+      108,
+      7
+     ],
+     [
+      110,
+      7
+     ],
+     [
+      113,
+      6.9
+     ],
+     [
+      115,
+      6.9
+     ],
+     [
+      118,
+      6.8
+     ],
+     [
+      119,
+      6.8
+     ],
+     [
+      125,
+      6.7
+     ],
+     [
+      127,
+      6.6
+     ],
+     [
+      128,
+      6.6
+     ],
+     [
+      133,
+      6.5
+     ],
+     [
+      137,
+      6.4
+     ],
+     [
+      145,
+      6.3
+     ],
+     [
+      147,
+      6.2
+     ],
+     [
+      151,
+      6.2
+     ],
+     [
+      161,
+      6
+     ],
+     [
+      188,
+      5.5
+     ],
+     [
+      212,
+      5.1
+     ],
+     [
+      231,
+      4.7
+     ],
+     [
+      255,
+      4.3
+     ],
+     [
+      262,
+      4.2
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Avg. CAD",
+    "id": "30884",
+    "n": 107,
+    "min": 21,
+    "max": 705,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      21,
+      9.8
+     ],
+     [
+      23,
+      9.8
+     ],
+     [
+      25,
+      9.8
+     ],
+     [
+      26,
+      9.8
+     ],
+     [
+      27,
+      9.8
+     ],
+     [
+      32,
+      9.7
+     ],
+     [
+      37,
+      9.7
+     ],
+     [
+      42,
+      9.6
+     ],
+     [
+      49,
+      9.5
+     ],
+     [
+      199,
+      6.9
+     ],
+     [
+      217,
+      6.7
+     ],
+     [
+      236,
+      6.5
+     ],
+     [
+      254,
+      6.2
+     ],
+     [
+      266,
+      6.1
+     ],
+     [
+      270,
+      6
+     ],
+     [
+      275,
+      6
+     ],
+     [
+      282,
+      5.9
+     ],
+     [
+      296,
+      5.7
+     ],
+     [
+      301,
+      5.7
+     ],
+     [
+      322,
+      5.4
+     ],
+     [
+      331,
+      5.3
+     ],
+     [
+      340,
+      5.2
+     ],
+     [
+      342,
+      5.2
+     ],
+     [
+      354,
+      5
+     ],
+     [
+      356,
+      5
+     ],
+     [
+      362,
+      4.9
+     ],
+     [
+      365,
+      4.9
+     ],
+     [
+      373,
+      4.8
+     ],
+     [
+      381,
+      4.7
+     ],
+     [
+      387,
+      4.7
+     ],
+     [
+      393,
+      4.6
+     ],
+     [
+      399,
+      4.5
+     ],
+     [
+      441,
+      4
+     ],
+     [
+      455,
+      3.8
+     ],
+     [
+      461,
+      3.7
+     ],
+     [
+      590,
+      1.8
+     ],
+     [
+      705,
+      0.4
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Worst 10% CAD",
+    "id": "30886",
+    "n": 107,
+    "min": 32,
+    "max": 1348,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      32,
+      9.9
+     ],
+     [
+      49,
+      9.8
+     ],
+     [
+      54,
+      9.8
+     ],
+     [
+      65,
+      9.7
+     ],
+     [
+      77,
+      9.6
+     ],
+     [
+      83,
+      9.6
+     ],
+     [
+      109,
+      9.4
+     ],
+     [
+      128,
+      9.3
+     ],
+     [
+      146,
+      9.1
+     ],
+     [
+      366,
+      6.8
+     ],
+     [
+      383,
+      6.7
+     ],
+     [
+      405,
+      6.5
+     ],
+     [
+      410,
+      6.4
+     ],
+     [
+      420,
+      6.3
+     ],
+     [
+      439,
+      6.1
+     ],
+     [
+      450,
+      6
+     ],
+     [
+      471,
+      5.8
+     ],
+     [
+      490,
+      5.6
+     ],
+     [
+      498,
+      5.5
+     ],
+     [
+      516,
+      5.3
+     ],
+     [
+      538,
+      5.1
+     ],
+     [
+      562,
+      4.9
+     ],
+     [
+      573,
+      4.8
+     ],
+     [
+      583,
+      4.7
+     ],
+     [
+      591,
+      4.6
+     ],
+     [
+      601,
+      4.5
+     ],
+     [
+      605,
+      4.4
+     ],
+     [
+      621,
+      4.1
+     ],
+     [
+      638,
+      3.7
+     ],
+     [
+      646,
+      3.5
+     ],
+     [
+      680,
+      2.5
+     ],
+     [
+      718,
+      1.4
+     ],
+     [
+      744,
+      0.7
+     ],
+     [
+      776,
+      0.1
+     ],
+     [
+      862,
+      0
+     ],
+     [
+      1274,
+      0
+     ],
+     [
+      1348,
+      0
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Sample And Hold",
+    "id": "39752",
+    "n": 106,
+    "min": 19.9,
+    "max": 26.8,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      19.9,
+      6.6
+     ],
+     [
+      21.4,
+      6.1
+     ],
+     [
+      21.7,
+      6
+     ],
+     [
+      21.9,
+      5.9
+     ],
+     [
+      22.2,
+      5.8
+     ],
+     [
+      22.5,
+      5.7
+     ],
+     [
+      22.8,
+      5.6
+     ],
+     [
+      23,
+      5.5
+     ],
+     [
+      23.2,
+      5.4
+     ],
+     [
+      23.3,
+      5.3
+     ],
+     [
+      23.4,
+      5.2
+     ],
+     [
+      23.5,
+      5.1
+     ],
+     [
+      23.7,
+      4.8
+     ],
+     [
+      23.8,
+      4.7
+     ],
+     [
+      23.9,
+      4.6
+     ],
+     [
+      24,
+      4.4
+     ],
+     [
+      24.1,
+      4.3
+     ],
+     [
+      24.2,
+      4.1
+     ],
+     [
+      24.4,
+      3.8
+     ],
+     [
+      24.6,
+      3.5
+     ],
+     [
+      24.7,
+      3.4
+     ],
+     [
+      24.9,
+      3.1
+     ],
+     [
+      25.1,
+      2.9
+     ],
+     [
+      25.4,
+      2.6
+     ],
+     [
+      26,
+      2
+     ],
+     [
+      26.1,
+      1.9
+     ],
+     [
+      26.2,
+      1.8
+     ],
+     [
+      26.3,
+      1.7
+     ],
+     [
+      26.4,
+      1.6
+     ],
+     [
+      26.8,
+      1.2
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Frame Hold Time @ 24 fps",
+    "id": "1925",
+    "n": 107,
+    "min": 8.76666,
+    "max": 41.36666,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      8.76666,
+      9.4
+     ],
+     [
+      19.57,
+      8.8
+     ],
+     [
+      23.5666,
+      8.5
+     ],
+     [
+      24.466,
+      8.4
+     ],
+     [
+      25.8667,
+      8.2
+     ],
+     [
+      26.4,
+      8.2
+     ],
+     [
+      26.9667,
+      8.1
+     ],
+     [
+      27.5667,
+      8
+     ],
+     [
+      27.6667,
+      8
+     ],
+     [
+      28.8667,
+      7.9
+     ],
+     [
+      29.2666,
+      7.8
+     ],
+     [
+      30.0667,
+      7.7
+     ],
+     [
+      30.36,
+      7.7
+     ],
+     [
+      30.4,
+      7.7
+     ],
+     [
+      31.2666,
+      7.5
+     ],
+     [
+      31.6,
+      7.5
+     ],
+     [
+      32.06,
+      7.4
+     ],
+     [
+      32.5666,
+      7.3
+     ],
+     [
+      32.6,
+      7.3
+     ],
+     [
+      33.1,
+      7.2
+     ],
+     [
+      33.4667,
+      7.2
+     ],
+     [
+      34.1667,
+      7
+     ],
+     [
+      34.7667,
+      6.9
+     ],
+     [
+      35.2667,
+      6.8
+     ],
+     [
+      35.5667,
+      6.7
+     ],
+     [
+      36.1666,
+      6.6
+     ],
+     [
+      36.3,
+      6.6
+     ],
+     [
+      40.6,
+      4.2
+     ],
+     [
+      40.8667,
+      4.2
+     ],
+     [
+      40.9,
+      4.2
+     ],
+     [
+      40.9667,
+      4.1
+     ],
+     [
+      41.0666,
+      4.1
+     ],
+     [
+      41.1667,
+      4.1
+     ],
+     [
+      41.2,
+      4.1
+     ],
+     [
+      41.3666,
+      4.1
+     ],
+     [
+      41.3667,
+      4.1
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Sample And Hold (Interpolation)",
+    "id": "39008",
+    "n": 104,
+    "min": 15.1,
+    "max": 26.5,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      15.1,
+      7.8
+     ],
+     [
+      16.1,
+      7.6
+     ],
+     [
+      17,
+      7.4
+     ],
+     [
+      17.3,
+      7.4
+     ],
+     [
+      17.5,
+      7.3
+     ],
+     [
+      17.7,
+      7.3
+     ],
+     [
+      17.8,
+      7.2
+     ],
+     [
+      17.9,
+      7.2
+     ],
+     [
+      18.1,
+      7.2
+     ],
+     [
+      18.3,
+      7.1
+     ],
+     [
+      18.6,
+      7
+     ],
+     [
+      18.7,
+      7
+     ],
+     [
+      18.9,
+      6.9
+     ],
+     [
+      19,
+      6.9
+     ],
+     [
+      19.1,
+      6.9
+     ],
+     [
+      19.5,
+      6.8
+     ],
+     [
+      19.8,
+      6.7
+     ],
+     [
+      20.3,
+      6.5
+     ],
+     [
+      20.5,
+      6.4
+     ],
+     [
+      20.8,
+      6.3
+     ],
+     [
+      21,
+      6.3
+     ],
+     [
+      21.4,
+      6.1
+     ],
+     [
+      21.5,
+      6.1
+     ],
+     [
+      21.8,
+      6
+     ],
+     [
+      22,
+      5.9
+     ],
+     [
+      22.2,
+      5.8
+     ],
+     [
+      22.8,
+      5.6
+     ],
+     [
+      22.9,
+      5.5
+     ],
+     [
+      23.3,
+      5.3
+     ],
+     [
+      23.7,
+      4.8
+     ],
+     [
+      24,
+      4.4
+     ],
+     [
+      26.5,
+      1.5
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Interpolation Consistency",
+    "id": "39009",
+    "n": 104,
+    "min": 0.3,
+    "max": 5.5,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      0.3,
+      9.7
+     ],
+     [
+      0.4,
+      9.6
+     ],
+     [
+      0.5,
+      9.6
+     ],
+     [
+      0.6,
+      9.5
+     ],
+     [
+      0.7,
+      9.4
+     ],
+     [
+      0.8,
+      9.3
+     ],
+     [
+      0.9,
+      9.2
+     ],
+     [
+      1,
+      9.1
+     ],
+     [
+      1.1,
+      9
+     ],
+     [
+      1.2,
+      8.9
+     ],
+     [
+      1.3,
+      8.8
+     ],
+     [
+      1.4,
+      8.7
+     ],
+     [
+      1.5,
+      8.5
+     ],
+     [
+      1.6,
+      8.3
+     ],
+     [
+      1.7,
+      8
+     ],
+     [
+      1.8,
+      7.7
+     ],
+     [
+      1.9,
+      7.3
+     ],
+     [
+      2,
+      7
+     ],
+     [
+      2.1,
+      6.7
+     ],
+     [
+      2.3,
+      6
+     ],
+     [
+      2.5,
+      5.3
+     ],
+     [
+      3.5,
+      1.8
+     ],
+     [
+      4,
+      0
+     ],
+     [
+      4.3,
+      0
+     ],
+     [
+      4.7,
+      0
+     ],
+     [
+      4.8,
+      0
+     ],
+     [
+      5.1,
+      0
+     ],
+     [
+      5.5,
+      0
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Worst 10% Response Time",
+    "id": "30861",
+    "n": 107,
+    "min": 3.1,
+    "max": 58.1,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      3.1,
+      10
+     ],
+     [
+      4.1,
+      10
+     ],
+     [
+      7.3,
+      9.7
+     ],
+     [
+      8.6,
+      9.5
+     ],
+     [
+      9.7,
+      9.3
+     ],
+     [
+      10,
+      9.2
+     ],
+     [
+      10.1,
+      9.2
+     ],
+     [
+      10.3,
+      9.2
+     ],
+     [
+      10.4,
+      9.2
+     ],
+     [
+      15.1,
+      8.3
+     ],
+     [
+      17.7,
+      8
+     ],
+     [
+      18.5,
+      7.9
+     ],
+     [
+      20.1,
+      7.7
+     ],
+     [
+      20.4,
+      7.6
+     ],
+     [
+      21.1,
+      7.5
+     ],
+     [
+      21.2,
+      7.5
+     ],
+     [
+      21.5,
+      7.5
+     ],
+     [
+      21.7,
+      7.5
+     ],
+     [
+      22.6,
+      7.3
+     ],
+     [
+      23.2,
+      7.2
+     ],
+     [
+      24.2,
+      7.1
+     ],
+     [
+      24.4,
+      7.1
+     ],
+     [
+      24.9,
+      7
+     ],
+     [
+      25.7,
+      6.9
+     ],
+     [
+      26.4,
+      6.7
+     ],
+     [
+      27.3,
+      6.6
+     ],
+     [
+      28.1,
+      6.4
+     ],
+     [
+      28.6,
+      6.3
+     ],
+     [
+      30.1,
+      6
+     ],
+     [
+      30.5,
+      5.9
+     ],
+     [
+      31.7,
+      5.5
+     ],
+     [
+      33.7,
+      4.7
+     ],
+     [
+      34.8,
+      4.1
+     ],
+     [
+      37,
+      3.1
+     ],
+     [
+      39.7,
+      2.1
+     ],
+     [
+      55,
+      0
+     ],
+     [
+      58.1,
+      0
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Total Response Time",
+    "id": "30860",
+    "n": 107,
+    "min": 0.7,
+    "max": 32.9,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      0.7,
+      9.9
+     ],
+     [
+      1,
+      9.8
+     ],
+     [
+      1.2,
+      9.8
+     ],
+     [
+      1.4,
+      9.8
+     ],
+     [
+      2.4,
+      9.7
+     ],
+     [
+      3.4,
+      9.6
+     ],
+     [
+      3.7,
+      9.6
+     ],
+     [
+      4,
+      9.6
+     ],
+     [
+      4.2,
+      9.6
+     ],
+     [
+      7,
+      9.2
+     ],
+     [
+      8.4,
+      8.9
+     ],
+     [
+      8.8,
+      8.8
+     ],
+     [
+      9.2,
+      8.7
+     ],
+     [
+      9.6,
+      8.6
+     ],
+     [
+      9.8,
+      8.6
+     ],
+     [
+      10.1,
+      8.5
+     ],
+     [
+      10.3,
+      8.5
+     ],
+     [
+      10.4,
+      8.4
+     ],
+     [
+      10.6,
+      8.4
+     ],
+     [
+      11.3,
+      8.2
+     ],
+     [
+      11.5,
+      8.2
+     ],
+     [
+      11.6,
+      8.1
+     ],
+     [
+      11.8,
+      8.1
+     ],
+     [
+      12.1,
+      8
+     ],
+     [
+      12.5,
+      7.9
+     ],
+     [
+      13.1,
+      7.7
+     ],
+     [
+      13.9,
+      7.5
+     ],
+     [
+      14.3,
+      7.4
+     ],
+     [
+      14.8,
+      7.3
+     ],
+     [
+      15.3,
+      7.2
+     ],
+     [
+      15.7,
+      7.1
+     ],
+     [
+      16.3,
+      6.9
+     ],
+     [
+      17.6,
+      6.6
+     ],
+     [
+      18.1,
+      6.5
+     ],
+     [
+      20,
+      6
+     ],
+     [
+      22.5,
+      5.2
+     ],
+     [
+      32.9,
+      1.3
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "First Response Time",
+    "id": "30862",
+    "n": 107,
+    "min": 0.3,
+    "max": 32.9,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      0.3,
+      10
+     ],
+     [
+      0.4,
+      9.9
+     ],
+     [
+      0.5,
+      9.8
+     ],
+     [
+      0.7,
+      9.4
+     ],
+     [
+      0.8,
+      9.2
+     ],
+     [
+      4.4,
+      8.6
+     ],
+     [
+      5.5,
+      8.3
+     ],
+     [
+      6.1,
+      8
+     ],
+     [
+      6.2,
+      8
+     ],
+     [
+      6.6,
+      7.7
+     ],
+     [
+      7.2,
+      7.4
+     ],
+     [
+      7.9,
+      6.9
+     ],
+     [
+      8.5,
+      6.4
+     ],
+     [
+      8.9,
+      6.1
+     ],
+     [
+      9.1,
+      5.9
+     ],
+     [
+      9.3,
+      5.8
+     ],
+     [
+      9.9,
+      5.4
+     ],
+     [
+      10.1,
+      5.3
+     ],
+     [
+      10.4,
+      5.1
+     ],
+     [
+      11.2,
+      4.6
+     ],
+     [
+      11.3,
+      4.6
+     ],
+     [
+      11.8,
+      4.2
+     ],
+     [
+      12.5,
+      3.4
+     ],
+     [
+      12.9,
+      2.7
+     ],
+     [
+      14,
+      0.8
+     ],
+     [
+      14.5,
+      0.2
+     ],
+     [
+      14.9,
+      0
+     ],
+     [
+      15.7,
+      0
+     ],
+     [
+      16.5,
+      0
+     ],
+     [
+      17.7,
+      0
+     ],
+     [
+      20.2,
+      0
+     ],
+     [
+      25.8,
+      0
+     ],
+     [
+      32.9,
+      0
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Peak Direct Reflection Intensity",
+    "id": "30856",
+    "n": 107,
+    "min": 4.581604418,
+    "max": 77.13757066,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      4.5816,
+      9.8
+     ],
+     [
+      7.79968,
+      9.5
+     ],
+     [
+      8.8411,
+      9.3
+     ],
+     [
+      9.6711,
+      9
+     ],
+     [
+      11.0148,
+      8.7
+     ],
+     [
+      11.7697,
+      8.6
+     ],
+     [
+      17.3772,
+      8.4
+     ],
+     [
+      18.5237,
+      8.4
+     ],
+     [
+      20.1098,
+      8.3
+     ],
+     [
+      21.3424,
+      8.2
+     ],
+     [
+      23.3213,
+      8.1
+     ],
+     [
+      31.1528,
+      7.4
+     ],
+     [
+      35.9631,
+      6.9
+     ],
+     [
+      38.6236,
+      6.7
+     ],
+     [
+      41.4826,
+      6.5
+     ],
+     [
+      42.0772,
+      6.5
+     ],
+     [
+      42.9717,
+      6.5
+     ],
+     [
+      43.9143,
+      6.4
+     ],
+     [
+      46.4943,
+      6.3
+     ],
+     [
+      46.9054,
+      6.3
+     ],
+     [
+      48.3519,
+      6.3
+     ],
+     [
+      50.0082,
+      6.2
+     ],
+     [
+      51.5493,
+      6.1
+     ],
+     [
+      55.4967,
+      5.9
+     ],
+     [
+      57.1818,
+      5.8
+     ],
+     [
+      59.2986,
+      5.7
+     ],
+     [
+      59.8165,
+      5.7
+     ],
+     [
+      61.2997,
+      5.6
+     ],
+     [
+      63.7574,
+      5.5
+     ],
+     [
+      65.1765,
+      5.4
+     ],
+     [
+      67.4686,
+      5.2
+     ],
+     [
+      67.8674,
+      5.2
+     ],
+     [
+      69.9647,
+      5.1
+     ],
+     [
+      70.4421,
+      5.1
+     ],
+     [
+      71.0778,
+      5
+     ],
+     [
+      76.4962,
+      4.7
+     ],
+     [
+      77.1376,
+      4.7
+     ]
+    ],
+    "evidence": "A"
+   },
+   {
+    "name": "Black Luminance @ 1000 lx",
+    "id": "29478",
+    "n": 107,
+    "min": 0.1848,
+    "max": 3.095,
+    "direction": "decreasing",
+    "anchors": [
+     [
+      0.1848,
+      9.4
+     ],
+     [
+      0.24,
+      9.3
+     ],
+     [
+      0.25289,
+      9.3
+     ],
+     [
+      0.2586,
+      9.3
+     ],
+     [
+      0.267402,
+      9.3
+     ],
+     [
+      0.283257,
+      9.2
+     ],
+     [
+      0.31,
+      9.2
+     ],
+     [
+      0.33,
+      9.1
+     ],
+     [
+      0.346178,
+      9.1
+     ],
+     [
+      0.35,
+      9.1
+     ],
+     [
+      0.356604,
+      9.1
+     ],
+     [
+      0.365,
+      9.1
+     ],
+     [
+      0.38,
+      9.1
+     ],
+     [
+      0.387574,
+      9
+     ],
+     [
+      0.396828,
+      9
+     ],
+     [
+      0.403477,
+      9
+     ],
+     [
+      0.4106,
+      9
+     ],
+     [
+      0.42,
+      9
+     ],
+     [
+      0.426,
+      9
+     ],
+     [
+      0.4358,
+      9
+     ],
+     [
+      0.44,
+      9
+     ],
+     [
+      0.45777,
+      8.9
+     ],
+     [
+      0.4667,
+      8.9
+     ],
+     [
+      0.483823,
+      8.9
+     ],
+     [
+      0.490337,
+      8.9
+     ],
+     [
+      0.53,
+      8.8
+     ],
+     [
+      0.55,
+      8.7
+     ],
+     [
+      0.59,
+      8.7
+     ],
+     [
+      0.723918,
+      8.4
+     ],
+     [
+      1,
+      7.9
+     ],
+     [
+      1.665,
+      6.9
+     ],
+     [
+      1.968,
+      6.1
+     ],
+     [
+      2.13,
+      5.7
+     ],
+     [
+      2.218,
+      5.5
+     ],
+     [
+      2.44045,
+      5.3
+     ],
+     [
+      2.90719,
+      4.4
+     ],
+     [
+      3.095,
+      4
+     ]
+    ],
+    "evidence": "A"
+   }
+  ],
+  "subjective": [],
+  "deprecated": [
+   {
+    "name": "Black Uniformity Picture With Preferred Local Dimming",
+    "id": "640",
+    "rule": "恒0分 (废弃指标)",
+    "evidence": "A"
+   },
+   {
+    "name": "Gamma",
+    "id": "152",
+    "rule": "恒0分 (废弃指标)",
+    "evidence": "A"
+   },
+   {
+    "name": "Gamma",
+    "id": "153",
+    "rule": "恒0分 (废弃指标)",
+    "evidence": "A"
+   },
+   {
+    "name": "FreeSync",
+    "id": "5040",
+    "rule": "恒0分 (废弃指标)",
+    "evidence": "A"
+   },
+   {
+    "name": "Black Luminance @ 0 lx",
+    "id": "30809",
+    "rule": "恒0分 (废弃指标)",
+    "evidence": "A"
+   },
+   {
+    "name": "Native Black Uniformity Picture",
+    "id": "229",
+    "rule": "无数据 (未启用)",
+    "evidence": "A",
+    "note": "107 款产品全部无数值无得分（未启用）"
+   },
+   {
+    "name": "HDR Hallway Photo",
+    "id": "12656",
+    "rule": "无数据 (未启用)",
+    "evidence": "A",
+    "note": "全部无数据（未启用）"
+   },
+   {
+    "name": "HDR Landscape Photo",
+    "id": "12658",
+    "rule": "无数据 (未启用)",
+    "evidence": "A",
+    "note": "全部无数据（未启用）"
+   },
+   {
+    "name": "HDR Cityscape Photo",
+    "id": "12657",
+    "rule": "无数据 (未启用)",
+    "evidence": "A",
+    "note": "全部无数据（未启用）"
+   },
+   {
+    "name": "Lighting Zone Precision Picture",
+    "id": "16979",
+    "rule": "无数据 (未启用)",
+    "evidence": "A",
+    "note": "全部无数据（未启用）"
+   }
+  ]
+ },
+ "scoreOnlyAggregates": [
+  {
+   "name": "Lighting Zone Transitions",
+   "id": "16977",
+   "note": "score-only，公式未知（无子项数据列）"
+  },
+  {
+   "name": "Contrast And Dark Details In Game Mode",
+   "id": "16540",
+   "note": "score-only，公式未知（无子项数据列）"
+  },
+  {
+   "name": "Stutter Reduction Via Interpolation",
+   "id": "39005",
+   "note": "score-only，公式未知"
+  },
+  {
+   "name": "Transition Artifacts",
+   "id": "39011",
+   "note": "score-only，公式未知"
+  }
+ ],
+ "subjective": [
+  {
+   "name": "Upscaling: Sharpness Processing (test:112)",
+   "id": "112",
+   "evidence": "D",
+   "note": "工程师按默认状态锐化表现评级(参照 MTK9615/9618 平台表现); CSV仅提供最终得分, 无原始量",
+   "engineerAnchor": {
+    "7分参照": "TCL QM6K/Q77K (MTK9615)",
+    "8分参照": "Sony X90L / Hisense UR8SG (MTK9618)"
+   }
+  },
+  {
+   "name": "Black Uniformity (test:10)",
+   "id": "10",
+   "evidence": "D",
+   "note": "⚠️ 部分主观: Rtings 对黑场均匀性含人工判读(云雾/脏屏效应), CSV仅提供得分; 但其子项 Std.Dev 有客观量"
+  },
+  {
+   "name": "Local Dimming 算法表现 (Lighting Zone Transitions test:16977)",
+   "id": "16977",
+   "evidence": "D",
+   "note": "score-only, 无原始量; 工程师按光晕/过渡表现人工评分"
+  },
+  {
+   "name": "Lighting Zone Precision (test:16975)",
+   "id": "16975",
+   "evidence": "D",
+   "note": "score-only; 工程师以分区数量+算法评估 (65寸最低160区; 对标 Sony 480区 / Samsung 720区)"
+  },
+  {
+   "name": "HDR Hallway/Landscape/Cityscape Photo (test:12656/12658/12657)",
+   "id": "12656",
+   "evidence": "D",
+   "note": "照片对比评分项, CSV 107款全部无数据 (未启用)"
+  }
+ ],
+ "engineerRanges": {
+  "note": "工程师人工抓取的得分-数值对应区间(20组测试), 与CSV曲线96.6%吻合; 两端稀疏区(≤2分、≥9.5分)以CSV锚点为准",
+  "source": "Rtings计算文档.xlsx!得分范围统计"
+ },
+ "thresholds78": [
+  {
+   "group": "HDR Brightness",
+   "items": [
+    {
+     "name": "Hallway (~1950)",
+     "need7": 880,
+     "need8": 1150,
+     "evidence": "C",
+     "check": "≥7值实际对应6.93分(CSV外推); ≥8对应8.07"
+    },
+    {
+     "name": "Yellow Skyscraper",
+     "need7": 384,
+     "need8": 450,
+     "evidence": "C",
+     "check": "CSV无此测试列"
+    },
+    {
+     "name": "Landscape Pool",
+     "need7": 165,
+     "need8": 197,
+     "evidence": "C",
+     "check": "≥7对应6.92; ≥8对应7.97"
+    },
+    {
+     "name": "Peak 2%",
+     "need7": 818,
+     "need8": 1200,
+     "evidence": "A",
+     "check": "精确7.00/8.00"
+    },
+    {
+     "name": "Peak 10%",
+     "need7": 840,
+     "need8": 1200,
+     "evidence": "A",
+     "check": "精确"
+    },
+    {
+     "name": "Peak 25%",
+     "need7": 667,
+     "need8": 950,
+     "evidence": "A",
+     "check": "7.00/7.99"
+    },
+    {
+     "name": "Peak 50%",
+     "need7": 600,
+     "need8": 820,
+     "evidence": "A",
+     "check": "精确"
+    },
+    {
+     "name": "Peak 100%",
+     "need7": 560,
+     "need8": 840,
+     "evidence": "C",
+     "check": "6.90/7.98 (略偏)"
+    }
+   ]
+  },
+  {
+   "group": "SDR Brightness",
+   "items": [
+    {
+     "name": "Real Scene Peak",
+     "need7": 450,
+     "need8": 590,
+     "evidence": "A",
+     "check": "7.01/7.99"
+    },
+    {
+     "name": "Peak 2%~100%",
+     "need7": 450,
+     "need8": 580,
+     "evidence": "A",
+     "check": "2%/25%/50%/100%档CSV精确; 10%档CSV门槛448"
+    }
+   ]
+  },
+  {
+   "group": "Contrast",
+   "items": [
+    {
+     "name": "Contrast LD-ON",
+     "need7": "58400:1",
+     "need8": "110000:1",
+     "evidence": "A",
+     "check": "7.00/8.01 精确"
+    },
+    {
+     "name": "Native Contrast",
+     "need7": 4426,
+     "need8": 6500,
+     "evidence": "A",
+     "check": "7.00/7.97"
+    }
+   ]
+  },
+  {
+   "group": "Black Uniformity",
+   "items": [
+    {
+     "name": "Std. Dev.",
+     "need7": "≤0.78%",
+     "need8": "≤0.53%",
+     "evidence": "A",
+     "check": "7.00/7.96 精确"
+    },
+    {
+     "name": "Native Std. Dev.",
+     "need7": "≤0.756%",
+     "need8": "≤0.524%",
+     "evidence": "A",
+     "check": "7.00/8.00 精确"
+    }
+   ]
+  },
+  {
+   "group": "Color",
+   "items": [
+    {
+     "name": "DCI-P3",
+     "need7": "≥80.5%",
+     "need8": "≥88.38%",
+     "evidence": "A",
+     "check": "7.00/8.00 精确"
+    },
+    {
+     "name": "BT.2020 (SDR CV子项)",
+     "need7": "≥70%",
+     "need8": "≥80%",
+     "evidence": "A",
+     "check": "7.00/8.04"
+    },
+    {
+     "name": "10000nit BT.2020 ITP",
+     "need7": "≥31%",
+     "need8": "≥39.7%",
+     "evidence": "A",
+     "check": "6.97/8.00 精确"
+    },
+    {
+     "name": "WB dE (SDR)",
+     "need7": "≤3.45",
+     "need8": "≤2.5",
+     "evidence": "A",
+     "check": "6.97/8.00"
+    },
+    {
+     "name": "Color dE (SDR)",
+     "need7": "≤3.45",
+     "need8": "≤2.5",
+     "evidence": "A",
+     "check": "7.02/—"
+    },
+    {
+     "name": "色温",
+     "need7": "6100~6900K",
+     "need8": "6400~6700K",
+     "evidence": "C",
+     "check": "CSV为6500K对称衰减: 7分带≈6206~6810K, 8分带≈6310~6694K; 工程师区间略宽"
+    },
+    {
+     "name": "HDR dE ITP",
+     "need7": "≤12",
+     "need8": "≤7.64",
+     "evidence": "A",
+     "check": "6.90~6.94/7.98~8.00"
+    }
+   ]
+  },
+  {
+   "group": "Motion",
+   "items": [
+    {
+     "name": "Sample And Hold",
+     "need7": "≤18.5 px/s",
+     "need8": "≤17 px/s",
+     "evidence": "C",
+     "check": "CSV最高6.6分@19.9; ≤7分无样本, 为外推目标"
+    },
+    {
+     "name": "Frame Hold 24fps",
+     "need7": "≤34.2ms",
+     "need8": "≤28ms",
+     "evidence": "A",
+     "check": "7.00/8.00 精确"
+    },
+    {
+     "name": "First RT",
+     "need7": "≤7.5ms",
+     "need8": "≤6.2ms",
+     "evidence": "A",
+     "check": "7.20/8.00"
+    },
+    {
+     "name": "Total RT",
+     "need7": "≤16ms",
+     "need8": "≤12ms",
+     "evidence": "A",
+     "check": "7.03/8.05"
+    },
+    {
+     "name": "Worst 10% RT",
+     "need7": "≤24.9ms",
+     "need8": "≤17.8ms",
+     "evidence": "A",
+     "check": "7.00/8.00 精确"
+    },
+    {
+     "name": "1080p@60",
+     "need7": "≤16.7ms",
+     "need8": "≤13.6ms",
+     "evidence": "A",
+     "check": "7.10/8.00"
+    },
+    {
+     "name": "1080p@120",
+     "need7": "≤11.6ms",
+     "need8": "≤8.8ms",
+     "evidence": "A",
+     "check": "≈7.15/—"
+    },
+    {
+     "name": "4k@120",
+     "need7": "≤11.6ms",
+     "need8": "≤8.8ms",
+     "evidence": "A",
+     "check": "7.16/8.01"
+    },
+    {
+     "name": "4k@Max",
+     "need7": "≤11.6ms",
+     "need8": "≤8.8ms",
+     "evidence": "A",
+     "check": "7.08/7.68 ⚠️ 8分门槛偏严, 8分实际需~7ms"
+    },
+    {
+     "name": "Avg. CAD",
+     "need7": "≤196",
+     "need8": "≤131",
+     "evidence": "A",
+     "check": "7.00/8.07"
+    },
+    {
+     "name": "Best CAD",
+     "need7": "≤112",
+     "need8": "≤70",
+     "evidence": "A",
+     "check": "7.00/—"
+    },
+    {
+     "name": "Worst CAD",
+     "need7": "≤360",
+     "need8": "≤260",
+     "evidence": "A",
+     "check": "6.90/—"
+    }
+   ]
+  },
+  {
+   "group": "Reflections",
+   "items": [
+    {
+     "name": "Peak Direct Reflection",
+     "need7": "≤35%",
+     "need8": "≤23.5%",
+     "evidence": "A",
+     "check": "7.00/8.08 精确"
+    },
+    {
+     "name": "Black Luminance @1000lx",
+     "need7": "≤1.62",
+     "need8": "≤0.98",
+     "evidence": "A",
+     "check": "6.99/8.00 精确"
+    }
+   ]
+  }
+ ],
+ "implementation": {
+  "rounding": "每级聚合后四舍五入到0.1 (Rtings显示精度); 中间值建议保留全精度最后舍入",
+  "renormalize": "子项缺失(不支持/未测)时, 用可用子项权重重归一: score = Σ(wᵢ·xᵢ)/Σwᵢ(可用)",
+  "absenceRule": "原始值为空且得分为0 → 视为\"缺席\"(不参与聚合); 原始值为空但得分为非0 → 正常参与",
+  "categoricalFail": "类别项不支持计0分但同样按缺席处理(如8k@60不支持时从Input Lag聚合剔除)",
+  "subjectiveAnchor": "主观项参照工程师锚点: Upscaling 7分≈MTK9615平台表现(TCL QM6K/Q77K), 8分≈MTK9618(Sony X90L级)",
+  "csvUnitWarnings": [
+   "Black Uniformity Std. Dev.: CSV值为百分数(1.857=1.857%); 实验室数据若为小数需×100",
+   "Native Std. Dev. 同上",
+   "Contrast: CSV为比值(58400), 非\"n:1\"格式"
+  ],
+  "openIssues": [
+   "Game Mode Responsiveness 内部权重: CSV缺CAD@60Hz列无法验证工程师结构; 软件建议先用工程师结构, 收集自测数据后回归校准",
+   "HDR Brightness 含 Yellow Skyscraper/ABL 子项但CSV无数据; 软件可先按6个实测列的等效权重(已验证)实现",
+   "Motion 对 QN900F 8K 类无Transition子项产品误差0.31分(106/107正常)"
+  ]
+ }
+}

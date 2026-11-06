@@ -10,7 +10,7 @@ export type ScoreStatus = 'scored' | 'incomplete' | 'excluded';
 
 export type IntervalSource = 'actualSample' | 'engineerEstimate' | 'manual';
 
-/** 分数使用 8~100 表示 0.8~10.0；主观项可为 0~100。 */
+/** 分数使用 8~100 表示 0.8~10.0；主观项可为 0~100。锚点插值时可为小数。 */
 export type ScoreTenths = number;
 
 export interface MappingInterval {
@@ -35,7 +35,14 @@ export interface ObjectiveMapping {
   label: string;
   unit: string;
   direction: Direction;
-  intervals: MappingInterval[];
+  kind?: 'intervals' | 'anchors' | 'identity' | 'categorical';
+  intervals?: MappingInterval[];
+  /** 数值锚点线性插值；来自 CSV 反推时使用。 */
+  anchors?: Array<{ value: number; score: number }>;
+  /** 类别值精确映射。 */
+  values?: Array<{ value: string; score: number }>;
+  source?: string;
+  evidence?: string;
 }
 
 export interface ScoreNode {
@@ -55,6 +62,8 @@ export interface ScoreNode {
 export interface ObjectiveInput {
   /** null 表示未填写；Infinity 表示 inf。 */
   value: number | null;
+  /** 类别项原文，例如 Yes / No / Glossy。 */
+  text?: string;
   note?: string;
 }
 
@@ -126,10 +135,20 @@ export interface EvaluationResult {
   warnings: RuleWarning[];
 }
 
+export interface AggregatePolicy {
+  /** excelSum 保留旧工作簿口径；renormalize 按可用子项权重重归一。 */
+  mode: 'excelSum' | 'renormalize';
+  /** block 表示任一计入子项缺失即不完整；renormalize 表示剔除缺失子项。 */
+  missing: 'block' | 'renormalize';
+  /** 每级聚合后的显示精度；null 表示不四舍五入。 */
+  roundingStep?: number | null;
+}
+
 export interface ScoringRule {
   /** 规则版本；历史评测必须绑定该值。 */
   version: string;
   rootId: NodeId;
   nodes: ScoreNode[];
   mappings: ObjectiveMapping[];
+  aggregate?: AggregatePolicy;
 }

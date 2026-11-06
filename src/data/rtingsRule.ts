@@ -1,5 +1,7 @@
-import baselinesJson from './baselines/rtings-baselines.v1.json';
-import ruleJson from './rtings-rule.v1.json';
+import baselinesV1Json from './baselines/rtings-baselines.v1.json';
+import baselinesV3Json from './baselines/rtings-baselines-v3.json';
+import ruleV1Json from './rtings-rule.v1.json';
+import ruleV3Json from './rtings-rule-v3.json';
 import type {
   EvaluationInputs,
   ObjectiveMapping,
@@ -7,7 +9,9 @@ import type {
   ScoreNode
 } from '../core/types';
 
-export const rtingsRuleV1 = ruleJson as unknown as ScoringRule;
+export const rtingsRuleV1 = ruleV1Json as unknown as ScoringRule;
+export const rtingsRuleV3 = ruleV3Json as unknown as ScoringRule;
+export const rtingsRule = rtingsRuleV3;
 
 export interface BaselineRow {
   excelRow: number;
@@ -24,12 +28,18 @@ export interface BaselineRow {
 export interface ProductBaseline {
   id: string;
   label: string;
-  productColumn: string;
-  totalCell: string;
+  brand?: string;
+  model?: string;
+  releaseYear?: number | null;
+  size?: string;
+  methodology?: string;
+  productColumn?: string;
+  totalCell?: string;
+  source?: string;
   expectedTotal: number;
   expectedScores: Record<string, number>;
-  inputs: Record<string, { objective?: { value: number }; subjective?: { scoreTenths: number } }>;
-  rows: BaselineRow[];
+  inputs: Record<string, { objective?: { value: number | null; text?: string }; subjective?: { scoreTenths: number } }>;
+  rows?: BaselineRow[];
 }
 
 export interface BaselineCollection {
@@ -38,42 +48,55 @@ export interface BaselineCollection {
   items: ProductBaseline[];
 }
 
-export const rtingsBaselinesV1 = baselinesJson as unknown as BaselineCollection;
+export const rtingsBaselinesV1 = baselinesV1Json as unknown as BaselineCollection;
+export const rtingsBaselinesV3 = baselinesV3Json as unknown as BaselineCollection;
+export const rtingsBaselines = rtingsBaselinesV3;
 
 export const hisense65U7nVaBaselineV1 = getBaselineById('hisense-65u7n-rtings-va')!;
+export const defaultBaselineV3 = rtingsBaselinesV3.items[0];
 
 export function getBaselineById(id: string): ProductBaseline | undefined {
   return rtingsBaselinesV1.items.find(baseline => baseline.id === id);
 }
 
+export function getV3BaselineById(id: string): ProductBaseline | undefined {
+  return rtingsBaselinesV3.items.find(baseline => baseline.id === id);
+}
+
 /**
- * 基准输入包含两层：
- * - 有区间表的客观项：用原始测量值走映射。
- * - 无区间表/主观项：用工程师评分直接输入。
+ * v1 基准带 rows，按旧工作簿结构构造输入；
+ * v3 基准直接保存来自 CSV 的官方输入。
  */
-export function buildBaselineInputs(baseline: ProductBaseline): EvaluationInputs {
-  const nodeById = new Map<string, ScoreNode>(rtingsRuleV1.nodes.map(node => [node.id, node]));
-  const rowByNode = new Map<string, BaselineRow>(baseline.rows.map(row => [row.nodeId, row]));
-  const inputs: EvaluationInputs = {};
+export function buildBaselineInputs(
+  baseline: ProductBaseline,
+  rule: ScoringRule = rtingsRule
+): EvaluationInputs {
+  if (baseline.rows?.length) {
+    const nodeById = new Map<string, ScoreNode>(rule.nodes.map(node => [node.id, node]));
+    const rowByNode = new Map<string, BaselineRow>(baseline.rows.map(row => [row.nodeId, row]));
+    const inputs: EvaluationInputs = {};
 
-  for (const [nodeId, score] of Object.entries(baseline.expectedScores)) {
-    const node = nodeById.get(nodeId);
-    const row = rowByNode.get(nodeId);
-    if (!node || !row) continue;
+    for (const [nodeId, score] of Object.entries(baseline.expectedScores)) {
+      const node = nodeById.get(nodeId);
+      const row = rowByNode.get(nodeId);
+      if (!node || !row) continue;
 
-    if (node.inputType === 'objective' && row.rawNumber !== null) {
-      inputs[nodeId] = { objective: { value: row.rawNumber } };
-      continue;
+      if (node.inputType === 'objective' && row.rawNumber !== null) {
+        inputs[nodeId] = { objective: { value: row.rawNumber } };
+        continue;
+      }
+
+      inputs[nodeId] = {
+        subjective: { scoreTenths: Math.round(score * 10) }
+      };
     }
 
-    inputs[nodeId] = {
-      subjective: { scoreTenths: Math.round(score * 10) }
-    };
+    return inputs;
   }
 
-  return inputs;
+  return baseline.inputs as EvaluationInputs;
 }
 
 export function getMappingById(id: string): ObjectiveMapping | undefined {
-  return rtingsRuleV1.mappings.find(mapping => mapping.id === id);
+  return rtingsRule.mappings.find(mapping => mapping.id === id);
 }

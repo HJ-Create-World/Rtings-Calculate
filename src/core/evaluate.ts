@@ -1,5 +1,6 @@
 import { mapObjectiveValue } from './mapping';
 import type {
+  AggregatePolicy,
   EvaluationInputs,
   EvaluationResult,
   NodeEvaluation,
@@ -9,6 +10,12 @@ import type {
 } from './types';
 
 const WEIGHT_EPSILON = 1e-9;
+
+const DEFAULT_POLICY: AggregatePolicy = {
+  mode: 'excelSum',
+  missing: 'block',
+  roundingStep: null
+};
 
 function validateRule(rule: ScoringRule): RuleWarning[] {
   const warnings: RuleWarning[] = [];
@@ -76,6 +83,11 @@ function validateRule(rule: ScoringRule): RuleWarning[] {
   return warnings;
 }
 
+function roundToStep(value: number, step: number | null | undefined): number {
+  if (!step || step <= 0) return value;
+  return Number((Math.round(value / step) * step).toFixed(10));
+}
+
 function sumWeights(children: ScoreNode[]): number {
   return children.reduce((total, child) => total + (child.weight ?? 0), 0);
 }
@@ -84,6 +96,7 @@ export function evaluateRule(
   rule: ScoringRule,
   inputs: EvaluationInputs
 ): EvaluationResult {
+  const policy = rule.aggregate ?? DEFAULT_POLICY;
   const validationWarnings = validateRule(rule);
   const nodeById = new Map(rule.nodes.map(node => [node.id, node]));
   const childrenByParent = new Map<string, ScoreNode[]>();
@@ -107,17 +120,100 @@ export function evaluateRule(
     if (node.inputType === 'aggregate') {
       const children = childrenByParent.get(node.id) ?? [];
       const childEvaluations = children.map(child => evaluateNode(child.id));
+      const warnings: RuleWarning[] = [];
+
+      const canContribute = children.map(
+        child =>
+          child.includeInParent &&
+          child.weight !== null &&
+          (policy.mode === 'renormalize' ? child.weight > 0 : true)
+      );
+
+      if (policy.mode === 'renormalize') {
+        const contributing = children
+          .map((child, index) => ({ child, evaluation: childEvaluations[index], index }))
+          .filter(
+            item =>
+              canContribute[item.index] && item.evaluation.status === 'scored'
+          );
+
+        const configuredWeightSum = sumWeights(
+          children.filter((_child, index) => canContribute[index])
+        );
+        if (
+          configuredWeightSum > 0 &&
+          Math.abs(configuredWeightSum - 1) > WEIGHT_EPSILON
+        ) {
+          warnings.push({
+            code: 'WEIGHT_SUM_NOT_ONE',
+            message: `${node.label} 计入子项权重和为 ${configuredWeightSum}，已按可用子项重归一`,
+            nodeId: node.id
+          });
+        }
+
+        if (!contributing.length) {
+          const hasConfigured = canContribute.some(Boolean);
+          const result: NodeEvaluation = {
+            nodeId: node.id,
+            status: hasConfigured ? 'incomplete' : 'excluded',
+            value: null,
+            partialValue: 0,
+            contributionToParent: null,
+            children: childEvaluations,
+            warnings: hasConfigured
+              ? [
+                  {
+                    code: 'INCOMPLETE_CHILD',
+                    message: `${node.label} 缺少可评分的子项`,
+                    nodeId: node.id
+                  }
+                ]
+              : []
+          };
+          evaluated.set(node.id, result);
+          return result;
+        }
+
+        const weightSum = contributing.reduce(
+          (total, item) => total + item.child.weight!,
+          0
+        );
+        const weightedSum = contributing.reduce(
+          (total, item) => total + item.child.weight! * item.evaluation.value!,
+          0
+        );
+        const normalized = weightSum > 0 ? weightedSum / weightSum : 0;
+
+        contributing.forEach(item => {
+          item.evaluation.contributionToParent =
+            (item.child.weight! * item.evaluation.value!) / weightSum;
+        });
+        children.forEach((_child, index) => {
+          if (!canContribute[index] || childEvaluations[index].status !== 'scored') {
+            childEvaluations[index].contributionToParent = null;
+          }
+        });
+
+        const result: NodeEvaluation = {
+          nodeId: node.id,
+          status: 'scored',
+          value: roundToStep(normalized, policy.roundingStep),
+          partialValue: normalized,
+          contributionToParent: null,
+          children: childEvaluations,
+          warnings
+        };
+        evaluated.set(node.id, result);
+        return result;
+      }
 
       let partialValue = 0;
       let hasIncomplete = false;
       let hasIncluded = false;
-      const warnings: RuleWarning[] = [];
 
       children.forEach((child, index) => {
         const childEvaluation = childEvaluations[index];
-        const canContribute = child.includeInParent && child.weight !== null;
-
-        if (!canContribute) {
+        if (!canContribute[index]) {
           childEvaluation.contributionToParent = null;
           return;
         }
@@ -140,7 +236,7 @@ export function evaluateRule(
       });
 
       if (hasIncluded) {
-        const weightSum = sumWeights(children.filter(child => child.includeInParent));
+        const weightSum = sumWeights(children.filter((_child, index) => canContribute[index]));
         if (Math.abs(weightSum - 1) > WEIGHT_EPSILON) {
           warnings.push({
             code: 'WEIGHT_SUM_NOT_ONE',
@@ -159,7 +255,7 @@ export function evaluateRule(
       const result: NodeEvaluation = {
         nodeId: node.id,
         status,
-        value: status === 'scored' ? partialValue : null,
+        value: status === 'scored' ? roundToStep(partialValue, policy.roundingStep) : null,
         partialValue,
         contributionToParent: null,
         children: childEvaluations,
@@ -194,7 +290,11 @@ export function evaluateRule(
         return result;
       }
 
-      const trace = mapObjectiveValue(mapping, input?.objective?.value ?? null);
+      const trace = mapObjectiveValue(
+        mapping,
+        input?.objective?.value ?? null,
+        input?.objective?.text
+      );
       const result: NodeEvaluation = {
         nodeId: node.id,
         status: trace.status,

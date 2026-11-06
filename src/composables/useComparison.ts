@@ -1,18 +1,18 @@
 import { computed, ref } from 'vue';
 import type { ScoreNode } from '../core/types';
-import { getBaselineById, rtingsBaselinesV1, rtingsRuleV1 } from '../data/rtingsRule';
+import { getV3BaselineById, rtingsBaselinesV3, rtingsRule } from '../data/rtingsRule';
 
 export function useComparison() {
-  const allBaselines = rtingsBaselinesV1.items;
-  const selectedIds = ref<string[]>(allBaselines.map(baseline => baseline.id));
+  const allBaselines = rtingsBaselinesV3.items;
+  const selectedIds = ref<string[]>(allBaselines.slice(0, 6).map(baseline => baseline.id));
 
   const selectedProducts = computed(() =>
-    selectedIds.value.map(id => getBaselineById(id)!)
+    selectedIds.value.map(id => getV3BaselineById(id)!)
   );
 
   const topGroups = computed(() =>
-    rtingsRuleV1.nodes.filter(
-      node => node.parentId === rtingsRuleV1.rootId && node.includeInParent
+    rtingsRule.nodes.filter(
+      node => node.parentId === rtingsRule.rootId && node.includeInParent
     )
   );
 

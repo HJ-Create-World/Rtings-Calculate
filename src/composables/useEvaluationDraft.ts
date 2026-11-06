@@ -1,10 +1,10 @@
 import { computed, ref, watch } from 'vue';
 import { evaluateRule } from '../core/evaluate';
 import type { EvaluationInputs } from '../core/types';
-import { rtingsRuleV1 } from '../data/rtingsRule';
+import { rtingsRule } from '../data/rtingsRule';
 import type { EvaluationDraft, EvaluationDraftValue } from '../types/evaluation';
 
-const STORAGE_KEY = 'rtings-calculate:evaluation-draft:v1';
+const STORAGE_KEY = 'rtings-calculate:evaluation-draft:v3';
 
 function createId(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
@@ -21,7 +21,7 @@ function emptyDraft(): EvaluationDraft {
     testDate: '',
     engineer: '',
     remark: '',
-    ruleVersion: rtingsRuleV1.version,
+    ruleVersion: rtingsRule.version,
     values: {},
     updatedAt: new Date().toISOString()
   };
@@ -45,7 +45,7 @@ export function parseSubjectiveScore(raw: number | null | undefined): number | n
 
 export function buildDraftInputs(draft: EvaluationDraft): EvaluationInputs {
   const inputs: EvaluationInputs = {};
-  const nodeById = new Map(rtingsRuleV1.nodes.map(node => [node.id, node]));
+  const nodeById = new Map(rtingsRule.nodes.map(node => [node.id, node]));
 
   for (const [nodeId, value] of Object.entries(draft.values)) {
     const node = nodeById.get(nodeId);
@@ -53,8 +53,11 @@ export function buildDraftInputs(draft: EvaluationDraft): EvaluationInputs {
 
     if (node.inputType === 'objective') {
       const parsed = parseObjectiveNumber(value.objectiveRaw);
+      const rawText = value.objectiveRaw?.trim();
       if (parsed !== null) {
         inputs[nodeId] = { objective: { value: parsed } };
+      } else if (rawText) {
+        inputs[nodeId] = { objective: { value: null, text: rawText } };
       }
       continue;
     }
@@ -76,7 +79,7 @@ function loadDraft(): EvaluationDraft {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return emptyDraft();
     const parsed = JSON.parse(raw) as EvaluationDraft;
-    if (parsed.ruleVersion !== rtingsRuleV1.version) return emptyDraft();
+    if (parsed.ruleVersion !== rtingsRule.version) return emptyDraft();
     return {
       ...emptyDraft(),
       ...parsed,
@@ -103,7 +106,7 @@ export function useEvaluationDraft() {
   );
 
   const inputs = computed<EvaluationInputs>(() => buildDraftInputs(draft.value));
-  const result = computed(() => evaluateRule(rtingsRuleV1, inputs.value));
+  const result = computed(() => evaluateRule(rtingsRule, inputs.value));
   const filledCount = computed(() =>
     Object.values(draft.value.values).filter(value => {
       return Boolean(value.objectiveRaw?.trim()) || value.subjectiveScore !== null && value.subjectiveScore !== undefined;

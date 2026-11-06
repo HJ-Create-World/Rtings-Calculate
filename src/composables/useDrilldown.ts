@@ -1,9 +1,9 @@
 import { computed, ref, watch } from 'vue';
 import type { ScoreNode } from '../core/types';
-import { getBaselineById, rtingsBaselinesV1, rtingsRuleV1 } from '../data/rtingsRule';
+import { getV3BaselineById, rtingsBaselinesV3, rtingsRule } from '../data/rtingsRule';
 
 function collectTestItems(nodeId: string): ScoreNode[] {
-  return rtingsRuleV1.nodes
+  return rtingsRule.nodes
     .filter(node => node.parentId === nodeId)
     .flatMap(child => {
       if (child.inputType !== 'aggregate') return [child];
@@ -12,14 +12,14 @@ function collectTestItems(nodeId: string): ScoreNode[] {
 }
 
 export function useDrilldown() {
-  const groups = rtingsRuleV1.nodes.filter(node => node.parentId === rtingsRuleV1.rootId);
+  const groups = rtingsRule.nodes.filter(node => node.parentId === rtingsRule.rootId);
   const groupOptions = groups.map(group => ({ value: group.id, label: group.label }));
   const selectedGroupId = ref(groups[0]?.id ?? '');
 
   const testItems = computed(() => collectTestItems(selectedGroupId.value));
   const testItemOptions = computed(() =>
     testItems.value.map(item => {
-      const parent = rtingsRuleV1.nodes.find(node => node.id === item.parentId);
+      const parent = rtingsRule.nodes.find(node => node.id === item.parentId);
       return {
         value: item.id,
         label: parent && parent.kind === 'dimension'
@@ -37,9 +37,9 @@ export function useDrilldown() {
     selectedTestItemIds.value = testItems.value.slice(0, 6).map(item => item.id);
   });
 
-  const selectedProductIds = ref(rtingsBaselinesV1.items.map(baseline => baseline.id));
+  const selectedProductIds = ref(rtingsBaselinesV3.items.slice(0, 6).map(baseline => baseline.id));
   const selectedProducts = computed(() =>
-    selectedProductIds.value.map(id => getBaselineById(id)!)
+    selectedProductIds.value.map(id => getV3BaselineById(id)!)
   );
 
   const selectedTestItems = computed(() =>
@@ -48,7 +48,7 @@ export function useDrilldown() {
 
   const chartLabels = computed(() =>
     selectedTestItems.value.map(item => {
-      const parent = rtingsRuleV1.nodes.find(node => node.id === item.parentId);
+      const parent = rtingsRule.nodes.find(node => node.id === item.parentId);
       return parent && parent.kind === 'dimension'
         ? `${parent.label} / ${item.label}`
         : item.label;
@@ -84,7 +84,7 @@ export function useDrilldown() {
   }
 
   return {
-    allBaselines: rtingsBaselinesV1.items,
+    allBaselines: rtingsBaselinesV3.items,
     groupOptions,
     selectedGroupId,
     testItemOptions,

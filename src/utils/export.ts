@@ -1,5 +1,6 @@
 import * as XLSX from 'xlsx';
 import type { ScoreNode } from '../core/types';
+import { rtingsRule } from '../data/rtingsRule';
 import type { ProductBaseline } from '../data/rtingsRule';
 
 interface ExcelSheet {
@@ -38,16 +39,25 @@ export function exportComparisonExcel(
   });
 
   const detailRows = products.flatMap(product =>
-    product.rows.map(row => ({
-      产品: product.label,
-      节点ID: row.nodeId,
-      层级: row.kind,
-      测试项: row.label,
-      权重: row.weight,
-      是否计入父项: row.includeInParent ? '是' : '否',
-      期望分: row.expectedScore,
-      原始值: row.rawText
-    }))
+    rtingsRule.nodes
+      .filter(node => node.inputType !== 'aggregate')
+      .map(node => {
+        const input = product.inputs[node.id];
+        const rawValue =
+          input?.objective?.text ??
+          input?.objective?.value ??
+          (input?.subjective ? input.subjective.scoreTenths / 10 : null);
+        return {
+          产品: product.label,
+          节点ID: node.id,
+          层级: node.kind,
+          测试项: node.label,
+          权重: node.weight,
+          是否计入父项: node.includeInParent ? '是' : '否',
+          期望分: product.expectedScores[node.id] ?? null,
+          原始值: rawValue
+        };
+      })
   );
 
   downloadWorkbook(

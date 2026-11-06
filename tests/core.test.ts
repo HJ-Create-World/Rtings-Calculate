@@ -7,6 +7,7 @@ const boundaryMapping: ObjectiveMapping = {
   label: '边界映射',
   unit: 'cd/m²',
   direction: 'higherBetter',
+  kind: 'intervals',
   intervals: [
     {
       scoreTenths: 80,
@@ -116,7 +117,7 @@ describe('客观区间映射', () => {
     const mapping: ObjectiveMapping = {
       ...boundaryMapping,
       intervals: [
-        ...boundaryMapping.intervals,
+        ...(boundaryMapping.intervals ?? []),
         {
           scoreTenths: 90,
           min: 150,

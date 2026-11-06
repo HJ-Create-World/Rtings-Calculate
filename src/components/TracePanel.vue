@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { NodeEvaluation, ScoreNode } from '../core/types';
-import type { ProductBaseline } from '../data/rtingsRule';
+import type { BaselineRow } from '../data/rtingsRule';
 import {
   formatContribution,
   formatExact,
@@ -15,7 +15,7 @@ import { cardClass, mutedTextClass } from '../utils/ui';
 defineProps<{
   node: ScoreNode;
   evaluation: NodeEvaluation;
-  baselineRow?: ProductBaseline['rows'][number];
+  baselineRow?: BaselineRow;
   children: NodeEvaluation[];
   labelFor: (nodeId: string) => string;
   selectNode: (nodeId: string) => void;

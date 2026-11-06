@@ -1,0 +1,10639 @@
+{
+  "version": "3.0",
+  "name": "Rtings TV 评分规则 — 融合版 (工程师拆解 × CSV数据反推)",
+  "date": "2026-11-06",
+  "rootId": "mixed-usage",
+  "aggregate": {
+    "mode": "renormalize",
+    "missing": "renormalize",
+    "roundingStep": 0.1
+  },
+  "sources": [
+    "rtings_data.csv (107款电视实测+官方得分)",
+    "Rtings计算文档.xlsx (工程师人工拆解: 权重树/得分范围/7·8分门槛)",
+    "本方反推回归 (约束最小二乘, 逐款验证)"
+  ],
+  "evidenceLevels": {
+    "A": "精确验证: 用CSV中107款产品的官方得分逐款验证, 最大误差≤0.1 (显示精度)",
+    "B": "结构验证: 结构/形状由数据证实, 个别产品有已知例外 (已在note中列明)",
+    "C": "仅结构有据: 权重或阈值来自工程师人工拆解, CSV无对应数据无法数值验证",
+    "D": "纯人工判断: 无客观数据, 由工程师主观打分 (主观评分项)"
+  },
+  "openIssues": [
+    "Game Mode Responsiveness 内部权重: CSV缺CAD@60Hz列无法验证工程师结构; 软件建议先用工程师结构, 收集自测数据后回归校准",
+    "HDR Brightness 含 Yellow Skyscraper/ABL 子项但CSV无数据; 软件可先按6个实测列的等效权重(已验证)实现",
+    "Motion 对 QN900F 8K 类无Transition子项产品误差0.31分(106/107正常)"
+  ],
+  "nodes": [
+    {
+      "id": "mixed-usage",
+      "parentId": null,
+      "label": "Mixed Usage",
+      "kind": "group",
+      "inputType": "aggregate",
+      "weight": null,
+      "includeInParent": false,
+      "evidence": "A",
+      "note": "8 类加权平均；缺失子项按可用权重重归一"
+    },
+    {
+      "id": "mixed-usage.brightness",
+      "parentId": "mixed-usage",
+      "label": "Brightness（亮度）",
+      "kind": "group",
+      "inputType": "aggregate",
+      "weight": 0.25,
+      "includeInParent": true,
+      "csvTestId": "32475"
+    },
+    {
+      "id": "mixed-usage.black-level",
+      "parentId": "mixed-usage",
+      "label": "Black Level（黑位）",
+      "kind": "group",
+      "inputType": "aggregate",
+      "weight": 0.22,
+      "includeInParent": true,
+      "csvTestId": "32565"
+    },
+    {
+      "id": "mixed-usage.color",
+      "parentId": "mixed-usage",
+      "label": "Color（色彩）",
+      "kind": "group",
+      "inputType": "aggregate",
+      "weight": 0.22,
+      "includeInParent": true,
+      "csvTestId": "32566"
+    },
+    {
+      "id": "mixed-usage.motion-handling",
+      "parentId": "mixed-usage",
+      "label": "Motion Handling（运动处理）",
+      "kind": "group",
+      "inputType": "aggregate",
+      "weight": 0.1,
+      "includeInParent": true,
+      "csvTestId": "32474"
+    },
+    {
+      "id": "mixed-usage.processing",
+      "parentId": "mixed-usage",
+      "label": "Processing（处理）",
+      "kind": "group",
+      "inputType": "aggregate",
+      "weight": 0.07,
+      "includeInParent": true,
+      "csvTestId": "32476"
+    },
+    {
+      "id": "mixed-usage.game-mode",
+      "parentId": "mixed-usage",
+      "label": "Game Mode Responsiveness（游戏响应）",
+      "kind": "group",
+      "inputType": "aggregate",
+      "weight": 0.07,
+      "includeInParent": true,
+      "csvTestId": "32496"
+    },
+    {
+      "id": "mixed-usage.direct-reflections",
+      "parentId": "mixed-usage",
+      "label": "Direct Reflections（直射反射）",
+      "kind": "group",
+      "inputType": "aggregate",
+      "weight": 0.05,
+      "includeInParent": true,
+      "csvTestId": "83"
+    },
+    {
+      "id": "mixed-usage.ambient-black",
+      "parentId": "mixed-usage",
+      "label": "Ambient Black Level Raise（环境黑电平）",
+      "kind": "group",
+      "inputType": "aggregate",
+      "weight": 0.02,
+      "includeInParent": true,
+      "csvTestId": "29475"
+    },
+    {
+      "id": "mixed-usage.brightness.hdr",
+      "parentId": "mixed-usage.brightness",
+      "label": "HDR Brightness",
+      "kind": "dimension",
+      "inputType": "aggregate",
+      "weight": 0.7,
+      "includeInParent": true,
+      "evidence": "B",
+      "csvTestId": "4"
+    },
+    {
+      "id": "mixed-usage.brightness.hdr.hallway",
+      "parentId": "mixed-usage.brightness.hdr",
+      "label": "Hallway Lights (~1950 cd/m²)",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.2,
+      "includeInParent": true,
+      "mappingId": "anchor.12470",
+      "evidence": "A",
+      "csvTestId": "12470"
+    },
+    {
+      "id": "mixed-usage.brightness.hdr.yellow",
+      "parentId": "mixed-usage.brightness.hdr",
+      "label": "Yellow Skyscraper",
+      "kind": "leaf",
+      "inputType": "subjective",
+      "weight": 0.2,
+      "includeInParent": true,
+      "evidence": "D",
+      "note": "CSV 无原始量；按工程师锚点评分"
+    },
+    {
+      "id": "mixed-usage.brightness.hdr.landscape",
+      "parentId": "mixed-usage.brightness.hdr",
+      "label": "Landscape Pool (~300 cd/m²)",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.2,
+      "includeInParent": true,
+      "mappingId": "anchor.12472",
+      "evidence": "A",
+      "csvTestId": "12472"
+    },
+    {
+      "id": "mixed-usage.brightness.hdr.peak2",
+      "parentId": "mixed-usage.brightness.hdr",
+      "label": "Peak 2% Window",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.125,
+      "includeInParent": true,
+      "mappingId": "anchor.141",
+      "evidence": "A",
+      "csvTestId": "141"
+    },
+    {
+      "id": "mixed-usage.brightness.hdr.peak10",
+      "parentId": "mixed-usage.brightness.hdr",
+      "label": "Peak 10% Window",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.1,
+      "includeInParent": true,
+      "mappingId": "anchor.461",
+      "evidence": "A",
+      "csvTestId": "461"
+    },
+    {
+      "id": "mixed-usage.brightness.hdr.peak25",
+      "parentId": "mixed-usage.brightness.hdr",
+      "label": "Peak 25% Window",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.075,
+      "includeInParent": true,
+      "mappingId": "anchor.462",
+      "evidence": "A",
+      "csvTestId": "462"
+    },
+    {
+      "id": "mixed-usage.brightness.hdr.peak50",
+      "parentId": "mixed-usage.brightness.hdr",
+      "label": "Peak 50% Window",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.05,
+      "includeInParent": true,
+      "mappingId": "anchor.96",
+      "evidence": "A",
+      "csvTestId": "96"
+    },
+    {
+      "id": "mixed-usage.brightness.hdr.peak100",
+      "parentId": "mixed-usage.brightness.hdr",
+      "label": "Peak 100% Window",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.05,
+      "includeInParent": true,
+      "mappingId": "anchor.463",
+      "evidence": "A",
+      "csvTestId": "463"
+    },
+    {
+      "id": "mixed-usage.brightness.hdr.abl",
+      "parentId": "mixed-usage.brightness.hdr",
+      "label": "Automatic Brightness Limiting",
+      "kind": "leaf",
+      "inputType": "subjective",
+      "weight": 0.175,
+      "includeInParent": false,
+      "evidence": "C",
+      "note": "当前不计入；保留测试记录"
+    },
+    {
+      "id": "mixed-usage.brightness.sdr",
+      "parentId": "mixed-usage.brightness",
+      "label": "SDR Brightness",
+      "kind": "dimension",
+      "inputType": "aggregate",
+      "weight": 0.3,
+      "includeInParent": true,
+      "evidence": "A",
+      "csvTestId": "608"
+    },
+    {
+      "id": "mixed-usage.brightness.sdr.619",
+      "parentId": "mixed-usage.brightness.sdr",
+      "label": "Real Scene Peak Brightness",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.5,
+      "includeInParent": true,
+      "mappingId": "anchor.619",
+      "evidence": "A",
+      "csvTestId": "619"
+    },
+    {
+      "id": "mixed-usage.brightness.sdr.609",
+      "parentId": "mixed-usage.brightness.sdr",
+      "label": "Peak 2% Window",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.05,
+      "includeInParent": true,
+      "mappingId": "anchor.609",
+      "evidence": "A",
+      "csvTestId": "609"
+    },
+    {
+      "id": "mixed-usage.brightness.sdr.610",
+      "parentId": "mixed-usage.brightness.sdr",
+      "label": "Peak 10% Window",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.125,
+      "includeInParent": true,
+      "mappingId": "anchor.610",
+      "evidence": "A",
+      "csvTestId": "610"
+    },
+    {
+      "id": "mixed-usage.brightness.sdr.611",
+      "parentId": "mixed-usage.brightness.sdr",
+      "label": "Peak 25% Window",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.15,
+      "includeInParent": true,
+      "mappingId": "anchor.611",
+      "evidence": "A",
+      "csvTestId": "611"
+    },
+    {
+      "id": "mixed-usage.brightness.sdr.612",
+      "parentId": "mixed-usage.brightness.sdr",
+      "label": "Peak 50% Window",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.125,
+      "includeInParent": true,
+      "mappingId": "anchor.612",
+      "evidence": "A",
+      "csvTestId": "612"
+    },
+    {
+      "id": "mixed-usage.brightness.sdr.613",
+      "parentId": "mixed-usage.brightness.sdr",
+      "label": "Peak 100% Window",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.05,
+      "includeInParent": true,
+      "mappingId": "anchor.613",
+      "evidence": "A",
+      "csvTestId": "613"
+    },
+    {
+      "id": "mixed-usage.black-level.contrast",
+      "parentId": "mixed-usage.black-level",
+      "label": "Contrast",
+      "kind": "dimension",
+      "inputType": "aggregate",
+      "weight": 0.5,
+      "includeInParent": true,
+      "evidence": "A",
+      "csvTestId": "3"
+    },
+    {
+      "id": "mixed-usage.black-level.contrast.ld-on",
+      "parentId": "mixed-usage.black-level.contrast",
+      "label": "Contrast with LD-ON",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.8,
+      "includeInParent": true,
+      "mappingId": "interval.contrast.contrast-ld-on",
+      "evidence": "A",
+      "csvTestId": "647"
+    },
+    {
+      "id": "mixed-usage.black-level.contrast.native",
+      "parentId": "mixed-usage.black-level.contrast",
+      "label": "Native Contrast (LD-OFF)",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.2,
+      "includeInParent": true,
+      "mappingId": "interval.contrast.native-contrast-ld-off",
+      "evidence": "A",
+      "csvTestId": "11"
+    },
+    {
+      "id": "mixed-usage.black-level.uniformity",
+      "parentId": "mixed-usage.black-level",
+      "label": "Black Uniformity",
+      "kind": "dimension",
+      "inputType": "aggregate",
+      "weight": 0.3,
+      "includeInParent": true,
+      "evidence": "B",
+      "csvTestId": "10"
+    },
+    {
+      "id": "mixed-usage.black-level.uniformity.641",
+      "parentId": "mixed-usage.black-level.uniformity",
+      "label": "Std. Dev. (LD-ON)",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.5,
+      "includeInParent": true,
+      "mappingId": "anchor.641",
+      "evidence": "A",
+      "csvTestId": "641"
+    },
+    {
+      "id": "mixed-usage.black-level.uniformity.130",
+      "parentId": "mixed-usage.black-level.uniformity",
+      "label": "Native Std. Dev.",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.5,
+      "includeInParent": true,
+      "mappingId": "anchor.130",
+      "evidence": "A",
+      "csvTestId": "130"
+    },
+    {
+      "id": "mixed-usage.black-level.zone-precision",
+      "parentId": "mixed-usage.black-level",
+      "label": "Lighting Zone Precision",
+      "kind": "leaf",
+      "inputType": "subjective",
+      "weight": 0.2,
+      "includeInParent": true,
+      "evidence": "C",
+      "csvTestId": "16975",
+      "note": "score-only；按分区数量与算法评估"
+    },
+    {
+      "id": "mixed-usage.color.hdr-volume",
+      "parentId": "mixed-usage.color",
+      "label": "HDR Color Volume",
+      "kind": "dimension",
+      "inputType": "aggregate",
+      "weight": 0.4,
+      "includeInParent": true,
+      "evidence": "A",
+      "csvTestId": "620"
+    },
+    {
+      "id": "mixed-usage.color.hdr-volume.itp",
+      "parentId": "mixed-usage.color.hdr-volume",
+      "label": "10 000 cd/m² BT.2020 Coverage ITP",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 1,
+      "includeInParent": true,
+      "mappingId": "anchor.927",
+      "evidence": "A",
+      "csvTestId": "927"
+    },
+    {
+      "id": "mixed-usage.color.sdr-volume",
+      "parentId": "mixed-usage.color",
+      "label": "SDR Color Volume",
+      "kind": "dimension",
+      "inputType": "aggregate",
+      "weight": 0.3,
+      "includeInParent": true,
+      "evidence": "A",
+      "csvTestId": "28332"
+    },
+    {
+      "id": "mixed-usage.color.sdr-volume.28334",
+      "parentId": "mixed-usage.color.sdr-volume",
+      "label": "CIELAB DCI-P3 Coverage",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.6,
+      "includeInParent": true,
+      "mappingId": "anchor.28334",
+      "evidence": "A",
+      "csvTestId": "28334"
+    },
+    {
+      "id": "mixed-usage.color.sdr-volume.28336",
+      "parentId": "mixed-usage.color.sdr-volume",
+      "label": "CIELAB BT.2020 Coverage",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.4,
+      "includeInParent": true,
+      "mappingId": "anchor.28336",
+      "evidence": "A",
+      "csvTestId": "28336"
+    },
+    {
+      "id": "mixed-usage.color.sdr-precal",
+      "parentId": "mixed-usage.color",
+      "label": "SDR Pre-Calibration Color Accuracy",
+      "kind": "dimension",
+      "inputType": "aggregate",
+      "weight": 0.15,
+      "includeInParent": true,
+      "evidence": "A",
+      "csvTestId": "142"
+    },
+    {
+      "id": "mixed-usage.color.sdr-precal.150",
+      "parentId": "mixed-usage.color.sdr-precal",
+      "label": "White Balance dE 2000",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.4,
+      "includeInParent": true,
+      "mappingId": "anchor.150",
+      "evidence": "A",
+      "csvTestId": "150"
+    },
+    {
+      "id": "mixed-usage.color.sdr-precal.154",
+      "parentId": "mixed-usage.color.sdr-precal",
+      "label": "Color dE 2000",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.4,
+      "includeInParent": true,
+      "mappingId": "anchor.154",
+      "evidence": "A",
+      "csvTestId": "154"
+    },
+    {
+      "id": "mixed-usage.color.sdr-precal.1937",
+      "parentId": "mixed-usage.color.sdr-precal",
+      "label": "Color Temperature",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.2,
+      "includeInParent": true,
+      "mappingId": "anchor.1937",
+      "evidence": "A",
+      "csvTestId": "1937"
+    },
+    {
+      "id": "mixed-usage.color.hdr-precal",
+      "parentId": "mixed-usage.color",
+      "label": "HDR Pre-Calibration Color Accuracy",
+      "kind": "dimension",
+      "inputType": "aggregate",
+      "weight": 0.15,
+      "includeInParent": true,
+      "evidence": "A",
+      "csvTestId": "29341"
+    },
+    {
+      "id": "mixed-usage.color.hdr-precal.29345",
+      "parentId": "mixed-usage.color.hdr-precal",
+      "label": "White Balance dE ITP",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.4,
+      "includeInParent": true,
+      "mappingId": "anchor.29345",
+      "evidence": "A",
+      "csvTestId": "29345"
+    },
+    {
+      "id": "mixed-usage.color.hdr-precal.29346",
+      "parentId": "mixed-usage.color.hdr-precal",
+      "label": "Color dE ITP",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.4,
+      "includeInParent": true,
+      "mappingId": "anchor.29346",
+      "evidence": "A",
+      "csvTestId": "29346"
+    },
+    {
+      "id": "mixed-usage.color.hdr-precal.29347",
+      "parentId": "mixed-usage.color.hdr-precal",
+      "label": "Color Temperature",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.2,
+      "includeInParent": true,
+      "mappingId": "anchor.29347",
+      "evidence": "A",
+      "csvTestId": "29347"
+    },
+    {
+      "id": "mixed-usage.color.sdr-postcal",
+      "parentId": "mixed-usage.color",
+      "label": "SDR Post-Calibration Color Accuracy",
+      "kind": "leaf",
+      "inputType": "subjective",
+      "weight": 0,
+      "includeInParent": false,
+      "evidence": "B",
+      "csvTestId": "143",
+      "note": "CSV 反推权重≈0，不计入"
+    },
+    {
+      "id": "mixed-usage.color.hdr-postcal",
+      "parentId": "mixed-usage.color",
+      "label": "HDR Post-Calibration Color Accuracy",
+      "kind": "leaf",
+      "inputType": "subjective",
+      "weight": 0,
+      "includeInParent": false,
+      "evidence": "B",
+      "csvTestId": "29342",
+      "note": "CSV 反推权重≈0，不计入"
+    },
+    {
+      "id": "mixed-usage.motion.judder",
+      "parentId": "mixed-usage.motion-handling",
+      "label": "Judder",
+      "kind": "dimension",
+      "inputType": "aggregate",
+      "weight": 0.32,
+      "includeInParent": true,
+      "evidence": "A",
+      "csvTestId": "207"
+    },
+    {
+      "id": "mixed-usage.motion.judder.36315",
+      "parentId": "mixed-usage.motion.judder",
+      "label": "Judder 24p",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.1,
+      "includeInParent": true,
+      "mappingId": "identity.36315",
+      "evidence": "A",
+      "csvTestId": "36315"
+    },
+    {
+      "id": "mixed-usage.motion.judder.36316",
+      "parentId": "mixed-usage.motion.judder",
+      "label": "Judder 25p",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.1,
+      "includeInParent": true,
+      "mappingId": "identity.36316",
+      "evidence": "A",
+      "csvTestId": "36316"
+    },
+    {
+      "id": "mixed-usage.motion.judder.36313",
+      "parentId": "mixed-usage.motion.judder",
+      "label": "Judder 24p via 60p",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.2,
+      "includeInParent": true,
+      "mappingId": "identity.36313",
+      "evidence": "A",
+      "csvTestId": "36313"
+    },
+    {
+      "id": "mixed-usage.motion.judder.36314",
+      "parentId": "mixed-usage.motion.judder",
+      "label": "Judder 25p via 60p",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.2,
+      "includeInParent": true,
+      "mappingId": "identity.36314",
+      "evidence": "A",
+      "csvTestId": "36314"
+    },
+    {
+      "id": "mixed-usage.motion.judder.36317",
+      "parentId": "mixed-usage.motion.judder",
+      "label": "Judder 24p via 60i",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.2,
+      "includeInParent": true,
+      "mappingId": "identity.36317",
+      "evidence": "A",
+      "csvTestId": "36317"
+    },
+    {
+      "id": "mixed-usage.motion.judder.36318",
+      "parentId": "mixed-usage.motion.judder",
+      "label": "Judder 24p via Native Apps",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.1,
+      "includeInParent": true,
+      "mappingId": "identity.36318",
+      "evidence": "A",
+      "csvTestId": "36318"
+    },
+    {
+      "id": "mixed-usage.motion.judder.36319",
+      "parentId": "mixed-usage.motion.judder",
+      "label": "Judder 25p via Native Apps",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.1,
+      "includeInParent": true,
+      "mappingId": "identity.36319",
+      "evidence": "A",
+      "csvTestId": "36319"
+    },
+    {
+      "id": "mixed-usage.motion.stutter",
+      "parentId": "mixed-usage.motion-handling",
+      "label": "Stutter",
+      "kind": "dimension",
+      "inputType": "aggregate",
+      "weight": 0.24,
+      "includeInParent": true,
+      "evidence": "A",
+      "csvTestId": "1924"
+    },
+    {
+      "id": "mixed-usage.motion.stutter.39752",
+      "parentId": "mixed-usage.motion.stutter",
+      "label": "Sample And Hold",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.7,
+      "includeInParent": true,
+      "mappingId": "anchor.39752",
+      "evidence": "A",
+      "csvTestId": "39752"
+    },
+    {
+      "id": "mixed-usage.motion.stutter.1925",
+      "parentId": "mixed-usage.motion.stutter",
+      "label": "Frame Hold Time @ 24 fps",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.3,
+      "includeInParent": true,
+      "mappingId": "anchor.1925",
+      "evidence": "A",
+      "csvTestId": "1925"
+    },
+    {
+      "id": "mixed-usage.motion.transition",
+      "parentId": "mixed-usage.motion-handling",
+      "label": "Transition Artifacts",
+      "kind": "dimension",
+      "inputType": "aggregate",
+      "weight": 0.21,
+      "includeInParent": true,
+      "evidence": "B",
+      "csvTestId": "39011"
+    },
+    {
+      "id": "mixed-usage.motion.transition.39013",
+      "parentId": "mixed-usage.motion.transition",
+      "label": "Color Artifacts",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.7,
+      "includeInParent": true,
+      "mappingId": "identity.39013",
+      "evidence": "A",
+      "csvTestId": "39013"
+    },
+    {
+      "id": "mixed-usage.motion.transition.39027",
+      "parentId": "mixed-usage.motion.transition",
+      "label": "Edge Artifacts",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.3,
+      "includeInParent": true,
+      "mappingId": "identity.39027",
+      "evidence": "A",
+      "csvTestId": "39027"
+    },
+    {
+      "id": "mixed-usage.motion.response-time",
+      "parentId": "mixed-usage.motion-handling",
+      "label": "Response Time",
+      "kind": "dimension",
+      "inputType": "aggregate",
+      "weight": 0.17,
+      "includeInParent": true,
+      "evidence": "A",
+      "csvTestId": "16"
+    },
+    {
+      "id": "mixed-usage.motion.response-time.30862",
+      "parentId": "mixed-usage.motion.response-time",
+      "label": "First Response Time",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.3,
+      "includeInParent": true,
+      "mappingId": "anchor.30862",
+      "evidence": "A",
+      "csvTestId": "30862"
+    },
+    {
+      "id": "mixed-usage.motion.response-time.30860",
+      "parentId": "mixed-usage.motion.response-time",
+      "label": "Total Response Time",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.45,
+      "includeInParent": true,
+      "mappingId": "anchor.30860",
+      "evidence": "A",
+      "csvTestId": "30860"
+    },
+    {
+      "id": "mixed-usage.motion.response-time.30861",
+      "parentId": "mixed-usage.motion.response-time",
+      "label": "Worst 10% Response Time",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.25,
+      "includeInParent": true,
+      "mappingId": "anchor.30861",
+      "evidence": "A",
+      "csvTestId": "30861"
+    },
+    {
+      "id": "mixed-usage.motion.micro-judder",
+      "parentId": "mixed-usage.motion-handling",
+      "label": "Micro Judder",
+      "kind": "dimension",
+      "inputType": "aggregate",
+      "weight": 0.03,
+      "includeInParent": true,
+      "evidence": "A",
+      "csvTestId": "36111"
+    },
+    {
+      "id": "mixed-usage.motion.micro-judder.36112",
+      "parentId": "mixed-usage.motion.micro-judder",
+      "label": "Micro Judder-Free 24p",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.15,
+      "includeInParent": true,
+      "mappingId": "categorical.36112",
+      "evidence": "A",
+      "csvTestId": "36112"
+    },
+    {
+      "id": "mixed-usage.motion.micro-judder.36113",
+      "parentId": "mixed-usage.motion.micro-judder",
+      "label": "Micro Judder-Free 25p",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.15,
+      "includeInParent": true,
+      "mappingId": "categorical.36113",
+      "evidence": "A",
+      "csvTestId": "36113"
+    },
+    {
+      "id": "mixed-usage.motion.micro-judder.36114",
+      "parentId": "mixed-usage.motion.micro-judder",
+      "label": "Micro Judder-Free 24p via 60p",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.2,
+      "includeInParent": true,
+      "mappingId": "categorical.36114",
+      "evidence": "A",
+      "csvTestId": "36114"
+    },
+    {
+      "id": "mixed-usage.motion.micro-judder.36115",
+      "parentId": "mixed-usage.motion.micro-judder",
+      "label": "Micro Judder-Free 25p via 60p",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.2,
+      "includeInParent": true,
+      "mappingId": "categorical.36115",
+      "evidence": "A",
+      "csvTestId": "36115"
+    },
+    {
+      "id": "mixed-usage.motion.micro-judder.36116",
+      "parentId": "mixed-usage.motion.micro-judder",
+      "label": "Micro Judder-Free 24p via Native Apps",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.15,
+      "includeInParent": true,
+      "mappingId": "categorical.36116",
+      "evidence": "A",
+      "csvTestId": "36116"
+    },
+    {
+      "id": "mixed-usage.motion.micro-judder.36117",
+      "parentId": "mixed-usage.motion.micro-judder",
+      "label": "Micro Judder-Free 25p via Native Apps",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.15,
+      "includeInParent": true,
+      "mappingId": "categorical.36117",
+      "evidence": "A",
+      "csvTestId": "36117"
+    },
+    {
+      "id": "mixed-usage.motion.zone-transitions",
+      "parentId": "mixed-usage.motion-handling",
+      "label": "Lighting Zone Transitions",
+      "kind": "leaf",
+      "inputType": "subjective",
+      "weight": 0.03,
+      "includeInParent": true,
+      "evidence": "C",
+      "csvTestId": "16977",
+      "note": "score-only；按光晕与过渡表现评分"
+    },
+    {
+      "id": "mixed-usage.processing.smoothing",
+      "parentId": "mixed-usage.processing",
+      "label": "Low-Quality Content Smoothing",
+      "kind": "dimension",
+      "inputType": "aggregate",
+      "weight": 0.3,
+      "includeInParent": true,
+      "evidence": "A",
+      "csvTestId": "18014"
+    },
+    {
+      "id": "mixed-usage.processing.smoothing.18015",
+      "parentId": "mixed-usage.processing.smoothing",
+      "label": "Smoothing",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.7,
+      "includeInParent": true,
+      "mappingId": "identity.18015",
+      "evidence": "A",
+      "csvTestId": "18015"
+    },
+    {
+      "id": "mixed-usage.processing.smoothing.18016",
+      "parentId": "mixed-usage.processing.smoothing",
+      "label": "Detail Preservation",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.3,
+      "includeInParent": true,
+      "mappingId": "identity.18016",
+      "evidence": "A",
+      "csvTestId": "18016"
+    },
+    {
+      "id": "mixed-usage.processing.upscaling",
+      "parentId": "mixed-usage.processing",
+      "label": "Upscaling: Sharpness Processing",
+      "kind": "leaf",
+      "inputType": "subjective",
+      "weight": 0.3,
+      "includeInParent": true,
+      "evidence": "D",
+      "csvTestId": "112",
+      "note": "7 分≈MTK9615 表现；8 分≈MTK9618/Sony X90L 级"
+    },
+    {
+      "id": "mixed-usage.processing.pq-eotf",
+      "parentId": "mixed-usage.processing",
+      "label": "PQ EOTF Tracking",
+      "kind": "dimension",
+      "inputType": "aggregate",
+      "weight": 0.25,
+      "includeInParent": true,
+      "evidence": "A",
+      "csvTestId": "13903"
+    },
+    {
+      "id": "mixed-usage.processing.pq-eotf.13904",
+      "parentId": "mixed-usage.processing.pq-eotf",
+      "label": "600 Nit Tracking Delta",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.1,
+      "includeInParent": true,
+      "mappingId": "anchor.13904",
+      "evidence": "A",
+      "csvTestId": "13904"
+    },
+    {
+      "id": "mixed-usage.processing.pq-eotf.13905",
+      "parentId": "mixed-usage.processing.pq-eotf",
+      "label": "1000 Nit Tracking Delta",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.8,
+      "includeInParent": true,
+      "mappingId": "anchor.13905",
+      "evidence": "A",
+      "csvTestId": "13905"
+    },
+    {
+      "id": "mixed-usage.processing.pq-eotf.13906",
+      "parentId": "mixed-usage.processing.pq-eotf",
+      "label": "4000 Nit Tracking Delta",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.1,
+      "includeInParent": true,
+      "mappingId": "anchor.13906",
+      "evidence": "A",
+      "csvTestId": "13906"
+    },
+    {
+      "id": "mixed-usage.processing.gradient",
+      "parentId": "mixed-usage.processing",
+      "label": "HDR Native Gradient",
+      "kind": "dimension",
+      "inputType": "aggregate",
+      "weight": 0.15,
+      "includeInParent": true,
+      "evidence": "A",
+      "csvTestId": "466"
+    },
+    {
+      "id": "mixed-usage.processing.gradient.18399",
+      "parentId": "mixed-usage.processing.gradient",
+      "label": "100% Black→50% Gray",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.125,
+      "includeInParent": true,
+      "mappingId": "identity.18399",
+      "evidence": "A",
+      "csvTestId": "18399"
+    },
+    {
+      "id": "mixed-usage.processing.gradient.18401",
+      "parentId": "mixed-usage.processing.gradient",
+      "label": "100% Black→50% Red",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.125,
+      "includeInParent": true,
+      "mappingId": "identity.18401",
+      "evidence": "A",
+      "csvTestId": "18401"
+    },
+    {
+      "id": "mixed-usage.processing.gradient.18403",
+      "parentId": "mixed-usage.processing.gradient",
+      "label": "100% Black→50% Green",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.125,
+      "includeInParent": true,
+      "mappingId": "identity.18403",
+      "evidence": "A",
+      "csvTestId": "18403"
+    },
+    {
+      "id": "mixed-usage.processing.gradient.18405",
+      "parentId": "mixed-usage.processing.gradient",
+      "label": "100% Black→50% Blue",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.125,
+      "includeInParent": true,
+      "mappingId": "identity.18405",
+      "evidence": "A",
+      "csvTestId": "18405"
+    },
+    {
+      "id": "mixed-usage.processing.gradient.18400",
+      "parentId": "mixed-usage.processing.gradient",
+      "label": "50% Gray→100% White",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.125,
+      "includeInParent": true,
+      "mappingId": "identity.18400",
+      "evidence": "A",
+      "csvTestId": "18400"
+    },
+    {
+      "id": "mixed-usage.processing.gradient.18402",
+      "parentId": "mixed-usage.processing.gradient",
+      "label": "50% Red→100% Red",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.125,
+      "includeInParent": true,
+      "mappingId": "identity.18402",
+      "evidence": "A",
+      "csvTestId": "18402"
+    },
+    {
+      "id": "mixed-usage.processing.gradient.18404",
+      "parentId": "mixed-usage.processing.gradient",
+      "label": "50% Green→100% Green",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.125,
+      "includeInParent": true,
+      "mappingId": "identity.18404",
+      "evidence": "A",
+      "csvTestId": "18404"
+    },
+    {
+      "id": "mixed-usage.processing.gradient.18406",
+      "parentId": "mixed-usage.processing.gradient",
+      "label": "50% Blue→100% Blue",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.125,
+      "includeInParent": true,
+      "mappingId": "identity.18406",
+      "evidence": "A",
+      "csvTestId": "18406"
+    },
+    {
+      "id": "mixed-usage.game-mode.input-lag",
+      "parentId": "mixed-usage.game-mode",
+      "label": "Input Lag",
+      "kind": "dimension",
+      "inputType": "aggregate",
+      "weight": 0.25,
+      "includeInParent": true,
+      "evidence": "A",
+      "csvTestId": "14"
+    },
+    {
+      "id": "mixed-usage.game-mode.input-lag.25",
+      "parentId": "mixed-usage.game-mode.input-lag",
+      "label": "1080p @ 60Hz",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.05,
+      "includeInParent": true,
+      "mappingId": "anchor.25",
+      "evidence": "A",
+      "csvTestId": "25"
+    },
+    {
+      "id": "mixed-usage.game-mode.input-lag.1466",
+      "parentId": "mixed-usage.game-mode.input-lag",
+      "label": "1080p @ 120Hz",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.05,
+      "includeInParent": true,
+      "mappingId": "anchor.1466",
+      "evidence": "A",
+      "csvTestId": "1466"
+    },
+    {
+      "id": "mixed-usage.game-mode.input-lag.12237",
+      "parentId": "mixed-usage.game-mode.input-lag",
+      "label": "1080p @ Max Refresh Rate",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.1,
+      "includeInParent": true,
+      "mappingId": "anchor.12237",
+      "evidence": "A",
+      "csvTestId": "12237"
+    },
+    {
+      "id": "mixed-usage.game-mode.input-lag.542",
+      "parentId": "mixed-usage.game-mode.input-lag",
+      "label": "4k @ 60Hz",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.1,
+      "includeInParent": true,
+      "mappingId": "anchor.542",
+      "evidence": "A",
+      "csvTestId": "542"
+    },
+    {
+      "id": "mixed-usage.game-mode.input-lag.543",
+      "parentId": "mixed-usage.game-mode.input-lag",
+      "label": "4k @ 60Hz @ 4:4:4",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.1,
+      "includeInParent": true,
+      "mappingId": "anchor.543",
+      "evidence": "A",
+      "csvTestId": "543"
+    },
+    {
+      "id": "mixed-usage.game-mode.input-lag.2194",
+      "parentId": "mixed-usage.game-mode.input-lag",
+      "label": "4k @ 120Hz",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.2,
+      "includeInParent": true,
+      "mappingId": "anchor.2194",
+      "evidence": "A",
+      "csvTestId": "2194"
+    },
+    {
+      "id": "mixed-usage.game-mode.input-lag.12239",
+      "parentId": "mixed-usage.game-mode.input-lag",
+      "label": "4k @ Max Refresh Rate",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.4,
+      "includeInParent": true,
+      "mappingId": "anchor.12239",
+      "evidence": "A",
+      "csvTestId": "12239"
+    },
+    {
+      "id": "mixed-usage.game-mode.cad-60",
+      "parentId": "mixed-usage.game-mode",
+      "label": "CAD @60Hz",
+      "kind": "leaf",
+      "inputType": "subjective",
+      "weight": 0.2,
+      "includeInParent": true,
+      "evidence": "C",
+      "note": "CSV 缺失；工程师结构暂用主观分，积累数据后校准"
+    },
+    {
+      "id": "mixed-usage.game-mode.cad-120",
+      "parentId": "mixed-usage.game-mode",
+      "label": "CAD @120Hz",
+      "kind": "dimension",
+      "inputType": "aggregate",
+      "weight": 0.2,
+      "includeInParent": true,
+      "evidence": "A",
+      "csvTestId": "30875"
+    },
+    {
+      "id": "mixed-usage.game-mode.cad-120.30878",
+      "parentId": "mixed-usage.game-mode.cad-120",
+      "label": "Avg. CAD",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.6,
+      "includeInParent": true,
+      "mappingId": "anchor.30878",
+      "evidence": "A",
+      "csvTestId": "30878"
+    },
+    {
+      "id": "mixed-usage.game-mode.cad-120.30880",
+      "parentId": "mixed-usage.game-mode.cad-120",
+      "label": "Worst 10% CAD",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.2,
+      "includeInParent": true,
+      "mappingId": "anchor.30880",
+      "evidence": "A",
+      "csvTestId": "30880"
+    },
+    {
+      "id": "mixed-usage.game-mode.cad-120.30879",
+      "parentId": "mixed-usage.game-mode.cad-120",
+      "label": "Best 10% CAD",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.2,
+      "includeInParent": true,
+      "mappingId": "anchor.30879",
+      "evidence": "A",
+      "csvTestId": "30879"
+    },
+    {
+      "id": "mixed-usage.game-mode.cad-max",
+      "parentId": "mixed-usage.game-mode",
+      "label": "CAD @Max Refresh Rate",
+      "kind": "dimension",
+      "inputType": "aggregate",
+      "weight": 0.1,
+      "includeInParent": true,
+      "evidence": "A",
+      "csvTestId": "30865"
+    },
+    {
+      "id": "mixed-usage.game-mode.cad-max.30870",
+      "parentId": "mixed-usage.game-mode.cad-max",
+      "label": "Avg. CAD",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.6,
+      "includeInParent": true,
+      "mappingId": "anchor.30870",
+      "evidence": "A",
+      "csvTestId": "30870"
+    },
+    {
+      "id": "mixed-usage.game-mode.cad-max.30872",
+      "parentId": "mixed-usage.game-mode.cad-max",
+      "label": "Worst 10% CAD",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.2,
+      "includeInParent": true,
+      "mappingId": "anchor.30872",
+      "evidence": "A",
+      "csvTestId": "30872"
+    },
+    {
+      "id": "mixed-usage.game-mode.cad-max.30871",
+      "parentId": "mixed-usage.game-mode.cad-max",
+      "label": "Best 10% CAD",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.2,
+      "includeInParent": true,
+      "mappingId": "anchor.30871",
+      "evidence": "A",
+      "csvTestId": "30871"
+    },
+    {
+      "id": "mixed-usage.game-mode.vrr",
+      "parentId": "mixed-usage.game-mode",
+      "label": "Variable Refresh Rate",
+      "kind": "dimension",
+      "inputType": "aggregate",
+      "weight": 0.15,
+      "includeInParent": true,
+      "evidence": "A",
+      "csvTestId": "2188"
+    },
+    {
+      "id": "mixed-usage.game-mode.vrr.2191",
+      "parentId": "mixed-usage.game-mode.vrr",
+      "label": "4k VRR Maximum",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.75,
+      "includeInParent": true,
+      "mappingId": "anchor.2191",
+      "evidence": "A",
+      "csvTestId": "2191"
+    },
+    {
+      "id": "mixed-usage.game-mode.vrr.2239",
+      "parentId": "mixed-usage.game-mode.vrr",
+      "label": "1080p VRR Maximum",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.25,
+      "includeInParent": true,
+      "mappingId": "anchor.2239",
+      "evidence": "A",
+      "csvTestId": "2239"
+    },
+    {
+      "id": "mixed-usage.game-mode.resolutions",
+      "parentId": "mixed-usage.game-mode",
+      "label": "Supported Resolutions",
+      "kind": "dimension",
+      "inputType": "aggregate",
+      "weight": 0.1,
+      "includeInParent": true,
+      "evidence": "B",
+      "csvTestId": "206"
+    },
+    {
+      "id": "mixed-usage.game-mode.resolutions.18909",
+      "parentId": "mixed-usage.game-mode.resolutions",
+      "label": "480p @ 59.94Hz (Widescreen)",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.31,
+      "includeInParent": true,
+      "mappingId": "categorical.18909",
+      "evidence": "B",
+      "csvTestId": "18909"
+    },
+    {
+      "id": "mixed-usage.game-mode.resolutions.107",
+      "parentId": "mixed-usage.game-mode.resolutions",
+      "label": "1080p @ 60Hz @ 4:4:4",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.32,
+      "includeInParent": true,
+      "mappingId": "categorical.107",
+      "evidence": "B",
+      "csvTestId": "107"
+    },
+    {
+      "id": "mixed-usage.game-mode.resolutions.125",
+      "parentId": "mixed-usage.game-mode.resolutions",
+      "label": "1080p @ 120Hz",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.09,
+      "includeInParent": true,
+      "mappingId": "categorical.125",
+      "evidence": "B",
+      "csvTestId": "125"
+    },
+    {
+      "id": "mixed-usage.game-mode.resolutions.33776",
+      "parentId": "mixed-usage.game-mode.resolutions",
+      "label": "1080p Maximum Refresh Rate",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.03,
+      "includeInParent": true,
+      "mappingId": "anchor.33776",
+      "evidence": "B",
+      "csvTestId": "33776"
+    },
+    {
+      "id": "mixed-usage.game-mode.resolutions.2219",
+      "parentId": "mixed-usage.game-mode.resolutions",
+      "label": "4k @ 120Hz",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.19,
+      "includeInParent": true,
+      "mappingId": "categorical.2219",
+      "evidence": "B",
+      "csvTestId": "2219"
+    },
+    {
+      "id": "mixed-usage.game-mode.resolutions.33777",
+      "parentId": "mixed-usage.game-mode.resolutions",
+      "label": "4k Maximum Refresh Rate",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.02,
+      "includeInParent": true,
+      "mappingId": "anchor.33777",
+      "evidence": "B",
+      "csvTestId": "33777"
+    },
+    {
+      "id": "mixed-usage.game-mode.resolutions.2620",
+      "parentId": "mixed-usage.game-mode.resolutions",
+      "label": "8k @ 60Hz",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.04,
+      "includeInParent": true,
+      "mappingId": "categorical.2620",
+      "evidence": "B",
+      "csvTestId": "2620"
+    },
+    {
+      "id": "mixed-usage.direct-reflections.peak",
+      "parentId": "mixed-usage.direct-reflections",
+      "label": "Peak Direct Reflection Intensity",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 1,
+      "includeInParent": true,
+      "mappingId": "anchor.30856",
+      "evidence": "A",
+      "csvTestId": "30856"
+    },
+    {
+      "id": "mixed-usage.ambient-black.1000lx",
+      "parentId": "mixed-usage.ambient-black",
+      "label": "Black Luminance @ 1000 lx",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 1,
+      "includeInParent": true,
+      "mappingId": "anchor.29478",
+      "evidence": "A",
+      "csvTestId": "29478"
+    },
+    {
+      "id": "mixed-usage.ambient-black.0lx",
+      "parentId": "mixed-usage.ambient-black",
+      "label": "Black Luminance @ 0 lx",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0,
+      "includeInParent": false,
+      "evidence": "A",
+      "csvTestId": "30809",
+      "note": "废弃指标，不计入"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "anchor.12470",
+      "label": "Hallway Lights (~1950 cd/m²)",
+      "unit": "cd/m²",
+      "direction": "higherBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          185,
+          1.6
+        ],
+        [
+          209,
+          1.9
+        ],
+        [
+          225.8,
+          2
+        ],
+        [
+          252.8,
+          2.2
+        ],
+        [
+          272,
+          2.4
+        ],
+        [
+          285,
+          2.5
+        ],
+        [
+          302.6,
+          2.7
+        ],
+        [
+          325.9,
+          2.9
+        ],
+        [
+          345,
+          3
+        ],
+        [
+          381.3,
+          3.3
+        ],
+        [
+          408.6,
+          3.6
+        ],
+        [
+          427,
+          3.7
+        ],
+        [
+          448,
+          3.9
+        ],
+        [
+          458,
+          4
+        ],
+        [
+          463,
+          4
+        ],
+        [
+          539,
+          4.7
+        ],
+        [
+          561,
+          4.8
+        ],
+        [
+          647,
+          5.5
+        ],
+        [
+          677,
+          5.7
+        ],
+        [
+          719,
+          6
+        ],
+        [
+          751.3,
+          6.2
+        ],
+        [
+          787.1,
+          6.4
+        ],
+        [
+          799,
+          6.5
+        ],
+        [
+          804,
+          6.5
+        ],
+        [
+          873.5,
+          6.9
+        ],
+        [
+          933.7,
+          7.2
+        ],
+        [
+          968,
+          7.4
+        ],
+        [
+          1004,
+          7.5
+        ],
+        [
+          1026,
+          7.6
+        ],
+        [
+          1041,
+          7.7
+        ],
+        [
+          1060,
+          7.7
+        ],
+        [
+          1074,
+          7.8
+        ],
+        [
+          1114,
+          7.9
+        ],
+        [
+          1194,
+          8.2
+        ],
+        [
+          1401,
+          9
+        ],
+        [
+          1501,
+          9.3
+        ],
+        [
+          2085,
+          10
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.12472",
+      "label": "Landscape Pool (~300 cd/m²)",
+      "unit": "cd/m²",
+      "direction": "higherBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          113.1,
+          5.2
+        ],
+        [
+          134.2,
+          6
+        ],
+        [
+          139,
+          6.2
+        ],
+        [
+          148,
+          6.4
+        ],
+        [
+          162,
+          6.9
+        ],
+        [
+          170,
+          7.1
+        ],
+        [
+          175.7,
+          7.3
+        ],
+        [
+          192,
+          7.8
+        ],
+        [
+          195,
+          7.9
+        ],
+        [
+          199,
+          8
+        ],
+        [
+          203.2,
+          8.2
+        ],
+        [
+          208,
+          8.3
+        ],
+        [
+          213,
+          8.5
+        ],
+        [
+          217,
+          8.6
+        ],
+        [
+          223,
+          8.8
+        ],
+        [
+          226,
+          8.8
+        ],
+        [
+          235,
+          9.1
+        ],
+        [
+          245.1,
+          9.3
+        ],
+        [
+          247,
+          9.4
+        ],
+        [
+          252,
+          9.5
+        ],
+        [
+          253,
+          9.5
+        ],
+        [
+          257.5,
+          9.6
+        ],
+        [
+          265,
+          9.7
+        ],
+        [
+          273,
+          9.8
+        ],
+        [
+          277,
+          9.9
+        ],
+        [
+          287,
+          10
+        ],
+        [
+          298.7,
+          10
+        ],
+        [
+          301,
+          10
+        ],
+        [
+          307,
+          10
+        ],
+        [
+          330,
+          10
+        ],
+        [
+          342,
+          10
+        ],
+        [
+          366,
+          10
+        ],
+        [
+          374,
+          10
+        ],
+        [
+          398,
+          10
+        ],
+        [
+          460,
+          10
+        ],
+        [
+          544,
+          10
+        ],
+        [
+          597,
+          10
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.141",
+      "label": "Peak 2% Window",
+      "unit": "数值",
+      "direction": "higherBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          144,
+          1.7
+        ],
+        [
+          215,
+          2.4
+        ],
+        [
+          274,
+          3
+        ],
+        [
+          288,
+          3.1
+        ],
+        [
+          305,
+          3.3
+        ],
+        [
+          342,
+          3.7
+        ],
+        [
+          354,
+          3.8
+        ],
+        [
+          360,
+          3.9
+        ],
+        [
+          424,
+          4.5
+        ],
+        [
+          455,
+          4.8
+        ],
+        [
+          472,
+          5
+        ],
+        [
+          500,
+          5.3
+        ],
+        [
+          544,
+          5.6
+        ],
+        [
+          626,
+          6.1
+        ],
+        [
+          666,
+          6.3
+        ],
+        [
+          714,
+          6.6
+        ],
+        [
+          758,
+          6.7
+        ],
+        [
+          825,
+          7
+        ],
+        [
+          854,
+          7.1
+        ],
+        [
+          872,
+          7.1
+        ],
+        [
+          972,
+          7.4
+        ],
+        [
+          1141,
+          7.9
+        ],
+        [
+          1301,
+          8.2
+        ],
+        [
+          1440,
+          8.4
+        ],
+        [
+          1628,
+          8.6
+        ],
+        [
+          1662,
+          8.6
+        ],
+        [
+          1873,
+          8.8
+        ],
+        [
+          1954,
+          8.8
+        ],
+        [
+          2052,
+          8.9
+        ],
+        [
+          2242,
+          9
+        ],
+        [
+          2303,
+          9
+        ],
+        [
+          2564,
+          9.1
+        ],
+        [
+          2597,
+          9.1
+        ],
+        [
+          2921,
+          9.3
+        ],
+        [
+          4246,
+          9.5
+        ],
+        [
+          5658,
+          9.7
+        ],
+        [
+          10841,
+          10
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.461",
+      "label": "Peak 10% Window",
+      "unit": "数值",
+      "direction": "higherBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          215,
+          2.4
+        ],
+        [
+          274,
+          3
+        ],
+        [
+          286,
+          3.1
+        ],
+        [
+          297,
+          3.2
+        ],
+        [
+          306,
+          3.3
+        ],
+        [
+          354,
+          3.8
+        ],
+        [
+          367,
+          3.9
+        ],
+        [
+          423,
+          4.5
+        ],
+        [
+          456,
+          4.9
+        ],
+        [
+          493,
+          5.2
+        ],
+        [
+          534,
+          5.6
+        ],
+        [
+          563,
+          5.8
+        ],
+        [
+          642,
+          6.2
+        ],
+        [
+          698,
+          6.5
+        ],
+        [
+          754,
+          6.7
+        ],
+        [
+          777,
+          6.8
+        ],
+        [
+          840,
+          7
+        ],
+        [
+          887,
+          7.2
+        ],
+        [
+          960,
+          7.4
+        ],
+        [
+          1054,
+          7.6
+        ],
+        [
+          1135,
+          7.8
+        ],
+        [
+          1193,
+          8
+        ],
+        [
+          1308,
+          8.2
+        ],
+        [
+          1459,
+          8.5
+        ],
+        [
+          1505,
+          8.5
+        ],
+        [
+          1561,
+          8.5
+        ],
+        [
+          1762,
+          8.7
+        ],
+        [
+          2062,
+          8.9
+        ],
+        [
+          2124,
+          8.9
+        ],
+        [
+          2354,
+          9
+        ],
+        [
+          2764,
+          9.2
+        ],
+        [
+          2898,
+          9.2
+        ],
+        [
+          3024,
+          9.3
+        ],
+        [
+          3493,
+          9.4
+        ],
+        [
+          4124,
+          9.5
+        ],
+        [
+          4524,
+          9.6
+        ],
+        [
+          5060,
+          9.6
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.462",
+      "label": "Peak 25% Window",
+      "unit": "数值",
+      "direction": "higherBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          215,
+          3.2
+        ],
+        [
+          274,
+          3.9
+        ],
+        [
+          286,
+          4
+        ],
+        [
+          296,
+          4.1
+        ],
+        [
+          305,
+          4.2
+        ],
+        [
+          354,
+          4.7
+        ],
+        [
+          368,
+          4.9
+        ],
+        [
+          422,
+          5.4
+        ],
+        [
+          456,
+          5.7
+        ],
+        [
+          473,
+          5.8
+        ],
+        [
+          496,
+          6
+        ],
+        [
+          510,
+          6.1
+        ],
+        [
+          562,
+          6.4
+        ],
+        [
+          574,
+          6.5
+        ],
+        [
+          614,
+          6.7
+        ],
+        [
+          640,
+          6.8
+        ],
+        [
+          701,
+          7.1
+        ],
+        [
+          765,
+          7.4
+        ],
+        [
+          782,
+          7.4
+        ],
+        [
+          791,
+          7.5
+        ],
+        [
+          805,
+          7.5
+        ],
+        [
+          890,
+          7.8
+        ],
+        [
+          918,
+          7.9
+        ],
+        [
+          991,
+          8.1
+        ],
+        [
+          1097,
+          8.4
+        ],
+        [
+          1366,
+          8.6
+        ],
+        [
+          1400,
+          8.7
+        ],
+        [
+          1482,
+          8.7
+        ],
+        [
+          1606,
+          8.8
+        ],
+        [
+          1790,
+          8.9
+        ],
+        [
+          1937,
+          9
+        ],
+        [
+          2044,
+          9.1
+        ],
+        [
+          2231,
+          9.2
+        ],
+        [
+          2474,
+          9.3
+        ],
+        [
+          2607,
+          9.3
+        ],
+        [
+          2991,
+          9.4
+        ],
+        [
+          3338,
+          9.5
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.96",
+      "label": "Peak 50% Window",
+      "unit": "数值",
+      "direction": "higherBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          215,
+          3.9
+        ],
+        [
+          268,
+          4.4
+        ],
+        [
+          276,
+          4.5
+        ],
+        [
+          285,
+          4.6
+        ],
+        [
+          293,
+          4.7
+        ],
+        [
+          300,
+          4.8
+        ],
+        [
+          312,
+          4.9
+        ],
+        [
+          331,
+          5
+        ],
+        [
+          351,
+          5.2
+        ],
+        [
+          355,
+          5.3
+        ],
+        [
+          368,
+          5.4
+        ],
+        [
+          384,
+          5.5
+        ],
+        [
+          430,
+          5.9
+        ],
+        [
+          453,
+          6
+        ],
+        [
+          456,
+          6
+        ],
+        [
+          469,
+          6.1
+        ],
+        [
+          497,
+          6.3
+        ],
+        [
+          565,
+          6.8
+        ],
+        [
+          603,
+          7
+        ],
+        [
+          609,
+          7
+        ],
+        [
+          624,
+          7.1
+        ],
+        [
+          632,
+          7.2
+        ],
+        [
+          686,
+          7.4
+        ],
+        [
+          711,
+          7.5
+        ],
+        [
+          765,
+          7.8
+        ],
+        [
+          820,
+          8
+        ],
+        [
+          894,
+          8.3
+        ],
+        [
+          923,
+          8.3
+        ],
+        [
+          1038,
+          8.5
+        ],
+        [
+          1108,
+          8.6
+        ],
+        [
+          1196,
+          8.7
+        ],
+        [
+          1217,
+          8.8
+        ],
+        [
+          1327,
+          8.9
+        ],
+        [
+          1418,
+          9
+        ],
+        [
+          1503,
+          9
+        ],
+        [
+          1767,
+          9.2
+        ],
+        [
+          1814,
+          9.3
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.463",
+      "label": "Peak 100% Window",
+      "unit": "数值",
+      "direction": "higherBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          137,
+          2.8
+        ],
+        [
+          149,
+          3
+        ],
+        [
+          156,
+          3.1
+        ],
+        [
+          194,
+          3.7
+        ],
+        [
+          216,
+          4
+        ],
+        [
+          226,
+          4.1
+        ],
+        [
+          258,
+          4.6
+        ],
+        [
+          276,
+          4.8
+        ],
+        [
+          285,
+          4.9
+        ],
+        [
+          292,
+          5
+        ],
+        [
+          300,
+          5.1
+        ],
+        [
+          305,
+          5.1
+        ],
+        [
+          350,
+          5.6
+        ],
+        [
+          355,
+          5.6
+        ],
+        [
+          367,
+          5.7
+        ],
+        [
+          403,
+          6
+        ],
+        [
+          425,
+          6.2
+        ],
+        [
+          453,
+          6.4
+        ],
+        [
+          457,
+          6.4
+        ],
+        [
+          471,
+          6.5
+        ],
+        [
+          485,
+          6.5
+        ],
+        [
+          497,
+          6.6
+        ],
+        [
+          518,
+          6.7
+        ],
+        [
+          561,
+          6.9
+        ],
+        [
+          604,
+          7.1
+        ],
+        [
+          619,
+          7.2
+        ],
+        [
+          631,
+          7.2
+        ],
+        [
+          668,
+          7.4
+        ],
+        [
+          688,
+          7.5
+        ],
+        [
+          695,
+          7.5
+        ],
+        [
+          717,
+          7.6
+        ],
+        [
+          752,
+          7.7
+        ],
+        [
+          794,
+          7.8
+        ],
+        [
+          844,
+          8
+        ],
+        [
+          912,
+          8.2
+        ],
+        [
+          981,
+          8.5
+        ],
+        [
+          993,
+          8.5
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.619",
+      "label": "Real Scene Peak Brightness",
+      "unit": "数值",
+      "direction": "higherBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          191,
+          4.5
+        ],
+        [
+          215,
+          4.7
+        ],
+        [
+          236.163,
+          4.9
+        ],
+        [
+          258.274,
+          5.1
+        ],
+        [
+          278,
+          5.3
+        ],
+        [
+          303.39,
+          5.5
+        ],
+        [
+          312,
+          5.6
+        ],
+        [
+          320.331,
+          5.7
+        ],
+        [
+          350.149,
+          6
+        ],
+        [
+          370.214,
+          6.2
+        ],
+        [
+          378.987,
+          6.3
+        ],
+        [
+          397.014,
+          6.5
+        ],
+        [
+          402.602,
+          6.5
+        ],
+        [
+          408,
+          6.6
+        ],
+        [
+          424.904,
+          6.8
+        ],
+        [
+          439.876,
+          6.9
+        ],
+        [
+          475,
+          7.3
+        ],
+        [
+          507.7,
+          7.6
+        ],
+        [
+          524,
+          7.7
+        ],
+        [
+          550,
+          7.8
+        ],
+        [
+          573,
+          7.9
+        ],
+        [
+          592.538,
+          8
+        ],
+        [
+          619,
+          8.2
+        ],
+        [
+          657,
+          8.3
+        ],
+        [
+          672.664,
+          8.4
+        ],
+        [
+          696,
+          8.5
+        ],
+        [
+          768,
+          8.7
+        ],
+        [
+          781,
+          8.7
+        ],
+        [
+          800,
+          8.8
+        ],
+        [
+          827.904,
+          8.9
+        ],
+        [
+          886.6,
+          9
+        ],
+        [
+          943.829,
+          9.1
+        ],
+        [
+          1005,
+          9.2
+        ],
+        [
+          1075,
+          9.3
+        ],
+        [
+          1145,
+          9.3
+        ],
+        [
+          1389.91,
+          9.4
+        ],
+        [
+          1612,
+          9.5
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.609",
+      "label": "Peak 2% Window",
+      "unit": "数值",
+      "direction": "higherBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          117,
+          3.4
+        ],
+        [
+          156,
+          4.1
+        ],
+        [
+          203,
+          4.6
+        ],
+        [
+          227,
+          4.9
+        ],
+        [
+          248,
+          5
+        ],
+        [
+          289,
+          5.4
+        ],
+        [
+          305,
+          5.6
+        ],
+        [
+          347,
+          6
+        ],
+        [
+          358,
+          6.1
+        ],
+        [
+          385,
+          6.4
+        ],
+        [
+          414,
+          6.6
+        ],
+        [
+          427,
+          6.8
+        ],
+        [
+          447,
+          7
+        ],
+        [
+          459,
+          7.1
+        ],
+        [
+          496,
+          7.5
+        ],
+        [
+          513,
+          7.6
+        ],
+        [
+          527,
+          7.7
+        ],
+        [
+          561,
+          7.9
+        ],
+        [
+          586,
+          8
+        ],
+        [
+          623,
+          8.2
+        ],
+        [
+          651,
+          8.3
+        ],
+        [
+          674,
+          8.4
+        ],
+        [
+          742,
+          8.6
+        ],
+        [
+          801,
+          8.8
+        ],
+        [
+          936,
+          9.1
+        ],
+        [
+          1060,
+          9.2
+        ],
+        [
+          1155,
+          9.3
+        ],
+        [
+          1233,
+          9.4
+        ],
+        [
+          1473,
+          9.5
+        ],
+        [
+          1728,
+          9.5
+        ],
+        [
+          1961,
+          9.6
+        ],
+        [
+          2147,
+          9.6
+        ],
+        [
+          2555,
+          9.7
+        ],
+        [
+          2733,
+          9.7
+        ],
+        [
+          4191,
+          9.8
+        ],
+        [
+          5703,
+          9.9
+        ],
+        [
+          11310,
+          10
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.610",
+      "label": "Peak 10% Window",
+      "unit": "数值",
+      "direction": "higherBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          225,
+          4.8
+        ],
+        [
+          248,
+          5
+        ],
+        [
+          283,
+          5.3
+        ],
+        [
+          298,
+          5.5
+        ],
+        [
+          325,
+          5.8
+        ],
+        [
+          349,
+          6
+        ],
+        [
+          358,
+          6.1
+        ],
+        [
+          386,
+          6.4
+        ],
+        [
+          416,
+          6.7
+        ],
+        [
+          439,
+          6.9
+        ],
+        [
+          445,
+          7
+        ],
+        [
+          453,
+          7.1
+        ],
+        [
+          479,
+          7.3
+        ],
+        [
+          503,
+          7.5
+        ],
+        [
+          515,
+          7.6
+        ],
+        [
+          524,
+          7.7
+        ],
+        [
+          596,
+          8.1
+        ],
+        [
+          642,
+          8.3
+        ],
+        [
+          676,
+          8.4
+        ],
+        [
+          712,
+          8.5
+        ],
+        [
+          820,
+          8.9
+        ],
+        [
+          862,
+          9
+        ],
+        [
+          934,
+          9.1
+        ],
+        [
+          939,
+          9.1
+        ],
+        [
+          983,
+          9.2
+        ],
+        [
+          1076,
+          9.3
+        ],
+        [
+          1291,
+          9.4
+        ],
+        [
+          1509,
+          9.5
+        ],
+        [
+          1656,
+          9.5
+        ],
+        [
+          1970,
+          9.6
+        ],
+        [
+          2222,
+          9.6
+        ],
+        [
+          2438,
+          9.7
+        ],
+        [
+          2790,
+          9.7
+        ],
+        [
+          3188,
+          9.7
+        ],
+        [
+          3947,
+          9.8
+        ],
+        [
+          4628,
+          9.8
+        ],
+        [
+          4850,
+          9.8
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.611",
+      "label": "Peak 25% Window",
+      "unit": "数值",
+      "direction": "higherBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          222,
+          4.8
+        ],
+        [
+          247,
+          5
+        ],
+        [
+          283,
+          5.3
+        ],
+        [
+          298,
+          5.5
+        ],
+        [
+          322,
+          5.7
+        ],
+        [
+          350,
+          6
+        ],
+        [
+          356,
+          6.1
+        ],
+        [
+          391,
+          6.4
+        ],
+        [
+          414,
+          6.6
+        ],
+        [
+          439,
+          6.9
+        ],
+        [
+          446,
+          7
+        ],
+        [
+          457,
+          7.1
+        ],
+        [
+          473,
+          7.3
+        ],
+        [
+          497,
+          7.5
+        ],
+        [
+          516,
+          7.6
+        ],
+        [
+          560,
+          7.9
+        ],
+        [
+          595,
+          8.1
+        ],
+        [
+          670,
+          8.4
+        ],
+        [
+          689,
+          8.4
+        ],
+        [
+          757,
+          8.7
+        ],
+        [
+          781,
+          8.7
+        ],
+        [
+          854,
+          8.9
+        ],
+        [
+          889,
+          9
+        ],
+        [
+          926,
+          9.1
+        ],
+        [
+          1010,
+          9.2
+        ],
+        [
+          1090,
+          9.3
+        ],
+        [
+          1243,
+          9.4
+        ],
+        [
+          1406,
+          9.4
+        ],
+        [
+          1545,
+          9.5
+        ],
+        [
+          1613,
+          9.5
+        ],
+        [
+          1761,
+          9.6
+        ],
+        [
+          1979,
+          9.6
+        ],
+        [
+          2117,
+          9.6
+        ],
+        [
+          2172,
+          9.6
+        ],
+        [
+          2504,
+          9.7
+        ],
+        [
+          3072,
+          9.7
+        ],
+        [
+          3291,
+          9.8
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.612",
+      "label": "Peak 50% Window",
+      "unit": "数值",
+      "direction": "higherBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          221,
+          4.8
+        ],
+        [
+          244,
+          5
+        ],
+        [
+          260,
+          5.1
+        ],
+        [
+          282,
+          5.3
+        ],
+        [
+          298,
+          5.5
+        ],
+        [
+          316,
+          5.7
+        ],
+        [
+          332,
+          5.8
+        ],
+        [
+          342,
+          5.9
+        ],
+        [
+          350,
+          6
+        ],
+        [
+          357,
+          6.1
+        ],
+        [
+          382,
+          6.3
+        ],
+        [
+          391,
+          6.4
+        ],
+        [
+          415,
+          6.7
+        ],
+        [
+          439,
+          6.9
+        ],
+        [
+          446,
+          7
+        ],
+        [
+          484,
+          7.4
+        ],
+        [
+          529,
+          7.7
+        ],
+        [
+          551,
+          7.8
+        ],
+        [
+          560,
+          7.9
+        ],
+        [
+          579,
+          8
+        ],
+        [
+          595,
+          8.1
+        ],
+        [
+          646,
+          8.3
+        ],
+        [
+          685,
+          8.4
+        ],
+        [
+          709,
+          8.5
+        ],
+        [
+          781,
+          8.7
+        ],
+        [
+          803,
+          8.8
+        ],
+        [
+          844,
+          8.9
+        ],
+        [
+          894,
+          9
+        ],
+        [
+          916,
+          9.1
+        ],
+        [
+          1053,
+          9.2
+        ],
+        [
+          1165,
+          9.3
+        ],
+        [
+          1189,
+          9.3
+        ],
+        [
+          1220,
+          9.3
+        ],
+        [
+          1307,
+          9.4
+        ],
+        [
+          1440,
+          9.5
+        ],
+        [
+          1571,
+          9.5
+        ],
+        [
+          1767,
+          9.6
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.613",
+      "label": "Peak 100% Window",
+      "unit": "数值",
+      "direction": "higherBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          134,
+          3.7
+        ],
+        [
+          137,
+          3.8
+        ],
+        [
+          176,
+          4.3
+        ],
+        [
+          209,
+          4.7
+        ],
+        [
+          226,
+          4.8
+        ],
+        [
+          243,
+          5
+        ],
+        [
+          259,
+          5.1
+        ],
+        [
+          269,
+          5.2
+        ],
+        [
+          283,
+          5.3
+        ],
+        [
+          302,
+          5.5
+        ],
+        [
+          310,
+          5.6
+        ],
+        [
+          318,
+          5.7
+        ],
+        [
+          342,
+          5.9
+        ],
+        [
+          349,
+          6
+        ],
+        [
+          370,
+          6.2
+        ],
+        [
+          386,
+          6.4
+        ],
+        [
+          415,
+          6.7
+        ],
+        [
+          430,
+          6.8
+        ],
+        [
+          439,
+          6.9
+        ],
+        [
+          448,
+          7
+        ],
+        [
+          457,
+          7.1
+        ],
+        [
+          500,
+          7.5
+        ],
+        [
+          521,
+          7.6
+        ],
+        [
+          536,
+          7.7
+        ],
+        [
+          558,
+          7.9
+        ],
+        [
+          587,
+          8
+        ],
+        [
+          605,
+          8.1
+        ],
+        [
+          620,
+          8.2
+        ],
+        [
+          670,
+          8.4
+        ],
+        [
+          701,
+          8.5
+        ],
+        [
+          707,
+          8.5
+        ],
+        [
+          720,
+          8.5
+        ],
+        [
+          734,
+          8.6
+        ],
+        [
+          787,
+          8.8
+        ],
+        [
+          820,
+          8.9
+        ],
+        [
+          940,
+          9.1
+        ],
+        [
+          987,
+          9.2
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "interval.contrast.contrast-ld-on",
+      "label": "Contrast with LD-ON",
+      "unit": ":1",
+      "direction": "higherBetter",
+      "kind": "intervals",
+      "intervals": [
+        {
+          "scoreTenths": 8,
+          "min": 900.0,
+          "max": 1000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "900~1000"
+        },
+        {
+          "scoreTenths": 9,
+          "min": 1000.0,
+          "max": 1100.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "1000~1100"
+        },
+        {
+          "scoreTenths": 10,
+          "min": 1100.0,
+          "max": 1200.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "1100~1200"
+        },
+        {
+          "scoreTenths": 11,
+          "min": 1200.0,
+          "max": 1300.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "1200~1300"
+        },
+        {
+          "scoreTenths": 12,
+          "min": 1300.0,
+          "max": 1420.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "1300~1420"
+        },
+        {
+          "scoreTenths": 13,
+          "min": 1420.0,
+          "max": 1550.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "1420~1550"
+        },
+        {
+          "scoreTenths": 14,
+          "min": 1550.0,
+          "max": 1650.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "1550~1650"
+        },
+        {
+          "scoreTenths": 15,
+          "min": 1650.0,
+          "max": 1750.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "1650~1750"
+        },
+        {
+          "scoreTenths": 16,
+          "min": 1750.0,
+          "max": 1850.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "1750~1850"
+        },
+        {
+          "scoreTenths": 17,
+          "min": 1850.0,
+          "max": 1950.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "1850~1950"
+        },
+        {
+          "scoreTenths": 18,
+          "min": 1950.0,
+          "max": 2050.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "1950~2050"
+        },
+        {
+          "scoreTenths": 19,
+          "min": 2050.0,
+          "max": 2150.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "2050~2150"
+        },
+        {
+          "scoreTenths": 20,
+          "min": 2150.0,
+          "max": 2250.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "2150~2250"
+        },
+        {
+          "scoreTenths": 21,
+          "min": 2250.0,
+          "max": 2350.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "2250~2350"
+        },
+        {
+          "scoreTenths": 22,
+          "min": 2350.0,
+          "max": 2450.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "2350~2450"
+        },
+        {
+          "scoreTenths": 23,
+          "min": 2450.0,
+          "max": 2550.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "2450~2550"
+        },
+        {
+          "scoreTenths": 24,
+          "min": 2550.0,
+          "max": 2650.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "2550~2650"
+        },
+        {
+          "scoreTenths": 25,
+          "min": 2650.0,
+          "max": 2750.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "2650~2750"
+        },
+        {
+          "scoreTenths": 26,
+          "min": 2750.0,
+          "max": 2850.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "2750~2850"
+        },
+        {
+          "scoreTenths": 27,
+          "min": 2850.0,
+          "max": 2950.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "2850~2950"
+        },
+        {
+          "scoreTenths": 28,
+          "min": 2950.0,
+          "max": 3100.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "2950~3100"
+        },
+        {
+          "scoreTenths": 29,
+          "min": 3100.0,
+          "max": 3250.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "3100~3250"
+        },
+        {
+          "scoreTenths": 30,
+          "min": 3250.0,
+          "max": 3400.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "3250~3400"
+        },
+        {
+          "scoreTenths": 31,
+          "min": 3400.0,
+          "max": 3550.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "3400~3550"
+        },
+        {
+          "scoreTenths": 32,
+          "min": 3550.0,
+          "max": 3700.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "3550~3700"
+        },
+        {
+          "scoreTenths": 33,
+          "min": 3700.0,
+          "max": 3850.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "3700~3850"
+        },
+        {
+          "scoreTenths": 34,
+          "min": 3850.0,
+          "max": 4000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "3850~4000"
+        },
+        {
+          "scoreTenths": 35,
+          "min": 4000.0,
+          "max": 4200.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "4000~4200"
+        },
+        {
+          "scoreTenths": 36,
+          "min": 4200.0,
+          "max": 4400.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "4200~4400"
+        },
+        {
+          "scoreTenths": 37,
+          "min": 4400.0,
+          "max": 4660.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "4400~4660"
+        },
+        {
+          "scoreTenths": 38,
+          "min": 4660.0,
+          "max": 4800.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "4660~4800"
+        },
+        {
+          "scoreTenths": 39,
+          "min": 4800.0,
+          "max": 4900.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "4800~4900"
+        },
+        {
+          "scoreTenths": 40,
+          "min": 4900.0,
+          "max": 5200.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "4900~5200"
+        },
+        {
+          "scoreTenths": 41,
+          "min": 5200.0,
+          "max": 5400.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "5200~5400"
+        },
+        {
+          "scoreTenths": 42,
+          "min": 5400.0,
+          "max": 5600.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "5400~5600"
+        },
+        {
+          "scoreTenths": 43,
+          "min": 5600.0,
+          "max": 5800.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "5600~5800"
+        },
+        {
+          "scoreTenths": 44,
+          "min": 5800.0,
+          "max": 6000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "5800~6000"
+        },
+        {
+          "scoreTenths": 45,
+          "min": 6000.0,
+          "max": 6300.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "6000~6300"
+        },
+        {
+          "scoreTenths": 46,
+          "min": 6300.0,
+          "max": 6600.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "6300~6600"
+        },
+        {
+          "scoreTenths": 47,
+          "min": 6600.0,
+          "max": 6900.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "6600~6900"
+        },
+        {
+          "scoreTenths": 48,
+          "min": 6900.0,
+          "max": 7200.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "6900~7200"
+        },
+        {
+          "scoreTenths": 49,
+          "min": 7200.0,
+          "max": 7500.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "7200~7500"
+        },
+        {
+          "scoreTenths": 50,
+          "min": 7500.0,
+          "max": 8000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "7500~8000"
+        },
+        {
+          "scoreTenths": 51,
+          "min": 8000.0,
+          "max": 9200.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "8000~9200"
+        },
+        {
+          "scoreTenths": 52,
+          "min": 9200.0,
+          "max": 10200.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "9200~10200"
+        },
+        {
+          "scoreTenths": 53,
+          "min": 10200.0,
+          "max": 11200.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "10200~11200"
+        },
+        {
+          "scoreTenths": 54,
+          "min": 11200.0,
+          "max": 12700.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "11200~12700"
+        },
+        {
+          "scoreTenths": 55,
+          "min": 12700.0,
+          "max": 14200.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "12700~14200"
+        },
+        {
+          "scoreTenths": 56,
+          "min": 14200.0,
+          "max": 15700.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "14200~15700"
+        },
+        {
+          "scoreTenths": 57,
+          "min": 15700.0,
+          "max": 17200.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "15700~17200"
+        },
+        {
+          "scoreTenths": 58,
+          "min": 17200.0,
+          "max": 19200.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "17200~19200"
+        },
+        {
+          "scoreTenths": 59,
+          "min": 19200.0,
+          "max": 21700.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "19200~21700"
+        },
+        {
+          "scoreTenths": 60,
+          "min": 21700.0,
+          "max": 24700.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "21700~24700"
+        },
+        {
+          "scoreTenths": 61,
+          "min": 24700.0,
+          "max": 27000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "24700~27000"
+        },
+        {
+          "scoreTenths": 62,
+          "min": 27000.0,
+          "max": 30000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "27000~30000"
+        },
+        {
+          "scoreTenths": 64,
+          "min": 33000.0,
+          "max": 36500.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "33000~36500"
+        },
+        {
+          "scoreTenths": 66,
+          "min": 40000.0,
+          "max": 43500.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "40000~43500"
+        },
+        {
+          "scoreTenths": 67,
+          "min": 43500.0,
+          "max": 47000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "43500~47000"
+        },
+        {
+          "scoreTenths": 68,
+          "min": 47000.0,
+          "max": 51000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "47000~51000"
+        },
+        {
+          "scoreTenths": 69,
+          "min": 51000.0,
+          "max": 54000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "51000~54000"
+        },
+        {
+          "scoreTenths": 70,
+          "min": 54000.0,
+          "max": 58500.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "54000~58500"
+        },
+        {
+          "scoreTenths": 71,
+          "min": 58500.0,
+          "max": 63000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "58500~63000"
+        },
+        {
+          "scoreTenths": 72,
+          "min": 63000.0,
+          "max": 67500.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "63000~67500"
+        },
+        {
+          "scoreTenths": 73,
+          "min": 67500.0,
+          "max": 72000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "67500~72000"
+        },
+        {
+          "scoreTenths": 74,
+          "min": 72000.0,
+          "max": 76000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "72000~76000"
+        },
+        {
+          "scoreTenths": 75,
+          "min": 76000.0,
+          "max": 81000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "76000~81000"
+        },
+        {
+          "scoreTenths": 76,
+          "min": 81000.0,
+          "max": 87000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "81000~87000"
+        },
+        {
+          "scoreTenths": 77,
+          "min": 87000.0,
+          "max": 93000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "87000~93000"
+        },
+        {
+          "scoreTenths": 78,
+          "min": 93000.0,
+          "max": 99000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "93000~99000"
+        },
+        {
+          "scoreTenths": 79,
+          "min": 99000.0,
+          "max": 105000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "99000~105000"
+        },
+        {
+          "scoreTenths": 80,
+          "min": 105000.0,
+          "max": 112000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "105000~112000"
+        },
+        {
+          "scoreTenths": 81,
+          "min": 112000.0,
+          "max": 119000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "112000~119000"
+        },
+        {
+          "scoreTenths": 82,
+          "min": 119000.0,
+          "max": 120500.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "119000~120500"
+        },
+        {
+          "scoreTenths": 83,
+          "min": 120500.0,
+          "max": 129500.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "120500~129500"
+        },
+        {
+          "scoreTenths": 84,
+          "min": 129500.0,
+          "max": 138500.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "129500~138500"
+        },
+        {
+          "scoreTenths": 85,
+          "min": 138500.0,
+          "max": 148000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "138500~148000"
+        },
+        {
+          "scoreTenths": 86,
+          "min": 148000.0,
+          "max": 158000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "148000~158000"
+        },
+        {
+          "scoreTenths": 87,
+          "min": 158000.0,
+          "max": 168000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "158000~168000"
+        },
+        {
+          "scoreTenths": 88,
+          "min": 168000.0,
+          "max": 178000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "168000~178000"
+        },
+        {
+          "scoreTenths": 89,
+          "min": 178000.0,
+          "max": 188000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "178000~188000"
+        },
+        {
+          "scoreTenths": 90,
+          "min": 188000.0,
+          "max": 198000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "188000~198000"
+        },
+        {
+          "scoreTenths": 91,
+          "min": 198000.0,
+          "max": 207900.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "198000~207900"
+        },
+        {
+          "scoreTenths": 92,
+          "min": 207900.0,
+          "max": 218000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "207900~218000"
+        },
+        {
+          "scoreTenths": 93,
+          "min": 218000.0,
+          "max": 230000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "218000~230000"
+        },
+        {
+          "scoreTenths": 94,
+          "min": 230000.0,
+          "max": 245000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "230000~245000"
+        },
+        {
+          "scoreTenths": 95,
+          "min": 245000.0,
+          "max": 265000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "245000~265000"
+        },
+        {
+          "scoreTenths": 96,
+          "min": 265000.0,
+          "max": 290000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "265000~290000"
+        },
+        {
+          "scoreTenths": 97,
+          "min": 290000.0,
+          "max": 320000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "290000~320000"
+        },
+        {
+          "scoreTenths": 98,
+          "min": 320000.0,
+          "max": 360000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "320000~360000"
+        },
+        {
+          "scoreTenths": 99,
+          "min": 360000.0,
+          "max": 450000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "360000~450000"
+        },
+        {
+          "scoreTenths": 100,
+          "min": 450000.0,
+          "max": null,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "450000~"
+        }
+      ],
+      "source": "engineerEstimate",
+      "evidence": "C"
+    },
+    {
+      "id": "interval.contrast.native-contrast-ld-off",
+      "label": "Native Contrast (LD-OFF)",
+      "unit": ":1",
+      "direction": "higherBetter",
+      "kind": "intervals",
+      "intervals": [
+        {
+          "scoreTenths": 31,
+          "min": 500.0,
+          "max": 550.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "500~550"
+        },
+        {
+          "scoreTenths": 32,
+          "min": 550.0,
+          "max": 600.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "550~600"
+        },
+        {
+          "scoreTenths": 33,
+          "min": 600.0,
+          "max": 650.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "600~650"
+        },
+        {
+          "scoreTenths": 34,
+          "min": 650.0,
+          "max": 700.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "650~700"
+        },
+        {
+          "scoreTenths": 35,
+          "min": 700.0,
+          "max": 750.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "700~750"
+        },
+        {
+          "scoreTenths": 36,
+          "min": 750.0,
+          "max": 800.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "750~800"
+        },
+        {
+          "scoreTenths": 37,
+          "min": 800.0,
+          "max": 850.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "800~850"
+        },
+        {
+          "scoreTenths": 38,
+          "min": 850.0,
+          "max": 900.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "850~900"
+        },
+        {
+          "scoreTenths": 39,
+          "min": 900.0,
+          "max": 950.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "900~950"
+        },
+        {
+          "scoreTenths": 40,
+          "min": 950.0,
+          "max": 1000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "950~1000"
+        },
+        {
+          "scoreTenths": 41,
+          "min": 1000.0,
+          "max": 1050.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "1000~1050"
+        },
+        {
+          "scoreTenths": 42,
+          "min": 1050.0,
+          "max": 1120.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "1050~1120"
+        },
+        {
+          "scoreTenths": 43,
+          "min": 1120.0,
+          "max": 1200.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "1120~1200"
+        },
+        {
+          "scoreTenths": 44,
+          "min": 1200.0,
+          "max": 1270.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "1200~1270"
+        },
+        {
+          "scoreTenths": 45,
+          "min": 1270.0,
+          "max": 1350.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "1270~1350"
+        },
+        {
+          "scoreTenths": 46,
+          "min": 1350.0,
+          "max": 1430.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "1350~1430"
+        },
+        {
+          "scoreTenths": 47,
+          "min": 1430.0,
+          "max": 1510.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "1430~1510"
+        },
+        {
+          "scoreTenths": 48,
+          "min": 1510.0,
+          "max": 1600.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "1510~1600"
+        },
+        {
+          "scoreTenths": 49,
+          "min": 1600.0,
+          "max": 1700.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "1600~1700"
+        },
+        {
+          "scoreTenths": 50,
+          "min": 1700.0,
+          "max": 1800.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "1700~1800"
+        },
+        {
+          "scoreTenths": 51,
+          "min": 1800.0,
+          "max": 1900.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "1800~1900"
+        },
+        {
+          "scoreTenths": 52,
+          "min": 1900.0,
+          "max": 2000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "1900~2000"
+        },
+        {
+          "scoreTenths": 53,
+          "min": 2000.0,
+          "max": 2100.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "2000~2100"
+        },
+        {
+          "scoreTenths": 54,
+          "min": 2100.0,
+          "max": 2200.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "2100~2200"
+        },
+        {
+          "scoreTenths": 55,
+          "min": 2200.0,
+          "max": 2350.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "2200~2350"
+        },
+        {
+          "scoreTenths": 56,
+          "min": 2350.0,
+          "max": 2500.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "2350~2500"
+        },
+        {
+          "scoreTenths": 57,
+          "min": 2500.0,
+          "max": 2650.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "2500~2650"
+        },
+        {
+          "scoreTenths": 58,
+          "min": 2650.0,
+          "max": 2800.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "2650~2800"
+        },
+        {
+          "scoreTenths": 59,
+          "min": 2800.0,
+          "max": 2950.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "2800~2950"
+        },
+        {
+          "scoreTenths": 60,
+          "min": 2950.0,
+          "max": 3100.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "2950~3100"
+        },
+        {
+          "scoreTenths": 61,
+          "min": 3100.0,
+          "max": 3250.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "3100~3250"
+        },
+        {
+          "scoreTenths": 62,
+          "min": 3250.0,
+          "max": 3400.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "3250~3400"
+        },
+        {
+          "scoreTenths": 64,
+          "min": 3550.0,
+          "max": 3680.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "3550~3680"
+        },
+        {
+          "scoreTenths": 66,
+          "min": 3800.0,
+          "max": 3950.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "3800~3950"
+        },
+        {
+          "scoreTenths": 67,
+          "min": 3950.0,
+          "max": 4100.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "3950~4100"
+        },
+        {
+          "scoreTenths": 68,
+          "min": 4100.0,
+          "max": 4250.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "4100~4250"
+        },
+        {
+          "scoreTenths": 69,
+          "min": 4250.0,
+          "max": 4400.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "4250~4400"
+        },
+        {
+          "scoreTenths": 70,
+          "min": 4400.0,
+          "max": 4580.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "4400~4580"
+        },
+        {
+          "scoreTenths": 71,
+          "min": 4580.0,
+          "max": 4780.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "4580~4780"
+        },
+        {
+          "scoreTenths": 72,
+          "min": 4780.0,
+          "max": 4980.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "4780~4980"
+        },
+        {
+          "scoreTenths": 73,
+          "min": 4980.0,
+          "max": 5200.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "4980~5200"
+        },
+        {
+          "scoreTenths": 74,
+          "min": 5200.0,
+          "max": 5400.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "5200~5400"
+        },
+        {
+          "scoreTenths": 75,
+          "min": 5400.0,
+          "max": 5600.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "5400~5600"
+        },
+        {
+          "scoreTenths": 76,
+          "min": 5600.0,
+          "max": 5850.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "5600~5850"
+        },
+        {
+          "scoreTenths": 77,
+          "min": 5850.0,
+          "max": 6100.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "5850~6100"
+        },
+        {
+          "scoreTenths": 78,
+          "min": 6100.0,
+          "max": 6300.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "6100~6300"
+        },
+        {
+          "scoreTenths": 79,
+          "min": 6300.0,
+          "max": 6550.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "6300~6550"
+        },
+        {
+          "scoreTenths": 80,
+          "min": 6550.0,
+          "max": 6800.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "6550~6800"
+        },
+        {
+          "scoreTenths": 81,
+          "min": 6800.0,
+          "max": 7050.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "6800~7050"
+        },
+        {
+          "scoreTenths": 82,
+          "min": 7050.0,
+          "max": 7300.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "7050~7300"
+        },
+        {
+          "scoreTenths": 83,
+          "min": 7300.0,
+          "max": 7550.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "7300~7550"
+        },
+        {
+          "scoreTenths": 84,
+          "min": 7550.0,
+          "max": 7750.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "7550~7750"
+        },
+        {
+          "scoreTenths": 85,
+          "min": 7750.0,
+          "max": 8000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "7750~8000"
+        },
+        {
+          "scoreTenths": 86,
+          "min": 8000.0,
+          "max": 8300.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "8000~8300"
+        },
+        {
+          "scoreTenths": 87,
+          "min": 8300.0,
+          "max": 8600.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "8300~8600"
+        },
+        {
+          "scoreTenths": 88,
+          "min": 8600.0,
+          "max": 9000.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "8600~9000"
+        },
+        {
+          "scoreTenths": 89,
+          "min": 9000.0,
+          "max": 9400.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "9000~9400"
+        },
+        {
+          "scoreTenths": 90,
+          "min": 9400.0,
+          "max": 9900.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "9400~9900"
+        },
+        {
+          "scoreTenths": 91,
+          "min": 9900.0,
+          "max": 10500.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "9900~10500"
+        }
+      ],
+      "source": "engineerEstimate",
+      "evidence": "C"
+    },
+    {
+      "id": "anchor.641",
+      "label": "Std. Dev.",
+      "unit": "%",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          0.14,
+          10
+        ],
+        [
+          0.154,
+          10
+        ],
+        [
+          0.183,
+          10
+        ],
+        [
+          0.193,
+          10
+        ],
+        [
+          0.198,
+          10
+        ],
+        [
+          0.202,
+          10
+        ],
+        [
+          0.207,
+          10
+        ],
+        [
+          0.218,
+          10
+        ],
+        [
+          0.233,
+          10
+        ],
+        [
+          0.248,
+          10
+        ],
+        [
+          0.254,
+          10
+        ],
+        [
+          0.255,
+          10
+        ],
+        [
+          0.261,
+          10
+        ],
+        [
+          0.269,
+          10
+        ],
+        [
+          0.27,
+          10
+        ],
+        [
+          0.285,
+          9.9
+        ],
+        [
+          0.294,
+          9.9
+        ],
+        [
+          0.302,
+          9.9
+        ],
+        [
+          0.318,
+          9.8
+        ],
+        [
+          0.35,
+          9.6
+        ],
+        [
+          0.351,
+          9.6
+        ],
+        [
+          0.375,
+          9.4
+        ],
+        [
+          0.392,
+          9.2
+        ],
+        [
+          0.397,
+          9.2
+        ],
+        [
+          0.406,
+          9.1
+        ],
+        [
+          0.459,
+          8.6
+        ],
+        [
+          0.462,
+          8.5
+        ],
+        [
+          0.482,
+          8.4
+        ],
+        [
+          0.537,
+          7.9
+        ],
+        [
+          0.562,
+          7.7
+        ],
+        [
+          0.574,
+          7.6
+        ],
+        [
+          0.61,
+          7.5
+        ],
+        [
+          0.694,
+          7.2
+        ],
+        [
+          0.78,
+          7
+        ],
+        [
+          0.781,
+          7
+        ],
+        [
+          0.869,
+          6.8
+        ],
+        [
+          0.961,
+          6.6
+        ],
+        [
+          0.972,
+          6.6
+        ],
+        [
+          0.993,
+          6.5
+        ],
+        [
+          1.016,
+          6.5
+        ],
+        [
+          1.091,
+          6.3
+        ],
+        [
+          1.118,
+          6.3
+        ],
+        [
+          1.161,
+          6.2
+        ],
+        [
+          1.206,
+          6.1
+        ],
+        [
+          1.253,
+          6
+        ],
+        [
+          1.391,
+          5.8
+        ],
+        [
+          1.466,
+          5.7
+        ],
+        [
+          1.485,
+          5.6
+        ],
+        [
+          1.857,
+          5
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.130",
+      "label": "Native Std. Dev.",
+      "unit": "%",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          0.028,
+          10
+        ],
+        [
+          0.124,
+          10
+        ],
+        [
+          0.155,
+          10
+        ],
+        [
+          0.167,
+          10
+        ],
+        [
+          0.177,
+          10
+        ],
+        [
+          0.181,
+          10
+        ],
+        [
+          0.185,
+          10
+        ],
+        [
+          0.201,
+          10
+        ],
+        [
+          0.21,
+          10
+        ],
+        [
+          0.267,
+          10
+        ],
+        [
+          0.33,
+          9.7
+        ],
+        [
+          0.419,
+          9
+        ],
+        [
+          0.438,
+          8.8
+        ],
+        [
+          0.477,
+          8.4
+        ],
+        [
+          0.5,
+          8.2
+        ],
+        [
+          0.524,
+          8
+        ],
+        [
+          0.54,
+          7.8
+        ],
+        [
+          0.552,
+          7.8
+        ],
+        [
+          0.562,
+          7.7
+        ],
+        [
+          0.591,
+          7.5
+        ],
+        [
+          0.619,
+          7.4
+        ],
+        [
+          0.631,
+          7.4
+        ],
+        [
+          0.682,
+          7.2
+        ],
+        [
+          0.749,
+          7
+        ],
+        [
+          0.806,
+          6.9
+        ],
+        [
+          0.826,
+          6.8
+        ],
+        [
+          0.834,
+          6.8
+        ],
+        [
+          0.902,
+          6.7
+        ],
+        [
+          0.958,
+          6.6
+        ],
+        [
+          1.034,
+          6.4
+        ],
+        [
+          1.189,
+          6.2
+        ],
+        [
+          1.223,
+          6.1
+        ],
+        [
+          1.314,
+          5.9
+        ],
+        [
+          1.61,
+          5.4
+        ],
+        [
+          2.01,
+          4.8
+        ],
+        [
+          2.654,
+          3.9
+        ],
+        [
+          2.889,
+          3.6
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.927",
+      "label": "10 000 cd/m² BT.2020 Coverage ITP",
+      "unit": "cd/m²",
+      "direction": "higherBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          16,
+          4.5
+        ],
+        [
+          18.6,
+          5
+        ],
+        [
+          20.1,
+          5.3
+        ],
+        [
+          20.5,
+          5.4
+        ],
+        [
+          23.8,
+          5.9
+        ],
+        [
+          25.5,
+          6.2
+        ],
+        [
+          26.6,
+          6.4
+        ],
+        [
+          27.1,
+          6.4
+        ],
+        [
+          27.6,
+          6.5
+        ],
+        [
+          27.9,
+          6.6
+        ],
+        [
+          28.6,
+          6.7
+        ],
+        [
+          30.2,
+          6.9
+        ],
+        [
+          32.4,
+          7.2
+        ],
+        [
+          32.8,
+          7.2
+        ],
+        [
+          34.1,
+          7.4
+        ],
+        [
+          34.3,
+          7.4
+        ],
+        [
+          35.3,
+          7.5
+        ],
+        [
+          35.8,
+          7.6
+        ],
+        [
+          36.2,
+          7.6
+        ],
+        [
+          37.2,
+          7.7
+        ],
+        [
+          38.8,
+          7.9
+        ],
+        [
+          40,
+          8
+        ],
+        [
+          42.8,
+          8.3
+        ],
+        [
+          47,
+          8.6
+        ],
+        [
+          48.8,
+          8.7
+        ],
+        [
+          49.7,
+          8.8
+        ],
+        [
+          50.3,
+          8.8
+        ],
+        [
+          52.5,
+          8.9
+        ],
+        [
+          54.4,
+          9
+        ],
+        [
+          54.8,
+          9
+        ],
+        [
+          55.2,
+          9
+        ],
+        [
+          58,
+          9.1
+        ],
+        [
+          60.3,
+          9.2
+        ],
+        [
+          63.4,
+          9.2
+        ],
+        [
+          66.7,
+          9.3
+        ],
+        [
+          69,
+          9.4
+        ],
+        [
+          71.8,
+          9.4
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.28334",
+      "label": "CIELAB DCI-P3 Coverage",
+      "unit": "%",
+      "direction": "higherBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          62.75,
+          5.1
+        ],
+        [
+          70.05,
+          5.8
+        ],
+        [
+          72.06,
+          6
+        ],
+        [
+          77.21,
+          6.6
+        ],
+        [
+          78.34,
+          6.7
+        ],
+        [
+          80.79,
+          7
+        ],
+        [
+          82.09,
+          7.1
+        ],
+        [
+          82.58,
+          7.2
+        ],
+        [
+          83.71,
+          7.3
+        ],
+        [
+          84.2,
+          7.4
+        ],
+        [
+          85.15,
+          7.5
+        ],
+        [
+          85.5,
+          7.6
+        ],
+        [
+          86.45,
+          7.7
+        ],
+        [
+          87.23,
+          7.8
+        ],
+        [
+          87.41,
+          7.8
+        ],
+        [
+          87.81,
+          7.9
+        ],
+        [
+          87.96,
+          7.9
+        ],
+        [
+          88.48,
+          8
+        ],
+        [
+          89.18,
+          8.1
+        ],
+        [
+          89.73,
+          8.2
+        ],
+        [
+          90.62,
+          8.3
+        ],
+        [
+          91.13,
+          8.4
+        ],
+        [
+          91.82,
+          8.6
+        ],
+        [
+          92.63,
+          8.7
+        ],
+        [
+          93.2,
+          8.8
+        ],
+        [
+          93.62,
+          8.9
+        ],
+        [
+          94.07,
+          9
+        ],
+        [
+          94.39,
+          9
+        ],
+        [
+          95.8,
+          9.3
+        ],
+        [
+          96.59,
+          9.4
+        ],
+        [
+          98.11,
+          9.7
+        ],
+        [
+          98.31,
+          9.7
+        ],
+        [
+          99.45,
+          9.9
+        ],
+        [
+          99.75,
+          10
+        ],
+        [
+          99.82,
+          10
+        ],
+        [
+          99.97,
+          10
+        ],
+        [
+          99.98,
+          10
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.28336",
+      "label": "CIELAB BT.2020 Coverage",
+      "unit": "%",
+      "direction": "higherBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          42,
+          4.2
+        ],
+        [
+          46.97,
+          4.7
+        ],
+        [
+          47.9,
+          4.8
+        ],
+        [
+          52.49,
+          5.2
+        ],
+        [
+          54.22,
+          5.4
+        ],
+        [
+          56.41,
+          5.6
+        ],
+        [
+          56.48,
+          5.6
+        ],
+        [
+          56.8,
+          5.7
+        ],
+        [
+          57.84,
+          5.8
+        ],
+        [
+          58.68,
+          5.9
+        ],
+        [
+          59.09,
+          5.9
+        ],
+        [
+          60.32,
+          6
+        ],
+        [
+          60.87,
+          6.1
+        ],
+        [
+          61.11,
+          6.1
+        ],
+        [
+          61.48,
+          6.1
+        ],
+        [
+          62.28,
+          6.2
+        ],
+        [
+          63.03,
+          6.3
+        ],
+        [
+          63.86,
+          6.4
+        ],
+        [
+          65.11,
+          6.5
+        ],
+        [
+          65.52,
+          6.6
+        ],
+        [
+          66.54,
+          6.7
+        ],
+        [
+          66.99,
+          6.7
+        ],
+        [
+          67.31,
+          6.7
+        ],
+        [
+          69.38,
+          6.9
+        ],
+        [
+          70.17,
+          7
+        ],
+        [
+          70.58,
+          7.1
+        ],
+        [
+          71.16,
+          7.1
+        ],
+        [
+          71.42,
+          7.1
+        ],
+        [
+          75.9,
+          7.6
+        ],
+        [
+          78.5,
+          7.9
+        ],
+        [
+          80.55,
+          8.1
+        ],
+        [
+          81.8,
+          8.2
+        ],
+        [
+          83.4,
+          8.3
+        ],
+        [
+          84.66,
+          8.5
+        ],
+        [
+          85.92,
+          8.6
+        ],
+        [
+          86.95,
+          8.7
+        ],
+        [
+          87.07,
+          8.7
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.150",
+      "label": "White Balance dE 2000",
+      "unit": "ΔE",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          0.6,
+          9.5
+        ],
+        [
+          0.93,
+          9.3
+        ],
+        [
+          0.99,
+          9.2
+        ],
+        [
+          1.2,
+          9.1
+        ],
+        [
+          1.37,
+          8.9
+        ],
+        [
+          1.48,
+          8.8
+        ],
+        [
+          1.58,
+          8.8
+        ],
+        [
+          1.7,
+          8.7
+        ],
+        [
+          1.87,
+          8.5
+        ],
+        [
+          1.98,
+          8.4
+        ],
+        [
+          2.03,
+          8.4
+        ],
+        [
+          2.17,
+          8.3
+        ],
+        [
+          2.28,
+          8.2
+        ],
+        [
+          2.44,
+          8
+        ],
+        [
+          2.52,
+          8
+        ],
+        [
+          2.57,
+          7.9
+        ],
+        [
+          2.69,
+          7.8
+        ],
+        [
+          2.77,
+          7.7
+        ],
+        [
+          2.97,
+          7.5
+        ],
+        [
+          3.13,
+          7.4
+        ],
+        [
+          3.25,
+          7.2
+        ],
+        [
+          3.36,
+          7.1
+        ],
+        [
+          3.5,
+          6.9
+        ],
+        [
+          3.64,
+          6.8
+        ],
+        [
+          3.93,
+          6.4
+        ],
+        [
+          4.12,
+          6.1
+        ],
+        [
+          4.28,
+          5.9
+        ],
+        [
+          4.42,
+          5.7
+        ],
+        [
+          4.53,
+          5.6
+        ],
+        [
+          4.84,
+          5.2
+        ],
+        [
+          5.05,
+          4.9
+        ],
+        [
+          5.18,
+          4.8
+        ],
+        [
+          5.6,
+          4.3
+        ],
+        [
+          6.07,
+          3.7
+        ],
+        [
+          6.44,
+          3.2
+        ],
+        [
+          8.13,
+          1.1
+        ],
+        [
+          8.84,
+          0.4
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.154",
+      "label": "Color dE 2000",
+      "unit": "ΔE",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          0.686,
+          9.5
+        ],
+        [
+          0.8209,
+          9.3
+        ],
+        [
+          0.9347,
+          9.3
+        ],
+        [
+          1.1077,
+          9.1
+        ],
+        [
+          1.1983,
+          9.1
+        ],
+        [
+          1.29,
+          9
+        ],
+        [
+          1.3513,
+          8.9
+        ],
+        [
+          1.4,
+          8.9
+        ],
+        [
+          1.4319,
+          8.9
+        ],
+        [
+          1.47,
+          8.8
+        ],
+        [
+          1.52,
+          8.8
+        ],
+        [
+          1.5734,
+          8.8
+        ],
+        [
+          1.6688,
+          8.7
+        ],
+        [
+          1.8,
+          8.6
+        ],
+        [
+          1.85,
+          8.5
+        ],
+        [
+          1.9715,
+          8.4
+        ],
+        [
+          2.01,
+          8.4
+        ],
+        [
+          2.04,
+          8.4
+        ],
+        [
+          2.08,
+          8.3
+        ],
+        [
+          2.1288,
+          8.3
+        ],
+        [
+          2.1961,
+          8.2
+        ],
+        [
+          2.26,
+          8.2
+        ],
+        [
+          2.3594,
+          8.1
+        ],
+        [
+          2.4,
+          8.1
+        ],
+        [
+          2.442,
+          8
+        ],
+        [
+          2.52,
+          8
+        ],
+        [
+          2.59,
+          7.9
+        ],
+        [
+          2.6954,
+          7.8
+        ],
+        [
+          2.7869,
+          7.7
+        ],
+        [
+          3.022,
+          7.5
+        ],
+        [
+          3.05,
+          7.4
+        ],
+        [
+          3.2196,
+          7.3
+        ],
+        [
+          3.3575,
+          7.1
+        ],
+        [
+          3.5628,
+          6.9
+        ],
+        [
+          4.8,
+          5.2
+        ],
+        [
+          5.8109,
+          4
+        ],
+        [
+          6.22,
+          3.5
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.1937",
+      "label": "Color Temperature",
+      "unit": "K",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          5501,
+          2.9
+        ],
+        [
+          5798.15,
+          4.8
+        ],
+        [
+          5926.05,
+          5.6
+        ],
+        [
+          6017,
+          6.1
+        ],
+        [
+          6053,
+          6.3
+        ],
+        [
+          6111,
+          6.6
+        ],
+        [
+          6160,
+          6.9
+        ],
+        [
+          6223.45,
+          7.3
+        ],
+        [
+          6287.05,
+          7.9
+        ],
+        [
+          6310,
+          8.1
+        ],
+        [
+          6339.78,
+          8.5
+        ],
+        [
+          6381.35,
+          9.1
+        ],
+        [
+          6408.9,
+          9.4
+        ],
+        [
+          6430,
+          9.6
+        ],
+        [
+          6491.7,
+          10
+        ],
+        [
+          6500.1,
+          10
+        ],
+        [
+          6512,
+          10
+        ],
+        [
+          6535.4,
+          9.9
+        ],
+        [
+          6558.1,
+          9.7
+        ],
+        [
+          6583,
+          9.5
+        ],
+        [
+          6601.1,
+          9.3
+        ],
+        [
+          6608,
+          9.2
+        ],
+        [
+          6630,
+          8.9
+        ],
+        [
+          6665,
+          8.4
+        ],
+        [
+          6676,
+          8.3
+        ],
+        [
+          6717.5,
+          7.8
+        ],
+        [
+          6780,
+          7.3
+        ],
+        [
+          6813.15,
+          7.1
+        ],
+        [
+          6870.45,
+          6.7
+        ],
+        [
+          6897,
+          6.6
+        ],
+        [
+          6963.5,
+          6.2
+        ],
+        [
+          6993,
+          6
+        ],
+        [
+          7049.6,
+          5.7
+        ],
+        [
+          7165,
+          5
+        ],
+        [
+          7383,
+          3.6
+        ],
+        [
+          7558,
+          2.6
+        ],
+        [
+          8490,
+          0.6
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.29345",
+      "label": "White Balance dE ITP",
+      "unit": "ΔE",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          2.7,
+          9.6
+        ],
+        [
+          3.91,
+          9.3
+        ],
+        [
+          4.7,
+          9.1
+        ],
+        [
+          4.85,
+          9
+        ],
+        [
+          4.96,
+          9
+        ],
+        [
+          5.32,
+          8.9
+        ],
+        [
+          5.5,
+          8.8
+        ],
+        [
+          6.16,
+          8.6
+        ],
+        [
+          6.4,
+          8.5
+        ],
+        [
+          6.56,
+          8.4
+        ],
+        [
+          6.67,
+          8.4
+        ],
+        [
+          7.14,
+          8.2
+        ],
+        [
+          7.64,
+          8
+        ],
+        [
+          8.03,
+          7.8
+        ],
+        [
+          8.18,
+          7.7
+        ],
+        [
+          8.37,
+          7.7
+        ],
+        [
+          8.45,
+          7.7
+        ],
+        [
+          8.7,
+          7.6
+        ],
+        [
+          8.97,
+          7.5
+        ],
+        [
+          9.13,
+          7.5
+        ],
+        [
+          9.34,
+          7.4
+        ],
+        [
+          9.77,
+          7.3
+        ],
+        [
+          10,
+          7.3
+        ],
+        [
+          10.16,
+          7.2
+        ],
+        [
+          10.5,
+          7.2
+        ],
+        [
+          10.57,
+          7.2
+        ],
+        [
+          10.83,
+          7.1
+        ],
+        [
+          11.3,
+          7
+        ],
+        [
+          12.25,
+          6.9
+        ],
+        [
+          12.55,
+          6.8
+        ],
+        [
+          13.19,
+          6.7
+        ],
+        [
+          14.66,
+          6.5
+        ],
+        [
+          14.9,
+          6.5
+        ],
+        [
+          15.97,
+          6.4
+        ],
+        [
+          18.83,
+          6.1
+        ],
+        [
+          34.51,
+          5.5
+        ],
+        [
+          41.45,
+          5.3
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.29346",
+      "label": "Color dE ITP",
+      "unit": "ΔE",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          4,
+          9.3
+        ],
+        [
+          5.3,
+          8.9
+        ],
+        [
+          5.4,
+          8.9
+        ],
+        [
+          5.5,
+          8.8
+        ],
+        [
+          6.1,
+          8.6
+        ],
+        [
+          6.5,
+          8.4
+        ],
+        [
+          6.7,
+          8.4
+        ],
+        [
+          7.2,
+          8.1
+        ],
+        [
+          7.3,
+          8.1
+        ],
+        [
+          7.8,
+          7.9
+        ],
+        [
+          8.1,
+          7.8
+        ],
+        [
+          8.5,
+          7.6
+        ],
+        [
+          8.6,
+          7.6
+        ],
+        [
+          9.4,
+          7.4
+        ],
+        [
+          9.5,
+          7.4
+        ],
+        [
+          9.7,
+          7.3
+        ],
+        [
+          10.1,
+          7.3
+        ],
+        [
+          10.6,
+          7.2
+        ],
+        [
+          11.2,
+          7
+        ],
+        [
+          11.4,
+          7
+        ],
+        [
+          11.9,
+          6.9
+        ],
+        [
+          12.3,
+          6.9
+        ],
+        [
+          12.6,
+          6.8
+        ],
+        [
+          12.8,
+          6.8
+        ],
+        [
+          13,
+          6.8
+        ],
+        [
+          13.5,
+          6.7
+        ],
+        [
+          14.2,
+          6.6
+        ],
+        [
+          15,
+          6.5
+        ],
+        [
+          16.2,
+          6.4
+        ],
+        [
+          17.2,
+          6.2
+        ],
+        [
+          17.8,
+          6.2
+        ],
+        [
+          18.2,
+          6.1
+        ],
+        [
+          19.2,
+          6.1
+        ],
+        [
+          22.2,
+          5.9
+        ],
+        [
+          25.4,
+          5.7
+        ],
+        [
+          49.6,
+          5
+        ],
+        [
+          51.6,
+          4.9
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.29347",
+      "label": "Color Temperature",
+      "unit": "K",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          5811,
+          4.9
+        ],
+        [
+          6032,
+          6.2
+        ],
+        [
+          6099,
+          6.5
+        ],
+        [
+          6184,
+          7
+        ],
+        [
+          6250,
+          7.5
+        ],
+        [
+          6308,
+          8.1
+        ],
+        [
+          6375,
+          9
+        ],
+        [
+          6418,
+          9.5
+        ],
+        [
+          6452,
+          9.8
+        ],
+        [
+          6493,
+          10
+        ],
+        [
+          6540,
+          9.9
+        ],
+        [
+          6562,
+          9.7
+        ],
+        [
+          6587,
+          9.5
+        ],
+        [
+          6604,
+          9.3
+        ],
+        [
+          6637,
+          8.8
+        ],
+        [
+          6675,
+          8.3
+        ],
+        [
+          6717,
+          7.8
+        ],
+        [
+          6776,
+          7.3
+        ],
+        [
+          6837,
+          6.9
+        ],
+        [
+          6852,
+          6.8
+        ],
+        [
+          6865,
+          6.7
+        ],
+        [
+          6932,
+          6.4
+        ],
+        [
+          6994,
+          6
+        ],
+        [
+          7056,
+          5.7
+        ],
+        [
+          7078,
+          5.6
+        ],
+        [
+          7116,
+          5.3
+        ],
+        [
+          7140,
+          5.2
+        ],
+        [
+          7159,
+          5.1
+        ],
+        [
+          7254,
+          4.5
+        ],
+        [
+          7307,
+          4.1
+        ],
+        [
+          7438,
+          3.3
+        ],
+        [
+          7633,
+          2.2
+        ],
+        [
+          7789,
+          1.5
+        ],
+        [
+          7973,
+          1
+        ],
+        [
+          8018,
+          1
+        ],
+        [
+          8405,
+          0.7
+        ],
+        [
+          9089,
+          0.3
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "identity.36315",
+      "label": "Judder 24p",
+      "unit": "0~10",
+      "direction": "higherBetter",
+      "kind": "identity",
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "identity.36316",
+      "label": "Judder 25p",
+      "unit": "0~10",
+      "direction": "higherBetter",
+      "kind": "identity",
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "identity.36313",
+      "label": "Judder 24p via 60p",
+      "unit": "0~10",
+      "direction": "higherBetter",
+      "kind": "identity",
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "identity.36314",
+      "label": "Judder 25p via 60p",
+      "unit": "0~10",
+      "direction": "higherBetter",
+      "kind": "identity",
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "identity.36317",
+      "label": "Judder 24p via 60i",
+      "unit": "0~10",
+      "direction": "higherBetter",
+      "kind": "identity",
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "identity.36318",
+      "label": "Judder 24p via Native Apps",
+      "unit": "0~10",
+      "direction": "higherBetter",
+      "kind": "identity",
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "identity.36319",
+      "label": "Judder 25p via Native Apps",
+      "unit": "0~10",
+      "direction": "higherBetter",
+      "kind": "identity",
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.39752",
+      "label": "Sample And Hold",
+      "unit": "px/s",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          19.9,
+          6.6
+        ],
+        [
+          21.4,
+          6.1
+        ],
+        [
+          21.7,
+          6
+        ],
+        [
+          21.9,
+          5.9
+        ],
+        [
+          22.2,
+          5.8
+        ],
+        [
+          22.5,
+          5.7
+        ],
+        [
+          22.8,
+          5.6
+        ],
+        [
+          23,
+          5.5
+        ],
+        [
+          23.2,
+          5.4
+        ],
+        [
+          23.3,
+          5.3
+        ],
+        [
+          23.4,
+          5.2
+        ],
+        [
+          23.5,
+          5.1
+        ],
+        [
+          23.7,
+          4.8
+        ],
+        [
+          23.8,
+          4.7
+        ],
+        [
+          23.9,
+          4.6
+        ],
+        [
+          24,
+          4.4
+        ],
+        [
+          24.1,
+          4.3
+        ],
+        [
+          24.2,
+          4.1
+        ],
+        [
+          24.4,
+          3.8
+        ],
+        [
+          24.6,
+          3.5
+        ],
+        [
+          24.7,
+          3.4
+        ],
+        [
+          24.9,
+          3.1
+        ],
+        [
+          25.1,
+          2.9
+        ],
+        [
+          25.4,
+          2.6
+        ],
+        [
+          26,
+          2
+        ],
+        [
+          26.1,
+          1.9
+        ],
+        [
+          26.2,
+          1.8
+        ],
+        [
+          26.3,
+          1.7
+        ],
+        [
+          26.4,
+          1.6
+        ],
+        [
+          26.8,
+          1.2
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.1925",
+      "label": "Frame Hold Time @ 24 fps",
+      "unit": "ms",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          8.76666,
+          9.4
+        ],
+        [
+          19.57,
+          8.8
+        ],
+        [
+          23.5666,
+          8.5
+        ],
+        [
+          24.466,
+          8.4
+        ],
+        [
+          25.8667,
+          8.2
+        ],
+        [
+          26.4,
+          8.2
+        ],
+        [
+          26.9667,
+          8.1
+        ],
+        [
+          27.5667,
+          8
+        ],
+        [
+          27.6667,
+          8
+        ],
+        [
+          28.8667,
+          7.9
+        ],
+        [
+          29.2666,
+          7.8
+        ],
+        [
+          30.0667,
+          7.7
+        ],
+        [
+          30.36,
+          7.7
+        ],
+        [
+          30.4,
+          7.7
+        ],
+        [
+          31.2666,
+          7.5
+        ],
+        [
+          31.6,
+          7.5
+        ],
+        [
+          32.06,
+          7.4
+        ],
+        [
+          32.5666,
+          7.3
+        ],
+        [
+          32.6,
+          7.3
+        ],
+        [
+          33.1,
+          7.2
+        ],
+        [
+          33.4667,
+          7.2
+        ],
+        [
+          34.1667,
+          7
+        ],
+        [
+          34.7667,
+          6.9
+        ],
+        [
+          35.2667,
+          6.8
+        ],
+        [
+          35.5667,
+          6.7
+        ],
+        [
+          36.1666,
+          6.6
+        ],
+        [
+          36.3,
+          6.6
+        ],
+        [
+          40.6,
+          4.2
+        ],
+        [
+          40.8667,
+          4.2
+        ],
+        [
+          40.9,
+          4.2
+        ],
+        [
+          40.9667,
+          4.1
+        ],
+        [
+          41.0666,
+          4.1
+        ],
+        [
+          41.1667,
+          4.1
+        ],
+        [
+          41.2,
+          4.1
+        ],
+        [
+          41.3666,
+          4.1
+        ],
+        [
+          41.3667,
+          4.1
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "identity.39013",
+      "label": "Color Artifacts",
+      "unit": "0~10",
+      "direction": "higherBetter",
+      "kind": "identity",
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "identity.39027",
+      "label": "Edge Artifacts",
+      "unit": "0~10",
+      "direction": "higherBetter",
+      "kind": "identity",
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.30862",
+      "label": "First Response Time",
+      "unit": "ms",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          0.3,
+          10
+        ],
+        [
+          0.4,
+          9.9
+        ],
+        [
+          0.5,
+          9.8
+        ],
+        [
+          0.7,
+          9.4
+        ],
+        [
+          0.8,
+          9.2
+        ],
+        [
+          4.4,
+          8.6
+        ],
+        [
+          5.5,
+          8.3
+        ],
+        [
+          6.1,
+          8
+        ],
+        [
+          6.2,
+          8
+        ],
+        [
+          6.6,
+          7.7
+        ],
+        [
+          7.2,
+          7.4
+        ],
+        [
+          7.9,
+          6.9
+        ],
+        [
+          8.5,
+          6.4
+        ],
+        [
+          8.9,
+          6.1
+        ],
+        [
+          9.1,
+          5.9
+        ],
+        [
+          9.3,
+          5.8
+        ],
+        [
+          9.9,
+          5.4
+        ],
+        [
+          10.1,
+          5.3
+        ],
+        [
+          10.4,
+          5.1
+        ],
+        [
+          11.2,
+          4.6
+        ],
+        [
+          11.3,
+          4.6
+        ],
+        [
+          11.8,
+          4.2
+        ],
+        [
+          12.5,
+          3.4
+        ],
+        [
+          12.9,
+          2.7
+        ],
+        [
+          14,
+          0.8
+        ],
+        [
+          14.5,
+          0.2
+        ],
+        [
+          14.9,
+          0
+        ],
+        [
+          15.7,
+          0
+        ],
+        [
+          16.5,
+          0
+        ],
+        [
+          17.7,
+          0
+        ],
+        [
+          20.2,
+          0
+        ],
+        [
+          25.8,
+          0
+        ],
+        [
+          32.9,
+          0
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.30860",
+      "label": "Total Response Time",
+      "unit": "ms",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          0.7,
+          9.9
+        ],
+        [
+          1,
+          9.8
+        ],
+        [
+          1.2,
+          9.8
+        ],
+        [
+          1.4,
+          9.8
+        ],
+        [
+          2.4,
+          9.7
+        ],
+        [
+          3.4,
+          9.6
+        ],
+        [
+          3.7,
+          9.6
+        ],
+        [
+          4,
+          9.6
+        ],
+        [
+          4.2,
+          9.6
+        ],
+        [
+          7,
+          9.2
+        ],
+        [
+          8.4,
+          8.9
+        ],
+        [
+          8.8,
+          8.8
+        ],
+        [
+          9.2,
+          8.7
+        ],
+        [
+          9.6,
+          8.6
+        ],
+        [
+          9.8,
+          8.6
+        ],
+        [
+          10.1,
+          8.5
+        ],
+        [
+          10.3,
+          8.5
+        ],
+        [
+          10.4,
+          8.4
+        ],
+        [
+          10.6,
+          8.4
+        ],
+        [
+          11.3,
+          8.2
+        ],
+        [
+          11.5,
+          8.2
+        ],
+        [
+          11.6,
+          8.1
+        ],
+        [
+          11.8,
+          8.1
+        ],
+        [
+          12.1,
+          8
+        ],
+        [
+          12.5,
+          7.9
+        ],
+        [
+          13.1,
+          7.7
+        ],
+        [
+          13.9,
+          7.5
+        ],
+        [
+          14.3,
+          7.4
+        ],
+        [
+          14.8,
+          7.3
+        ],
+        [
+          15.3,
+          7.2
+        ],
+        [
+          15.7,
+          7.1
+        ],
+        [
+          16.3,
+          6.9
+        ],
+        [
+          17.6,
+          6.6
+        ],
+        [
+          18.1,
+          6.5
+        ],
+        [
+          20,
+          6
+        ],
+        [
+          22.5,
+          5.2
+        ],
+        [
+          32.9,
+          1.3
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.30861",
+      "label": "Worst 10% Response Time",
+      "unit": "ms",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          3.1,
+          10
+        ],
+        [
+          4.1,
+          10
+        ],
+        [
+          7.3,
+          9.7
+        ],
+        [
+          8.6,
+          9.5
+        ],
+        [
+          9.7,
+          9.3
+        ],
+        [
+          10,
+          9.2
+        ],
+        [
+          10.1,
+          9.2
+        ],
+        [
+          10.3,
+          9.2
+        ],
+        [
+          10.4,
+          9.2
+        ],
+        [
+          15.1,
+          8.3
+        ],
+        [
+          17.7,
+          8
+        ],
+        [
+          18.5,
+          7.9
+        ],
+        [
+          20.1,
+          7.7
+        ],
+        [
+          20.4,
+          7.6
+        ],
+        [
+          21.1,
+          7.5
+        ],
+        [
+          21.2,
+          7.5
+        ],
+        [
+          21.5,
+          7.5
+        ],
+        [
+          21.7,
+          7.5
+        ],
+        [
+          22.6,
+          7.3
+        ],
+        [
+          23.2,
+          7.2
+        ],
+        [
+          24.2,
+          7.1
+        ],
+        [
+          24.4,
+          7.1
+        ],
+        [
+          24.9,
+          7
+        ],
+        [
+          25.7,
+          6.9
+        ],
+        [
+          26.4,
+          6.7
+        ],
+        [
+          27.3,
+          6.6
+        ],
+        [
+          28.1,
+          6.4
+        ],
+        [
+          28.6,
+          6.3
+        ],
+        [
+          30.1,
+          6
+        ],
+        [
+          30.5,
+          5.9
+        ],
+        [
+          31.7,
+          5.5
+        ],
+        [
+          33.7,
+          4.7
+        ],
+        [
+          34.8,
+          4.1
+        ],
+        [
+          37,
+          3.1
+        ],
+        [
+          39.7,
+          2.1
+        ],
+        [
+          55,
+          0
+        ],
+        [
+          58.1,
+          0
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "categorical.36112",
+      "label": "Micro Judder-Free 24p",
+      "unit": "类别",
+      "direction": "higherBetter",
+      "kind": "categorical",
+      "values": [
+        {
+          "value": "Yes",
+          "score": 10.0
+        }
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "categorical.36113",
+      "label": "Micro Judder-Free 25p",
+      "unit": "类别",
+      "direction": "higherBetter",
+      "kind": "categorical",
+      "values": [
+        {
+          "value": "Yes",
+          "score": 10.0
+        },
+        {
+          "value": "No",
+          "score": 0.0
+        }
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "categorical.36114",
+      "label": "Micro Judder-Free 24p via 60p",
+      "unit": "类别",
+      "direction": "higherBetter",
+      "kind": "categorical",
+      "values": [
+        {
+          "value": "Yes",
+          "score": 10.0
+        },
+        {
+          "value": "No",
+          "score": 0.0
+        }
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "categorical.36115",
+      "label": "Micro Judder-Free 25p via 60p",
+      "unit": "类别",
+      "direction": "higherBetter",
+      "kind": "categorical",
+      "values": [
+        {
+          "value": "Yes",
+          "score": 10.0
+        },
+        {
+          "value": "No",
+          "score": 0.0
+        }
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "categorical.36116",
+      "label": "Micro Judder-Free 24p via Native Apps",
+      "unit": "类别",
+      "direction": "higherBetter",
+      "kind": "categorical",
+      "values": [
+        {
+          "value": "Yes",
+          "score": 10.0
+        },
+        {
+          "value": "No",
+          "score": 0.0
+        }
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "categorical.36117",
+      "label": "Micro Judder-Free 25p via Native Apps",
+      "unit": "类别",
+      "direction": "higherBetter",
+      "kind": "categorical",
+      "values": [
+        {
+          "value": "Yes",
+          "score": 10.0
+        },
+        {
+          "value": "No",
+          "score": 0.0
+        }
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "identity.18015",
+      "label": "Smoothing",
+      "unit": "0~10",
+      "direction": "higherBetter",
+      "kind": "identity",
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "identity.18016",
+      "label": "Detail Preservation",
+      "unit": "0~10",
+      "direction": "higherBetter",
+      "kind": "identity",
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.13904",
+      "label": "600 Nit Tracking Delta",
+      "unit": "ΔE",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          0.00102405,
+          9.6
+        ],
+        [
+          0.00130809,
+          9.5
+        ],
+        [
+          0.00163523,
+          9.4
+        ],
+        [
+          0.00196097,
+          9.3
+        ],
+        [
+          0.0022395,
+          9.2
+        ],
+        [
+          0.00258404,
+          9.1
+        ],
+        [
+          0.00266088,
+          9
+        ],
+        [
+          0.00285635,
+          9
+        ],
+        [
+          0.00316541,
+          8.8
+        ],
+        [
+          0.00329379,
+          8.8
+        ],
+        [
+          0.00333677,
+          8.8
+        ],
+        [
+          0.00356524,
+          8.7
+        ],
+        [
+          0.00368185,
+          8.6
+        ],
+        [
+          0.00407079,
+          8.5
+        ],
+        [
+          0.00433233,
+          8.3
+        ],
+        [
+          0.00446502,
+          8.3
+        ],
+        [
+          0.00460725,
+          8.2
+        ],
+        [
+          0.0049774,
+          8.1
+        ],
+        [
+          0.00534051,
+          7.9
+        ],
+        [
+          0.00577884,
+          7.8
+        ],
+        [
+          0.00610386,
+          7.7
+        ],
+        [
+          0.00635387,
+          7.6
+        ],
+        [
+          0.0066245,
+          7.5
+        ],
+        [
+          0.00673644,
+          7.5
+        ],
+        [
+          0.00721066,
+          7.3
+        ],
+        [
+          0.00781683,
+          7.1
+        ],
+        [
+          0.0083162,
+          7
+        ],
+        [
+          0.0086577,
+          6.9
+        ],
+        [
+          0.00974239,
+          6.5
+        ],
+        [
+          0.0106636,
+          6.3
+        ],
+        [
+          0.0119448,
+          6
+        ],
+        [
+          0.014464,
+          5.5
+        ],
+        [
+          0.0153099,
+          5.4
+        ],
+        [
+          0.0156388,
+          5.3
+        ],
+        [
+          0.0230368,
+          4.6
+        ],
+        [
+          0.0313083,
+          3.9
+        ],
+        [
+          0.0504558,
+          2.6
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.13905",
+      "label": "1000 Nit Tracking Delta",
+      "unit": "ΔE",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          0.00106591,
+          9.6
+        ],
+        [
+          0.00137404,
+          9.5
+        ],
+        [
+          0.0016482,
+          9.4
+        ],
+        [
+          0.00203081,
+          9.3
+        ],
+        [
+          0.00225881,
+          9.2
+        ],
+        [
+          0.00256339,
+          9.1
+        ],
+        [
+          0.00271986,
+          9
+        ],
+        [
+          0.00306046,
+          8.9
+        ],
+        [
+          0.00312288,
+          8.9
+        ],
+        [
+          0.00326002,
+          8.8
+        ],
+        [
+          0.00341732,
+          8.7
+        ],
+        [
+          0.00354375,
+          8.7
+        ],
+        [
+          0.00368575,
+          8.6
+        ],
+        [
+          0.00384075,
+          8.5
+        ],
+        [
+          0.0042816,
+          8.4
+        ],
+        [
+          0.00432324,
+          8.3
+        ],
+        [
+          0.00452105,
+          8.3
+        ],
+        [
+          0.00497944,
+          8.1
+        ],
+        [
+          0.00529095,
+          8
+        ],
+        [
+          0.00567898,
+          7.8
+        ],
+        [
+          0.00596198,
+          7.7
+        ],
+        [
+          0.00635344,
+          7.6
+        ],
+        [
+          0.00649686,
+          7.5
+        ],
+        [
+          0.00670366,
+          7.5
+        ],
+        [
+          0.00710743,
+          7.3
+        ],
+        [
+          0.00790027,
+          7.1
+        ],
+        [
+          0.00830376,
+          7
+        ],
+        [
+          0.00864409,
+          6.9
+        ],
+        [
+          0.00988651,
+          6.5
+        ],
+        [
+          0.0107318,
+          6.3
+        ],
+        [
+          0.0119068,
+          6
+        ],
+        [
+          0.014209,
+          5.6
+        ],
+        [
+          0.0148465,
+          5.4
+        ],
+        [
+          0.015481,
+          5.3
+        ],
+        [
+          0.0230861,
+          4.6
+        ],
+        [
+          0.0313653,
+          3.9
+        ],
+        [
+          0.0441058,
+          3
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.13906",
+      "label": "4000 Nit Tracking Delta",
+      "unit": "ΔE",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          0.00123316,
+          9.6
+        ],
+        [
+          0.00160972,
+          9.4
+        ],
+        [
+          0.00182434,
+          9.4
+        ],
+        [
+          0.00209533,
+          9.3
+        ],
+        [
+          0.00252515,
+          9.1
+        ],
+        [
+          0.0027296,
+          9
+        ],
+        [
+          0.00296308,
+          8.9
+        ],
+        [
+          0.0031659,
+          8.8
+        ],
+        [
+          0.00346049,
+          8.7
+        ],
+        [
+          0.00361973,
+          8.6
+        ],
+        [
+          0.00368031,
+          8.6
+        ],
+        [
+          0.00375197,
+          8.6
+        ],
+        [
+          0.00408214,
+          8.4
+        ],
+        [
+          0.00430963,
+          8.4
+        ],
+        [
+          0.00457109,
+          8.2
+        ],
+        [
+          0.00476009,
+          8.2
+        ],
+        [
+          0.00497437,
+          8.1
+        ],
+        [
+          0.00504258,
+          8.1
+        ],
+        [
+          0.00524823,
+          8
+        ],
+        [
+          0.00552496,
+          7.9
+        ],
+        [
+          0.00556616,
+          7.9
+        ],
+        [
+          0.00591176,
+          7.7
+        ],
+        [
+          0.00648612,
+          7.5
+        ],
+        [
+          0.00669823,
+          7.5
+        ],
+        [
+          0.00714916,
+          7.3
+        ],
+        [
+          0.00790766,
+          7.1
+        ],
+        [
+          0.00835222,
+          6.9
+        ],
+        [
+          0.00927015,
+          6.7
+        ],
+        [
+          0.0106207,
+          6.3
+        ],
+        [
+          0.010679,
+          6.3
+        ],
+        [
+          0.0136714,
+          5.7
+        ],
+        [
+          0.0144971,
+          5.5
+        ],
+        [
+          0.0154071,
+          5.3
+        ],
+        [
+          0.0164537,
+          5.2
+        ],
+        [
+          0.0270672,
+          4.2
+        ],
+        [
+          0.0314187,
+          3.9
+        ],
+        [
+          0.0480177,
+          2.8
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "identity.18399",
+      "label": "100% Black To 50% Gray",
+      "unit": "0~10",
+      "direction": "higherBetter",
+      "kind": "identity",
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "identity.18401",
+      "label": "100% Black To 50% Red",
+      "unit": "0~10",
+      "direction": "higherBetter",
+      "kind": "identity",
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "identity.18403",
+      "label": "100% Black To 50% Green",
+      "unit": "0~10",
+      "direction": "higherBetter",
+      "kind": "identity",
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "identity.18405",
+      "label": "100% Black To 50% Blue",
+      "unit": "0~10",
+      "direction": "higherBetter",
+      "kind": "identity",
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "identity.18400",
+      "label": "50% Gray To 100% White",
+      "unit": "0~10",
+      "direction": "higherBetter",
+      "kind": "identity",
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "identity.18402",
+      "label": "50% Red To 100% Red",
+      "unit": "0~10",
+      "direction": "higherBetter",
+      "kind": "identity",
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "identity.18404",
+      "label": "50% Green To 100% Green",
+      "unit": "0~10",
+      "direction": "higherBetter",
+      "kind": "identity",
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "identity.18406",
+      "label": "50% Blue To 100% Blue",
+      "unit": "0~10",
+      "direction": "higherBetter",
+      "kind": "identity",
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.25",
+      "label": "1080p @ 60Hz",
+      "unit": "数值",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          9,
+          9.8
+        ],
+        [
+          9.5,
+          9.7
+        ],
+        [
+          9.8,
+          9.6
+        ],
+        [
+          9.9,
+          9.6
+        ],
+        [
+          10,
+          9.6
+        ],
+        [
+          10.1,
+          9.5
+        ],
+        [
+          10.2,
+          9.5
+        ],
+        [
+          10.3,
+          9.5
+        ],
+        [
+          10.4,
+          9.4
+        ],
+        [
+          10.5,
+          9.4
+        ],
+        [
+          10.6,
+          9.4
+        ],
+        [
+          10.8,
+          9.3
+        ],
+        [
+          11,
+          9.2
+        ],
+        [
+          11.1,
+          9.1
+        ],
+        [
+          11.2,
+          9.1
+        ],
+        [
+          11.3,
+          9.1
+        ],
+        [
+          11.7,
+          8.9
+        ],
+        [
+          12.3,
+          8.6
+        ],
+        [
+          13.1,
+          8.2
+        ],
+        [
+          13.4,
+          8.1
+        ],
+        [
+          14.1,
+          7.8
+        ],
+        [
+          14.3,
+          7.7
+        ],
+        [
+          14.5,
+          7.6
+        ],
+        [
+          14.7,
+          7.6
+        ],
+        [
+          14.9,
+          7.5
+        ],
+        [
+          17,
+          7.1
+        ],
+        [
+          18,
+          6.9
+        ],
+        [
+          37.4,
+          2.9
+        ],
+        [
+          42.7,
+          1.7
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.1466",
+      "label": "1080p @ 120Hz",
+      "unit": "数值",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          4.8,
+          9.8
+        ],
+        [
+          4.9,
+          9.8
+        ],
+        [
+          5.2,
+          9.7
+        ],
+        [
+          5.3,
+          9.7
+        ],
+        [
+          5.4,
+          9.7
+        ],
+        [
+          5.5,
+          9.6
+        ],
+        [
+          5.6,
+          9.6
+        ],
+        [
+          5.7,
+          9.6
+        ],
+        [
+          5.8,
+          9.5
+        ],
+        [
+          5.9,
+          9.5
+        ],
+        [
+          6,
+          9.4
+        ],
+        [
+          6.1,
+          9.4
+        ],
+        [
+          6.2,
+          9.4
+        ],
+        [
+          6.3,
+          9.3
+        ],
+        [
+          6.4,
+          9.3
+        ],
+        [
+          6.5,
+          9.2
+        ],
+        [
+          6.6,
+          9.2
+        ],
+        [
+          6.8,
+          9.1
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          7.2,
+          8.9
+        ],
+        [
+          7.9,
+          8.5
+        ],
+        [
+          8.6,
+          8.1
+        ],
+        [
+          9.5,
+          7.7
+        ],
+        [
+          9.9,
+          7.5
+        ],
+        [
+          21.6,
+          4.6
+        ],
+        [
+          23.3,
+          4.3
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.12237",
+      "label": "1080p @ Max Refresh Rate",
+      "unit": "Hz",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          2.9,
+          9.2
+        ],
+        [
+          3.1,
+          9.2
+        ],
+        [
+          3.2,
+          9.1
+        ],
+        [
+          3.4,
+          9
+        ],
+        [
+          3.5,
+          9
+        ],
+        [
+          3.8,
+          8.7
+        ],
+        [
+          4,
+          8.6
+        ],
+        [
+          4.1,
+          8.5
+        ],
+        [
+          4.2,
+          8.5
+        ],
+        [
+          4.3,
+          8.5
+        ],
+        [
+          4.5,
+          8.4
+        ],
+        [
+          4.6,
+          8.4
+        ],
+        [
+          4.7,
+          8.3
+        ],
+        [
+          4.8,
+          8.3
+        ],
+        [
+          4.9,
+          8.3
+        ],
+        [
+          5.1,
+          8.2
+        ],
+        [
+          5.2,
+          8.2
+        ],
+        [
+          5.3,
+          8.2
+        ],
+        [
+          5.4,
+          8.2
+        ],
+        [
+          5.5,
+          8.2
+        ],
+        [
+          5.8,
+          8.1
+        ],
+        [
+          6.1,
+          8.1
+        ],
+        [
+          6.3,
+          8
+        ],
+        [
+          6.5,
+          8
+        ],
+        [
+          8,
+          7.8
+        ],
+        [
+          8.6,
+          7.7
+        ],
+        [
+          9.5,
+          7.6
+        ],
+        [
+          9.9,
+          7.5
+        ],
+        [
+          10.2,
+          7.5
+        ],
+        [
+          10.4,
+          7.4
+        ],
+        [
+          11,
+          7.2
+        ],
+        [
+          12.5,
+          6.8
+        ],
+        [
+          20.2,
+          4.9
+        ],
+        [
+          22.1,
+          4.5
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.542",
+      "label": "4k @ 60Hz",
+      "unit": "数值",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          9.2,
+          9.8
+        ],
+        [
+          9.4,
+          9.8
+        ],
+        [
+          9.6,
+          9.7
+        ],
+        [
+          9.7,
+          9.7
+        ],
+        [
+          9.8,
+          9.6
+        ],
+        [
+          9.9,
+          9.6
+        ],
+        [
+          10,
+          9.6
+        ],
+        [
+          10.1,
+          9.5
+        ],
+        [
+          10.2,
+          9.5
+        ],
+        [
+          10.3,
+          9.5
+        ],
+        [
+          10.5,
+          9.4
+        ],
+        [
+          10.6,
+          9.4
+        ],
+        [
+          10.8,
+          9.3
+        ],
+        [
+          11,
+          9.2
+        ],
+        [
+          11.2,
+          9.1
+        ],
+        [
+          11.6,
+          8.9
+        ],
+        [
+          11.9,
+          8.8
+        ],
+        [
+          12.5,
+          8.5
+        ],
+        [
+          13.1,
+          8.2
+        ],
+        [
+          13.5,
+          8
+        ],
+        [
+          13.8,
+          7.9
+        ],
+        [
+          14.1,
+          7.8
+        ],
+        [
+          14.4,
+          7.7
+        ],
+        [
+          14.6,
+          7.6
+        ],
+        [
+          14.8,
+          7.6
+        ],
+        [
+          17,
+          7.1
+        ],
+        [
+          18,
+          6.9
+        ],
+        [
+          37.4,
+          2.1
+        ],
+        [
+          37.7,
+          2
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.543",
+      "label": "4k @ 60Hz @ 4:4:4",
+      "unit": "数值",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          9.3,
+          9.8
+        ],
+        [
+          9.4,
+          9.8
+        ],
+        [
+          9.6,
+          9.7
+        ],
+        [
+          9.7,
+          9.7
+        ],
+        [
+          9.8,
+          9.6
+        ],
+        [
+          9.9,
+          9.6
+        ],
+        [
+          10,
+          9.6
+        ],
+        [
+          10.1,
+          9.5
+        ],
+        [
+          10.3,
+          9.5
+        ],
+        [
+          10.4,
+          9.4
+        ],
+        [
+          10.5,
+          9.4
+        ],
+        [
+          10.6,
+          9.4
+        ],
+        [
+          10.8,
+          9.3
+        ],
+        [
+          10.9,
+          9.2
+        ],
+        [
+          11,
+          9.2
+        ],
+        [
+          11.3,
+          9.1
+        ],
+        [
+          11.7,
+          8.9
+        ],
+        [
+          11.9,
+          8.8
+        ],
+        [
+          12.1,
+          8.7
+        ],
+        [
+          12.9,
+          8.3
+        ],
+        [
+          13.4,
+          8.1
+        ],
+        [
+          13.8,
+          7.9
+        ],
+        [
+          14,
+          7.8
+        ],
+        [
+          14.1,
+          7.8
+        ],
+        [
+          14.4,
+          7.7
+        ],
+        [
+          14.7,
+          7.6
+        ],
+        [
+          15,
+          7.5
+        ],
+        [
+          17.8,
+          6.9
+        ],
+        [
+          18,
+          6.9
+        ],
+        [
+          37.8,
+          2
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.2194",
+      "label": "4k @ 120Hz",
+      "unit": "数值",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          4.8,
+          9.8
+        ],
+        [
+          4.9,
+          9.8
+        ],
+        [
+          5,
+          9.8
+        ],
+        [
+          5.1,
+          9.8
+        ],
+        [
+          5.2,
+          9.7
+        ],
+        [
+          5.3,
+          9.7
+        ],
+        [
+          5.4,
+          9.7
+        ],
+        [
+          5.5,
+          9.6
+        ],
+        [
+          5.6,
+          9.6
+        ],
+        [
+          5.7,
+          9.6
+        ],
+        [
+          5.8,
+          9.5
+        ],
+        [
+          5.9,
+          9.5
+        ],
+        [
+          6,
+          9.4
+        ],
+        [
+          6.1,
+          9.4
+        ],
+        [
+          6.3,
+          9.3
+        ],
+        [
+          6.4,
+          9.3
+        ],
+        [
+          6.5,
+          9.2
+        ],
+        [
+          6.8,
+          9.1
+        ],
+        [
+          6.9,
+          9
+        ],
+        [
+          7.1,
+          8.9
+        ],
+        [
+          7.3,
+          8.8
+        ],
+        [
+          8.6,
+          8.1
+        ],
+        [
+          9.5,
+          7.7
+        ],
+        [
+          9.8,
+          7.6
+        ],
+        [
+          23.2,
+          4.3
+        ],
+        [
+          23.6,
+          4.2
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.12239",
+      "label": "4k @ Max Refresh Rate",
+      "unit": "Hz",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          3.6,
+          8.9
+        ],
+        [
+          4.1,
+          8.5
+        ],
+        [
+          4.2,
+          8.5
+        ],
+        [
+          4.3,
+          8.5
+        ],
+        [
+          4.4,
+          8.4
+        ],
+        [
+          4.5,
+          8.4
+        ],
+        [
+          4.6,
+          8.4
+        ],
+        [
+          4.8,
+          8.3
+        ],
+        [
+          4.9,
+          8.3
+        ],
+        [
+          5,
+          8.3
+        ],
+        [
+          5.1,
+          8.2
+        ],
+        [
+          5.2,
+          8.2
+        ],
+        [
+          5.3,
+          8.2
+        ],
+        [
+          5.4,
+          8.2
+        ],
+        [
+          5.5,
+          8.2
+        ],
+        [
+          5.6,
+          8.1
+        ],
+        [
+          5.8,
+          8.1
+        ],
+        [
+          6,
+          8.1
+        ],
+        [
+          6.2,
+          8
+        ],
+        [
+          6.4,
+          8
+        ],
+        [
+          6.9,
+          7.9
+        ],
+        [
+          8.6,
+          7.7
+        ],
+        [
+          9.6,
+          7.6
+        ],
+        [
+          9.8,
+          7.5
+        ],
+        [
+          10.1,
+          7.5
+        ],
+        [
+          10.2,
+          7.5
+        ],
+        [
+          10.3,
+          7.4
+        ],
+        [
+          10.8,
+          7.3
+        ],
+        [
+          11,
+          7.2
+        ],
+        [
+          13.5,
+          6.4
+        ],
+        [
+          22.2,
+          4.5
+        ],
+        [
+          22.4,
+          4.4
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.30878",
+      "label": "Avg. CAD",
+      "unit": "counts/s",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          20,
+          9.8
+        ],
+        [
+          22,
+          9.8
+        ],
+        [
+          24,
+          9.8
+        ],
+        [
+          25,
+          9.8
+        ],
+        [
+          27,
+          9.8
+        ],
+        [
+          28,
+          9.7
+        ],
+        [
+          30,
+          9.7
+        ],
+        [
+          34,
+          9.7
+        ],
+        [
+          35,
+          9.7
+        ],
+        [
+          38,
+          9.6
+        ],
+        [
+          45,
+          9.6
+        ],
+        [
+          49,
+          9.5
+        ],
+        [
+          52,
+          9.5
+        ],
+        [
+          191,
+          7.1
+        ],
+        [
+          200,
+          6.9
+        ],
+        [
+          204,
+          6.9
+        ],
+        [
+          214,
+          6.7
+        ],
+        [
+          222,
+          6.6
+        ],
+        [
+          225,
+          6.6
+        ],
+        [
+          226,
+          6.6
+        ],
+        [
+          230,
+          6.5
+        ],
+        [
+          243,
+          6.4
+        ],
+        [
+          244,
+          6.4
+        ],
+        [
+          247,
+          6.3
+        ],
+        [
+          252,
+          6.3
+        ],
+        [
+          261,
+          6.1
+        ],
+        [
+          263,
+          6.1
+        ],
+        [
+          264,
+          6.1
+        ],
+        [
+          272,
+          6
+        ],
+        [
+          274,
+          6
+        ],
+        [
+          280,
+          5.9
+        ],
+        [
+          290,
+          5.8
+        ],
+        [
+          296,
+          5.7
+        ],
+        [
+          310,
+          5.6
+        ],
+        [
+          329,
+          5.3
+        ],
+        [
+          337,
+          5.2
+        ],
+        [
+          340,
+          5.2
+        ],
+        [
+          351,
+          5.1
+        ],
+        [
+          368,
+          4.9
+        ],
+        [
+          404,
+          4.5
+        ],
+        [
+          429,
+          4.1
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.30880",
+      "label": "Worst 10% CAD",
+      "unit": "counts/s",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          35,
+          9.8
+        ],
+        [
+          41,
+          9.8
+        ],
+        [
+          48,
+          9.8
+        ],
+        [
+          52,
+          9.8
+        ],
+        [
+          64,
+          9.7
+        ],
+        [
+          69,
+          9.7
+        ],
+        [
+          71,
+          9.7
+        ],
+        [
+          76,
+          9.6
+        ],
+        [
+          85,
+          9.6
+        ],
+        [
+          94,
+          9.5
+        ],
+        [
+          104,
+          9.5
+        ],
+        [
+          113,
+          9.4
+        ],
+        [
+          138,
+          9.2
+        ],
+        [
+          188,
+          8.7
+        ],
+        [
+          323,
+          7.3
+        ],
+        [
+          335,
+          7.2
+        ],
+        [
+          346,
+          7
+        ],
+        [
+          361,
+          6.9
+        ],
+        [
+          367,
+          6.8
+        ],
+        [
+          381,
+          6.7
+        ],
+        [
+          390,
+          6.6
+        ],
+        [
+          397,
+          6.5
+        ],
+        [
+          409,
+          6.4
+        ],
+        [
+          415,
+          6.4
+        ],
+        [
+          426,
+          6.2
+        ],
+        [
+          431,
+          6.2
+        ],
+        [
+          434,
+          6.2
+        ],
+        [
+          438,
+          6.1
+        ],
+        [
+          444,
+          6.1
+        ],
+        [
+          460,
+          5.9
+        ],
+        [
+          466,
+          5.8
+        ],
+        [
+          505,
+          5.5
+        ],
+        [
+          510,
+          5.4
+        ],
+        [
+          514,
+          5.4
+        ],
+        [
+          523,
+          5.3
+        ],
+        [
+          527,
+          5.2
+        ],
+        [
+          533,
+          5.2
+        ],
+        [
+          570,
+          4.8
+        ],
+        [
+          595,
+          4.6
+        ],
+        [
+          646,
+          3.5
+        ],
+        [
+          706,
+          1.7
+        ],
+        [
+          754,
+          0.5
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.30879",
+      "label": "Best 10% CAD",
+      "unit": "counts/s",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          3,
+          9.9
+        ],
+        [
+          5,
+          9.8
+        ],
+        [
+          6,
+          9.8
+        ],
+        [
+          7,
+          9.8
+        ],
+        [
+          10,
+          9.7
+        ],
+        [
+          13,
+          9.6
+        ],
+        [
+          14,
+          9.5
+        ],
+        [
+          15,
+          9.5
+        ],
+        [
+          21,
+          9.3
+        ],
+        [
+          27,
+          9.1
+        ],
+        [
+          64,
+          8.1
+        ],
+        [
+          69,
+          8
+        ],
+        [
+          80,
+          7.7
+        ],
+        [
+          81,
+          7.7
+        ],
+        [
+          83,
+          7.6
+        ],
+        [
+          88,
+          7.5
+        ],
+        [
+          98,
+          7.3
+        ],
+        [
+          100,
+          7.2
+        ],
+        [
+          101,
+          7.2
+        ],
+        [
+          106,
+          7.1
+        ],
+        [
+          109,
+          7
+        ],
+        [
+          112,
+          7
+        ],
+        [
+          114,
+          6.9
+        ],
+        [
+          115,
+          6.9
+        ],
+        [
+          118,
+          6.8
+        ],
+        [
+          119,
+          6.8
+        ],
+        [
+          120,
+          6.8
+        ],
+        [
+          122,
+          6.7
+        ],
+        [
+          126,
+          6.7
+        ],
+        [
+          128,
+          6.6
+        ],
+        [
+          132,
+          6.5
+        ],
+        [
+          137,
+          6.4
+        ],
+        [
+          148,
+          6.2
+        ],
+        [
+          149,
+          6.2
+        ],
+        [
+          154,
+          6.1
+        ],
+        [
+          161,
+          6
+        ],
+        [
+          174,
+          5.8
+        ],
+        [
+          186,
+          5.5
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.30870",
+      "label": "Avg. CAD",
+      "unit": "counts/s",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          20,
+          9.8
+        ],
+        [
+          24,
+          9.8
+        ],
+        [
+          25,
+          9.8
+        ],
+        [
+          27,
+          9.8
+        ],
+        [
+          33,
+          9.7
+        ],
+        [
+          37,
+          9.7
+        ],
+        [
+          40,
+          9.6
+        ],
+        [
+          44,
+          9.6
+        ],
+        [
+          170,
+          7.4
+        ],
+        [
+          190,
+          7.1
+        ],
+        [
+          199,
+          6.9
+        ],
+        [
+          214,
+          6.7
+        ],
+        [
+          225,
+          6.6
+        ],
+        [
+          233,
+          6.5
+        ],
+        [
+          248,
+          6.3
+        ],
+        [
+          254,
+          6.2
+        ],
+        [
+          261,
+          6.1
+        ],
+        [
+          267,
+          6.1
+        ],
+        [
+          277,
+          6
+        ],
+        [
+          281,
+          5.9
+        ],
+        [
+          282,
+          5.9
+        ],
+        [
+          293,
+          5.8
+        ],
+        [
+          297,
+          5.7
+        ],
+        [
+          309,
+          5.6
+        ],
+        [
+          321,
+          5.4
+        ],
+        [
+          338,
+          5.2
+        ],
+        [
+          347,
+          5.1
+        ],
+        [
+          355,
+          5
+        ],
+        [
+          368,
+          4.9
+        ],
+        [
+          381,
+          4.7
+        ],
+        [
+          388,
+          4.6
+        ],
+        [
+          393,
+          4.6
+        ],
+        [
+          399,
+          4.5
+        ],
+        [
+          461,
+          3.7
+        ],
+        [
+          590,
+          1.8
+        ],
+        [
+          705,
+          0.4
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.30872",
+      "label": "Worst 10% CAD",
+      "unit": "counts/s",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          38,
+          9.8
+        ],
+        [
+          52,
+          9.8
+        ],
+        [
+          61,
+          9.7
+        ],
+        [
+          69,
+          9.7
+        ],
+        [
+          76,
+          9.6
+        ],
+        [
+          85,
+          9.6
+        ],
+        [
+          99,
+          9.5
+        ],
+        [
+          106,
+          9.5
+        ],
+        [
+          113,
+          9.4
+        ],
+        [
+          292,
+          7.6
+        ],
+        [
+          303,
+          7.5
+        ],
+        [
+          324,
+          7.3
+        ],
+        [
+          366,
+          6.8
+        ],
+        [
+          388,
+          6.6
+        ],
+        [
+          406,
+          6.4
+        ],
+        [
+          411,
+          6.4
+        ],
+        [
+          425,
+          6.3
+        ],
+        [
+          435,
+          6.2
+        ],
+        [
+          442,
+          6.1
+        ],
+        [
+          459,
+          5.9
+        ],
+        [
+          464,
+          5.9
+        ],
+        [
+          473,
+          5.8
+        ],
+        [
+          490,
+          5.6
+        ],
+        [
+          506,
+          5.4
+        ],
+        [
+          537,
+          5.2
+        ],
+        [
+          550,
+          5
+        ],
+        [
+          569,
+          4.9
+        ],
+        [
+          571,
+          4.8
+        ],
+        [
+          580,
+          4.7
+        ],
+        [
+          601,
+          4.5
+        ],
+        [
+          616,
+          4.2
+        ],
+        [
+          639,
+          3.7
+        ],
+        [
+          714,
+          1.5
+        ],
+        [
+          741,
+          0.8
+        ],
+        [
+          818,
+          0
+        ],
+        [
+          909,
+          0
+        ],
+        [
+          1348,
+          0
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.30871",
+      "label": "Best 10% CAD",
+      "unit": "counts/s",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          3,
+          9.9
+        ],
+        [
+          5,
+          9.8
+        ],
+        [
+          7,
+          9.8
+        ],
+        [
+          13,
+          9.6
+        ],
+        [
+          14,
+          9.5
+        ],
+        [
+          15,
+          9.5
+        ],
+        [
+          23,
+          9.3
+        ],
+        [
+          55,
+          8.4
+        ],
+        [
+          71,
+          7.9
+        ],
+        [
+          82,
+          7.7
+        ],
+        [
+          83,
+          7.6
+        ],
+        [
+          86,
+          7.6
+        ],
+        [
+          91,
+          7.4
+        ],
+        [
+          98,
+          7.3
+        ],
+        [
+          101,
+          7.2
+        ],
+        [
+          104,
+          7.1
+        ],
+        [
+          111,
+          7
+        ],
+        [
+          114,
+          6.9
+        ],
+        [
+          117,
+          6.8
+        ],
+        [
+          119,
+          6.8
+        ],
+        [
+          120,
+          6.8
+        ],
+        [
+          122,
+          6.7
+        ],
+        [
+          127,
+          6.6
+        ],
+        [
+          128,
+          6.6
+        ],
+        [
+          131,
+          6.6
+        ],
+        [
+          133,
+          6.5
+        ],
+        [
+          140,
+          6.4
+        ],
+        [
+          145,
+          6.3
+        ],
+        [
+          152,
+          6.1
+        ],
+        [
+          158,
+          6
+        ],
+        [
+          163,
+          5.9
+        ],
+        [
+          188,
+          5.5
+        ],
+        [
+          212,
+          5.1
+        ],
+        [
+          250,
+          4.4
+        ],
+        [
+          262,
+          4.2
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.2191",
+      "label": "4k VRR Maximum",
+      "unit": "数值",
+      "direction": "higherBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          60,
+          6
+        ],
+        [
+          120,
+          7.5
+        ],
+        [
+          144,
+          8.5
+        ],
+        [
+          165,
+          9
+        ],
+        [
+          180,
+          9.2
+        ],
+        [
+          240,
+          9.5
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.2239",
+      "label": "1080p VRR Maximum",
+      "unit": "数值",
+      "direction": "higherBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          60,
+          6
+        ],
+        [
+          120,
+          7.5
+        ],
+        [
+          144,
+          8.5
+        ],
+        [
+          165,
+          9
+        ],
+        [
+          240,
+          9.5
+        ],
+        [
+          288,
+          9.6
+        ],
+        [
+          330,
+          9.6
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "categorical.18909",
+      "label": "480p @ 59.94Hz (Widescreen)",
+      "unit": "类别",
+      "direction": "higherBetter",
+      "kind": "categorical",
+      "values": [
+        {
+          "value": "Yes",
+          "score": 10.0
+        }
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "categorical.107",
+      "label": "1080p @ 60Hz @ 4:4:4",
+      "unit": "类别",
+      "direction": "higherBetter",
+      "kind": "categorical",
+      "values": [
+        {
+          "value": "Yes",
+          "score": 10.0
+        },
+        {
+          "value": "No",
+          "score": 0.0
+        }
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "categorical.125",
+      "label": "1080p @ 120Hz",
+      "unit": "类别",
+      "direction": "higherBetter",
+      "kind": "categorical",
+      "values": [
+        {
+          "value": "Yes",
+          "score": 10.0
+        },
+        {
+          "value": "No",
+          "score": 0.0
+        },
+        {
+          "value": "Yes (Forced Resolution Required)",
+          "score": 10.0
+        }
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.33776",
+      "label": "1080p Maximum Refresh Rate",
+      "unit": "Hz",
+      "direction": "higherBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          60,
+          0
+        ],
+        [
+          120,
+          0
+        ],
+        [
+          144,
+          6
+        ],
+        [
+          165,
+          7.5
+        ],
+        [
+          240,
+          8.4
+        ],
+        [
+          288,
+          8.7
+        ],
+        [
+          330,
+          9
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "categorical.2219",
+      "label": "4k @ 120Hz",
+      "unit": "类别",
+      "direction": "higherBetter",
+      "kind": "categorical",
+      "values": [
+        {
+          "value": "Yes",
+          "score": 10.0
+        },
+        {
+          "value": "No",
+          "score": 0.0
+        }
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.33777",
+      "label": "4k Maximum Refresh Rate",
+      "unit": "Hz",
+      "direction": "higherBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          60,
+          0
+        ],
+        [
+          120,
+          0
+        ],
+        [
+          144,
+          6
+        ],
+        [
+          165,
+          7.5
+        ],
+        [
+          180,
+          7.8
+        ],
+        [
+          240,
+          8.4
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "categorical.2620",
+      "label": "8k @ 60Hz",
+      "unit": "类别",
+      "direction": "higherBetter",
+      "kind": "categorical",
+      "values": [
+        {
+          "value": "No",
+          "score": 0.0
+        },
+        {
+          "value": "Yes",
+          "score": 10.0
+        }
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.30856",
+      "label": "Peak Direct Reflection Intensity",
+      "unit": "%",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          4.5816,
+          9.8
+        ],
+        [
+          7.79968,
+          9.5
+        ],
+        [
+          8.8411,
+          9.3
+        ],
+        [
+          9.6711,
+          9
+        ],
+        [
+          11.0148,
+          8.7
+        ],
+        [
+          11.7697,
+          8.6
+        ],
+        [
+          17.3772,
+          8.4
+        ],
+        [
+          18.5237,
+          8.4
+        ],
+        [
+          20.1098,
+          8.3
+        ],
+        [
+          21.3424,
+          8.2
+        ],
+        [
+          23.3213,
+          8.1
+        ],
+        [
+          31.1528,
+          7.4
+        ],
+        [
+          35.9631,
+          6.9
+        ],
+        [
+          38.6236,
+          6.7
+        ],
+        [
+          41.4826,
+          6.5
+        ],
+        [
+          42.0772,
+          6.5
+        ],
+        [
+          42.9717,
+          6.5
+        ],
+        [
+          43.9143,
+          6.4
+        ],
+        [
+          46.4943,
+          6.3
+        ],
+        [
+          46.9054,
+          6.3
+        ],
+        [
+          48.3519,
+          6.3
+        ],
+        [
+          50.0082,
+          6.2
+        ],
+        [
+          51.5493,
+          6.1
+        ],
+        [
+          55.4967,
+          5.9
+        ],
+        [
+          57.1818,
+          5.8
+        ],
+        [
+          59.2986,
+          5.7
+        ],
+        [
+          59.8165,
+          5.7
+        ],
+        [
+          61.2997,
+          5.6
+        ],
+        [
+          63.7574,
+          5.5
+        ],
+        [
+          65.1765,
+          5.4
+        ],
+        [
+          67.4686,
+          5.2
+        ],
+        [
+          67.8674,
+          5.2
+        ],
+        [
+          69.9647,
+          5.1
+        ],
+        [
+          70.4421,
+          5.1
+        ],
+        [
+          71.0778,
+          5
+        ],
+        [
+          76.4962,
+          4.7
+        ],
+        [
+          77.1376,
+          4.7
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "anchor.29478",
+      "label": "Black Luminance @ 1000 lx",
+      "unit": "cd/m²",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          0.1848,
+          9.4
+        ],
+        [
+          0.24,
+          9.3
+        ],
+        [
+          0.25289,
+          9.3
+        ],
+        [
+          0.2586,
+          9.3
+        ],
+        [
+          0.267402,
+          9.3
+        ],
+        [
+          0.283257,
+          9.2
+        ],
+        [
+          0.31,
+          9.2
+        ],
+        [
+          0.33,
+          9.1
+        ],
+        [
+          0.346178,
+          9.1
+        ],
+        [
+          0.35,
+          9.1
+        ],
+        [
+          0.356604,
+          9.1
+        ],
+        [
+          0.365,
+          9.1
+        ],
+        [
+          0.38,
+          9.1
+        ],
+        [
+          0.387574,
+          9
+        ],
+        [
+          0.396828,
+          9
+        ],
+        [
+          0.403477,
+          9
+        ],
+        [
+          0.4106,
+          9
+        ],
+        [
+          0.42,
+          9
+        ],
+        [
+          0.426,
+          9
+        ],
+        [
+          0.4358,
+          9
+        ],
+        [
+          0.44,
+          9
+        ],
+        [
+          0.45777,
+          8.9
+        ],
+        [
+          0.4667,
+          8.9
+        ],
+        [
+          0.483823,
+          8.9
+        ],
+        [
+          0.490337,
+          8.9
+        ],
+        [
+          0.53,
+          8.8
+        ],
+        [
+          0.55,
+          8.7
+        ],
+        [
+          0.59,
+          8.7
+        ],
+        [
+          0.723918,
+          8.4
+        ],
+        [
+          1,
+          7.9
+        ],
+        [
+          1.665,
+          6.9
+        ],
+        [
+          1.968,
+          6.1
+        ],
+        [
+          2.13,
+          5.7
+        ],
+        [
+          2.218,
+          5.5
+        ],
+        [
+          2.44045,
+          5.3
+        ],
+        [
+          2.90719,
+          4.4
+        ],
+        [
+          3.095,
+          4
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    }
+  ]
+}

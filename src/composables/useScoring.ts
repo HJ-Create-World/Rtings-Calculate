@@ -3,30 +3,31 @@ import { evaluateRule } from '../core/evaluate';
 import type { EvaluationInputs, NodeEvaluation, ScoreNode } from '../core/types';
 import {
   buildBaselineInputs,
-  hisense65U7nVaBaselineV1,
-  rtingsRuleV1
+  defaultBaselineV3,
+  rtingsRule
 } from '../data/rtingsRule';
+import type { BaselineRow } from '../data/rtingsRule';
 
 export function useScoring() {
-  const inputs = computed<EvaluationInputs>(() => buildBaselineInputs(hisense65U7nVaBaselineV1));
-  const result = computed(() => evaluateRule(rtingsRuleV1, inputs.value));
+  const inputs = computed<EvaluationInputs>(() => buildBaselineInputs(defaultBaselineV3));
+  const result = computed(() => evaluateRule(rtingsRule, inputs.value));
 
   const nodeById = computed(() => {
     const map = new Map<string, ScoreNode>();
-    for (const node of rtingsRuleV1.nodes) map.set(node.id, node);
+    for (const node of rtingsRule.nodes) map.set(node.id, node);
     return map;
   });
 
   const baselineRowByNode = computed(() => {
-    const map = new Map<string, (typeof hisense65U7nVaBaselineV1.rows)[number]>();
-    for (const row of hisense65U7nVaBaselineV1.rows) map.set(row.nodeId, row);
+    const map = new Map<string, BaselineRow>();
+    for (const row of defaultBaselineV3.rows ?? []) map.set(row.nodeId, row);
     return map;
   });
 
   const topGroups = computed(() => result.value.children);
   const warnings = computed(() => result.value.warnings);
 
-  const selectedNodeId = ref<string>(rtingsRuleV1.rootId);
+  const selectedNodeId = ref<string>(rtingsRule.rootId);
   const selectedNode = computed(() => nodeById.value.get(selectedNodeId.value));
   const selectedEvaluation = computed(() => result.value.nodes[selectedNodeId.value]);
   const selectedBaselineRow = computed(() =>
@@ -53,8 +54,8 @@ export function useScoring() {
   }
 
   return {
-    rule: rtingsRuleV1,
-    baseline: hisense65U7nVaBaselineV1,
+    rule: rtingsRule,
+    baseline: defaultBaselineV3,
     result,
     warnings,
     topGroups,

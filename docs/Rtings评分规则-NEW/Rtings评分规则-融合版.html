@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rtings 评分规则 · 融合版</title>
+<style>
+:root{--bg:#0f1117;--panel:#171a23;--line:#2a2f3e;--t:#e8eaf2;--m:#9aa1b5;--ac:#5eead4;--ac2:#818cf8;--warn:#fbbf24;--ok:#34d399}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--t);font:14px/1.7 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif}
+.wrap{max-width:1150px;margin:0 auto;padding:34px 20px 90px}
+h1{font-size:25px;margin-bottom:4px}.h1s{color:var(--ac)}
+.sub{color:var(--m);font-size:13px;margin-bottom:24px}
+.leg{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}
+.leg span{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:5px 12px;font-size:12.5px;color:var(--m)}
+.leg b{color:var(--t)}
+h2{font-size:18px;color:var(--ac);margin:34px 0 12px;border-bottom:1px solid var(--line);padding-bottom:8px}
+h3{font-size:14.5px;color:var(--ac2);margin:20px 0 8px}
+.tw{overflow-x:auto;margin:10px 0 16px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 12px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+td,th{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+tr:last-child td{border-bottom:none}
+th{color:var(--m);font-weight:600;white-space:nowrap}
+tr:hover td{background:rgba(129,140,248,.05)}
+.w{color:var(--ac);font-variant-numeric:tabular-nums;font-weight:600}
+.eA{color:var(--ok)}.eB{color:var(--ac2)}.eC{color:var(--warn)}.eD{color:#f472b6}
+.note{color:var(--m);font-size:12.5px;margin:8px 0}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:12px 0}
+.box.warn{border-left:3px solid var(--warn)}
+code{background:#1d212e;padding:1px 6px;border-radius:4px;font-size:12.5px;color:var(--ac)}
+ul{margin:8px 0 8px 22px}li{margin:4px 0}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.toc a{color:var(--ac2);text-decoration:none;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:5px 12px;font-size:12.5px}
+.toc a:hover{border-color:var(--ac2)}
+</style></head><body><div class="wrap">
+<h1>Rtings 评分规则<span class="h1s"> · 融合版</span></h1>
+<div class="sub">工程师人工拆解 × 107 款实测数据反推 · 2026-11-06 · 机器可读版：Rtings评分规则.json</div>
+<div class="leg">
+<span><b class="eA">✅ A</b> 实测验证 (107款逐款, ≤0.1)</span>
+<span><b class="eB">📊 B</b> 结构验证 (有已知例外)</span>
+<span><b class="eC">📐 C</b> 工程师推定 (无数据可验)</span>
+<span><b class="eD">👤 D</b> 主观评分</span>
+</div>
+
+<h2 id="s1">1. 总分结构 <span class="eA">✅A</span></h2>
+<div class="tw"><table>
+<tr><td>Brightness 亮度</td><td class="w">0.25</td><td>HDR ×0.7 + SDR ×0.3</td></tr>
+<tr><td>Black Level 黑位</td><td class="w">0.22</td><td>Contrast ×0.5 + Black Uniformity ×0.3 + Lighting Zone Precision ×0.2</td></tr>
+<tr><td>Color 色彩</td><td class="w">0.22</td><td>HDR CV ×0.4 + SDR CV ×0.3 + SDR PreCal ×0.15 + HDR PreCal ×0.15</td></tr>
+<tr><td>Motion Handling</td><td class="w">0.10</td><td>Judder ×0.32 + Stutter ×0.24 + Transition ×0.21 + RT ×0.17 + MicroJudder ×0.03 + LZT ×0.03</td></tr>
+<tr><td>Processing</td><td class="w">0.07</td><td>LQCS ×0.3 + Upscaling ×0.3 + PQ EOTF ×0.25 + HDR Gradient ×0.15</td></tr>
+<tr><td>Game Mode Resp.</td><td class="w">0.07</td><td>⚠️ 未锁定（IL .25 / CAD60 .2 / CAD120 .2 / CADMax .1 / VRR .15 / SuppRes .1）</td></tr>
+<tr><td>Direct Reflections</td><td class="w">0.05</td><td>= Peak Direct Reflection Intensity</td></tr>
+<tr><td>Ambient Black Raise</td><td class="w">0.02</td><td>= Black Luminance @1000lx</td></tr>
+</table></div>
+<div class="box"><b>通用聚合规则</b>：score = Σ(wᵢ·子项分)/Σwᵢ(可用)。<b>缺席判定</b>：原始值空且得分 0 → 缺席，从聚合剔除并重归一（不支持的模式不是 0 分！）。每级四舍五入到 0.1。<br>验证：该 8 类权重在 107 款上最大误差 0.050 = 显示精度。</div>
+
+<h2 id="s2">2. 分类目内部权重</h2>
+<div class="note">完整 25 组子权重表见 MD 文档 §2 / JSON groups 字段。全部标注证据等级。</div>
+<div class="tw"><table>
+<tr><td>SDR Brightness</td><td class="w">Real .5 / P2 .05 / P10 .125 / P25 .15 / P50 .125 / P100 .05</td><td class="eA">A</td></tr>
+<tr><td>Contrast</td><td class="w">LD-ON .8 / Native .2</td><td class="eA">A</td></tr>
+<tr><td>Black Uniformity</td><td class="w">Std .5 / Native .5</td><td class="eA">A</td></tr>
+<tr><td>SDR Color Volume</td><td class="w">P3 .6 / BT2020 .4</td><td class="eA">A</td></tr>
+<tr><td>HDR Color Volume</td><td class="w">10000nit BT2020 ITP ×1</td><td class="eA">A</td></tr>
+<tr><td>Pre/Post Cal</td><td class="w">WB dE .4 / Color dE .4 / 色温 .2</td><td class="eA">A</td></tr>
+<tr><td>Judder</td><td class="w">.1/.1/.2/.2/.2/.1/.1 (7子项)</td><td class="eA">A</td></tr>
+<tr><td>Micro Judder</td><td class="w">.15/.15/.2/.2/.15/.15</td><td class="eA">A</td></tr>
+<tr><td>Stutter</td><td class="w">SA .7 / FrameHold .3</td><td class="eA">A</td></tr>
+<tr><td>Response Time</td><td class="w">First .3 / Total .45 / Worst .25</td><td class="eA">A</td></tr>
+<tr><td>Transition Artifacts</td><td class="w">Color .7 / Edge .3</td><td class="eA">A</td></tr>
+<tr><td>PQ EOTF</td><td class="w">600nit .1 / 1000nit .8 / 4000nit .1</td><td class="eA">A</td></tr>
+<tr><td>HDR Native Gradient</td><td class="w">8 子项 ×.125</td><td class="eA">A</td></tr>
+<tr><td>Input Lag</td><td class="w">60Hz .05 / 120Hz .05 / 1080Max .1 / 4k60 .1 / 4k444 .1 / 4k120 .2 / 4kMax .4</td><td class="eA">A</td></tr>
+<tr><td>CAD ×3组</td><td class="w">Avg .6 / Worst .2 / Best .2</td><td class="eA">A</td></tr>
+<tr><td>VRR</td><td class="w">4k Max .75 / 1080p Max .25</td><td class="eA">A</td></tr>
+<tr><td>Supported Res.</td><td class="w">480p≡4k60 .31 / 1080p444 .32 / 1080p120 .09 / 1080Max .03 / 4k120 .19 / 4kMax .02 / 8k .04</td><td class="eB">B</td></tr>
+<tr><td>LQCS</td><td class="w">Smoothing .7 / Detail .3</td><td class="eA">A</td></tr>
+</table></div>
+
+<h2 id="s3">3. 叶子项规则</h2>
+<h3>类别型（30 项 ✅A）</h3>
+<div class="note">25 项标准二值 Yes→10/No→0。非二值：</div>
+<div class="tw"><table>
+<tr><td>Native Refresh Rate</td><td>60Hz→0；120/144/165/180Hz→9.5</td></tr>
+<tr><td>4k/1080p VRR Minimum</td><td>&lt;20Hz→10；48Hz→6.6；40Hz→7；不支持→0</td></tr>
+<tr><td>White Balance Calibration</td><td>任意点数(1~24点)→10；No→0</td></tr>
+<tr><td>Local Dimming / Color Calibration</td><td>Yes→10 / No→0</td></tr>
+<tr><td>Screen Finish / Resolution</td><td>Glossy/Matte 均→10；4k/8k 均→10</td></tr>
+</table></div>
+<h3>恒等映射（19 项 ✅A）</h3>
+<div class="note">Smoothing、Detail Preservation、8 项 Gradient、7 项 Judder、Edge/Color Artifacts —— 得分=原始值。</div>
+<h3>数值曲线（75 项 ✅A）</h3>
+<div class="note">线性插值锚点表实现（JSON leafScales.numericAnchors，每项≤30 锚点，含方向 increasing/decreasing）。示例：Hallway 185→1.6 … 2085→10；Native Contrast 941→3.9 … Inf→10；WB dE 0.6→9.5 … 8.84→0.4。范围外无数据支撑。</div>
+<h3>主观/半主观（👤D）</h3>
+<div class="tw"><table>
+<tr><td>Upscaling: Sharpness Processing</td><td>无原始量，人工评级。锚点：7分≈MTK9615(TCL QM6K/Q77K)，8分≈MTK9618(Sony X90L级)</td></tr>
+<tr><td>Lighting Zone Precision / Transitions</td><td>score-only；按分区数+光晕表现评估（65寸≥160区起）</td></tr>
+<tr><td>Black Uniformity</td><td>半主观（含人工判读），子项 Std.Dev 有客观量</td></tr>
+<tr><td>HDR Photo 对比项 ×3</td><td>未启用（全表无数据）</td></tr>
+</table></div>
+<h3>废弃/未启用（不计分）</h3>
+<div class="note">Gamma×2、FreeSync、Black Luminance@0lx、BU Picture（恒0分）；Native BU Picture、HDR Photo×3、LZP Picture（无数据）。</div>
+
+<h2 id="s4">4. 7/8 分目标门槛</h2>
+<div class="note">✅=门槛代入 CSV 曲线恰为 7/8 分。全部明细见 MD §4。</div>
+<div class="tw"><table>
+<tr><td>HDR P2%/P10%/P25%/P50%</td><td class="eA">818/840/667/600 → 7 分精确；1200/1200/950/820 → 8 分精确</td></tr>
+<tr><td>Native Contrast</td><td class="eA">4426→7.00；6500→7.97</td></tr>
+<tr><td>DCI-P3 / BT.2020</td><td class="eA">80.5%→7.00；88.38%→8.00；70%→7.00；80%→8.04</td></tr>
+<tr><td>Sample&Hold</td><td class="eC">18.5px/s→外推（CSV 最高 6.6@19.9）</td></tr>
+<tr><td>4k@Max</td><td class="eC">≥8 分 8.8ms 偏严：CSV 该处 7.7 分，8 分需 ~7ms ⚠️</td></tr>
+<tr><td>10 分档门槛</td><td class="eC">普遍偏宽：HDR P2% 7700(实际10841)、SDR P2% 7000(实际11310)、Hallway 1850(实际2085)</td></tr>
+</table></div>
+
+<h2 id="s5">5. 实现注意事项</h2>
+<ul>
+<li>单位：黑场 Std.Dev CSV 为百分数（1.857=1.857%），实验室小数需 ×100；Contrast 为比值。</li>
+<li>缺席 vs 0 分：不做 renormalize 会系统性压低低配产品 2+ 分（60Hz 机型残差证实）。</li>
+<li>数据恒同列：480p≡4k@60、1080p444≡4k60444、4k120≡4k120444、MicroJudder native 24p≡25p。</li>
+<li>Game Mode：先用工程师结构，自测数据积累后回归校准（CSV 缺 CAD@60 无法验证）。</li>
+<li>本文件无编造数值：所有权重/门槛/锚点均可溯源（CSV 反推附验证误差；工程师表附证据等级）。</li>
+</ul>
+</div></body></html>

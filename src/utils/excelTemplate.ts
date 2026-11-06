@@ -1,11 +1,11 @@
 import * as XLSX from 'xlsx';
-import { rtingsRuleV1 } from '../data/rtingsRule';
+import { rtingsRule } from '../data/rtingsRule';
 import type { ScoreNode } from '../core/types';
 import type { EvaluationDraft, ImportValidation } from '../types/evaluation';
 import { parseObjectiveNumber } from '../composables/useEvaluationDraft';
 
 function collectDescendantInputNodes(nodeId: string): ScoreNode[] {
-  return rtingsRuleV1.nodes
+  return rtingsRule.nodes
     .filter(node => node.parentId === nodeId)
     .flatMap(child =>
       child.inputType === 'aggregate' ? collectDescendantInputNodes(child.id) : [child]
@@ -29,9 +29,9 @@ function shortGroupName(group: ScoreNode): string {
 }
 
 function inputRow(node: ScoreNode) {
-  const parent = rtingsRuleV1.nodes.find(item => item.id === node.parentId);
+  const parent = rtingsRule.nodes.find(item => item.id === node.parentId);
   const mapping = node.mappingId
-    ? rtingsRuleV1.mappings.find(item => item.id === node.mappingId)
+    ? rtingsRule.mappings.find(item => item.id === node.mappingId)
     : undefined;
   return {
     '维度 / 父级': parent?.label ?? '',
@@ -46,7 +46,7 @@ function inputRow(node: ScoreNode) {
 }
 
 function groupedInputSheets() {
-  const groups = rtingsRuleV1.nodes.filter(node => node.parentId === rtingsRuleV1.rootId);
+  const groups = rtingsRule.nodes.filter(node => node.parentId === rtingsRule.rootId);
   return groups.map((group, index) => {
     const rows = collectDescendantInputNodes(group.id)
       .slice()
@@ -131,7 +131,7 @@ export async function parseImportWorkbook(file: File): Promise<ImportValidation>
     if (key) productInfo.set(key, text(row['值']));
   }
 
-  const nodeById = new Map(rtingsRuleV1.nodes.map(node => [node.id, node]));
+  const nodeById = new Map(rtingsRule.nodes.map(node => [node.id, node]));
   const values: EvaluationDraft['values'] = {};
   const seen = new Set<string>();
 
@@ -181,7 +181,7 @@ export async function parseImportWorkbook(file: File): Promise<ImportValidation>
     testDate: productInfo.get('测试日期') ?? '',
     engineer: productInfo.get('测试工程师') ?? '',
     remark: productInfo.get('备注') ?? '',
-    ruleVersion: rtingsRuleV1.version,
+    ruleVersion: rtingsRule.version,
     values,
     updatedAt: new Date().toISOString()
   };

@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 import OptionChips from '../components/OptionChips.vue';
 import { useEvaluationDraft } from '../composables/useEvaluationDraft';
-import { rtingsRuleV1 } from '../data/rtingsRule';
+import { rtingsRule } from '../data/rtingsRule';
 import type { ScoreNode } from '../core/types';
 import { formatScore, statusClass, statusLabel, warningLabel } from '../utils/format';
 import { cardClass, inputClass, mutedTextClass, secondaryButtonClass, sectionTitleClass } from '../utils/ui';
@@ -16,12 +16,12 @@ const {
   resetDraft
 } = useEvaluationDraft();
 
-const groups = rtingsRuleV1.nodes.filter(node => node.parentId === rtingsRuleV1.rootId);
+const groups = rtingsRule.nodes.filter(node => node.parentId === rtingsRule.rootId);
 const groupOptions = groups.map(group => ({ value: group.id, label: group.label }));
 const selectedGroupId = ref(groups[0]?.id ?? '');
 const keyword = ref('');
 
-const inputNodeCount = rtingsRuleV1.nodes.filter(node => node.inputType !== 'aggregate').length;
+const inputNodeCount = rtingsRule.nodes.filter(node => node.inputType !== 'aggregate').length;
 const hasAnyInput = computed(() => filledCount.value > 0);
 const warningGroups = computed(() => {
   const groupsByCode = new Map<string, { code: string; count: number; messages: string[] }>();
@@ -39,19 +39,19 @@ const warningGroups = computed(() => {
 });
 
 function collectTestItems(nodeId: string): ScoreNode[] {
-  return rtingsRuleV1.nodes
+  return rtingsRule.nodes
     .filter(node => node.parentId === nodeId)
     .flatMap(child => (child.inputType === 'aggregate' ? collectTestItems(child.id) : [child]));
 }
 
 function parentLabel(node: ScoreNode): string {
-  const parent = rtingsRuleV1.nodes.find(item => item.id === node.parentId);
+  const parent = rtingsRule.nodes.find(item => item.id === node.parentId);
   return parent?.label ?? '';
 }
 
 function unitOf(node: ScoreNode): string {
   if (node.inputType !== 'objective') return '0~10';
-  const mapping = rtingsRuleV1.mappings.find(item => item.id === node.mappingId);
+  const mapping = rtingsRule.mappings.find(item => item.id === node.mappingId);
   return mapping?.unit ?? '数值';
 }
 
