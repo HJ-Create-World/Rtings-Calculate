@@ -14,4 +14,21 @@ Chart.defaults.plugins.tooltip.borderWidth = 1;
 Chart.defaults.elements.bar.borderRadius = 6;
 Chart.defaults.elements.point.radius = 3;
 
-export const corporatePalette = ['#2563eb', '#0ea5e9', '#64748b', '#f59e0b'];
+export const corporatePalette = [
+  '#2563eb',
+  '#0f766e',
+  '#7c3aed',
+  '#ea580c',
+  '#0284c7',
+  '#16a34a',
+  '#db2777',
+  '#ca8a04',
+  '#475569',
+  '#dc2626',
+  '#059669',
+  '#4f46e5',
+  '#0891b2',
+  '#65a30d',
+  '#9333ea',
+  '#b45309'
+];

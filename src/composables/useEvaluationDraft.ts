@@ -28,11 +28,19 @@ function emptyDraft(): EvaluationDraft {
 }
 
 export function parseObjectiveNumber(raw: string | undefined | null): number | null {
-  const text = (raw ?? '').trim().toLowerCase().replace(/,/g, '');
+  let text = (raw ?? '').trim().toLowerCase().replace(/,/g, '');
   if (!text) return null;
   if (text === 'inf' || text === 'infinity' || text === '∞') {
     return Number.POSITIVE_INFINITY;
   }
+
+  // 允许工程师按习惯带常见单位；评分规则仍使用纯数值。
+  text = text
+    .replace(/\s*(?::1|n:1)\s*$/, '')
+    .replace(/\s*(cd\/m²|cd\/m2|nit|nits|ms|hz|k|Δe|de|px\/s|counts\/s|lx)\s*$/, '')
+    .replace(/\s*%\s*$/, '')
+    .trim();
+
   const value = Number(text);
   return Number.isFinite(value) ? value : null;
 }

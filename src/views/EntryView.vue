@@ -53,7 +53,16 @@ function parentLabel(node: ScoreNode): string {
 function unitOf(node: ScoreNode): string {
   if (node.inputType !== 'objective') return '0~10';
   const mapping = rtingsRule.mappings.find(item => item.id === node.mappingId);
-  return mapping?.unit ?? '数值';
+  return node.unit ?? mapping?.unit ?? '数值';
+}
+
+function mappingFor(node: ScoreNode) {
+  return rtingsRule.mappings.find(item => item.id === node.mappingId);
+}
+
+function categoryOptions(node: ScoreNode) {
+  const mapping = mappingFor(node);
+  return mapping?.kind === 'categorical' ? mapping.values ?? [] : [];
 }
 
 const allItems = computed(() => collectTestItems(selectedGroupId.value));
@@ -127,8 +136,10 @@ function itemScoreLabel(node: ScoreNode): string {
 
 function itemScoreTitle(node: ScoreNode): string {
   const evaluation = result.value.nodes[node.id];
-  if (evaluation?.status !== 'scored') return '';
-  return evaluation.mappingTrace?.matchedInterval?.rawText ?? '';
+  if (evaluation?.status === 'scored') {
+    return evaluation.mappingTrace?.matchedInterval?.rawText ?? '';
+  }
+  return evaluation?.warnings[0]?.message ?? '';
 }
 </script>
 
@@ -255,12 +266,23 @@ function itemScoreTitle(node: ScoreNode): string {
               <p class="text-xs text-gray-500">{{ parentLabel(node) }}</p>
             </td>
             <td class="px-4 py-3">
+              <select
+                v-if="categoryOptions(node).length"
+                :value="objectiveValue(node)"
+                :class="[inputClass, 'w-36']"
+                @change="updateValue(node.id, { objectiveRaw: ($event.target as HTMLSelectElement).value })"
+              >
+                <option value="">请选择</option>
+                <option v-for="option in categoryOptions(node)" :key="option.value" :value="option.value">
+                  {{ option.value }}
+                </option>
+              </select>
               <input
-                v-if="node.inputType === 'objective'"
+                v-else-if="node.inputType === 'objective'"
                 :value="objectiveValue(node)"
                 type="text"
                 inputmode="decimal"
-                placeholder="数值或 inf"
+                :placeholder="`数值${unitOf(node) === '数值' ? '或 inf' : `（${unitOf(node)}）`}`"
                 :class="[inputClass, 'w-36']"
                 @input="updateValue(node.id, { objectiveRaw: ($event.target as HTMLInputElement).value })"
               />

@@ -126,6 +126,11 @@
 - ABL 与 Lighting Zone Transitions 均按主观评分建模：ABL 不计入计算；Lighting Zone Transitions 计入 3%。
 - 无映射表项目按主观评分处理；主观分范围 0~10，支持一位小数。
 - 实测样本只作为评分证据，不自动生成预估区间；工程师区间与实测样本分离存储。
+- 修正 Yellow Skyscraper：恢复工程师预估区间（000002），不再误标为纯主观项。
+- 修正 Supported Resolutions：按工作簿展开为 11 个具体分辨率项，权重合计 1.0004，聚合时按可用子项重归一。
+- 修正 Black Luminance @ 0 lx：补充 0 分锚点映射，避免“缺少 mappingId”。
+- 修正客观项单位与输入解析：Input Lag/Response Time/Frame Hold Time 显示 ms，CAD 显示 counts/s，VRR/最大刷新率显示 Hz，对比度支持 `272,400:1` 输入。
+- 录入界面对类别项改为下拉选择，避免 Yes/No/Glossy 等值被误当作数值。
 - 追踪链保存：原始输入→命中区间/规则版本→叶子分→权重与贡献→维度分→组分→总分。
 - 为 ABL、Lighting Zone Transitions、Panel、1.0004 权重和、NA 状态建立专项测试；五处区间修正后补充对应用例。
 

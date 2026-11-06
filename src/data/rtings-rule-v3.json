@@ -137,18 +137,21 @@
       "includeInParent": true,
       "mappingId": "anchor.12470",
       "evidence": "A",
-      "csvTestId": "12470"
+      "csvTestId": "12470",
+      "unit": "cd/m²"
     },
     {
       "id": "mixed-usage.brightness.hdr.yellow",
       "parentId": "mixed-usage.brightness.hdr",
       "label": "Yellow Skyscraper",
       "kind": "leaf",
-      "inputType": "subjective",
+      "inputType": "objective",
       "weight": 0.2,
       "includeInParent": true,
-      "evidence": "D",
-      "note": "CSV 无原始量；按工程师锚点评分"
+      "evidence": "C",
+      "note": "CSV 缺失；使用工程师预估区间（000002 得分范围统计）",
+      "mappingId": "interval.engineer.yellow-skyscraper",
+      "unit": "cd/m²"
     },
     {
       "id": "mixed-usage.brightness.hdr.landscape",
@@ -160,7 +163,8 @@
       "includeInParent": true,
       "mappingId": "anchor.12472",
       "evidence": "A",
-      "csvTestId": "12472"
+      "csvTestId": "12472",
+      "unit": "cd/m²"
     },
     {
       "id": "mixed-usage.brightness.hdr.peak2",
@@ -172,7 +176,8 @@
       "includeInParent": true,
       "mappingId": "anchor.141",
       "evidence": "A",
-      "csvTestId": "141"
+      "csvTestId": "141",
+      "unit": "cd/m²"
     },
     {
       "id": "mixed-usage.brightness.hdr.peak10",
@@ -184,7 +189,8 @@
       "includeInParent": true,
       "mappingId": "anchor.461",
       "evidence": "A",
-      "csvTestId": "461"
+      "csvTestId": "461",
+      "unit": "cd/m²"
     },
     {
       "id": "mixed-usage.brightness.hdr.peak25",
@@ -196,7 +202,8 @@
       "includeInParent": true,
       "mappingId": "anchor.462",
       "evidence": "A",
-      "csvTestId": "462"
+      "csvTestId": "462",
+      "unit": "cd/m²"
     },
     {
       "id": "mixed-usage.brightness.hdr.peak50",
@@ -208,7 +215,8 @@
       "includeInParent": true,
       "mappingId": "anchor.96",
       "evidence": "A",
-      "csvTestId": "96"
+      "csvTestId": "96",
+      "unit": "cd/m²"
     },
     {
       "id": "mixed-usage.brightness.hdr.peak100",
@@ -220,7 +228,8 @@
       "includeInParent": true,
       "mappingId": "anchor.463",
       "evidence": "A",
-      "csvTestId": "463"
+      "csvTestId": "463",
+      "unit": "cd/m²"
     },
     {
       "id": "mixed-usage.brightness.hdr.abl",
@@ -254,7 +263,8 @@
       "includeInParent": true,
       "mappingId": "anchor.619",
       "evidence": "A",
-      "csvTestId": "619"
+      "csvTestId": "619",
+      "unit": "cd/m²"
     },
     {
       "id": "mixed-usage.brightness.sdr.609",
@@ -266,7 +276,8 @@
       "includeInParent": true,
       "mappingId": "anchor.609",
       "evidence": "A",
-      "csvTestId": "609"
+      "csvTestId": "609",
+      "unit": "cd/m²"
     },
     {
       "id": "mixed-usage.brightness.sdr.610",
@@ -278,7 +289,8 @@
       "includeInParent": true,
       "mappingId": "anchor.610",
       "evidence": "A",
-      "csvTestId": "610"
+      "csvTestId": "610",
+      "unit": "cd/m²"
     },
     {
       "id": "mixed-usage.brightness.sdr.611",
@@ -290,7 +302,8 @@
       "includeInParent": true,
       "mappingId": "anchor.611",
       "evidence": "A",
-      "csvTestId": "611"
+      "csvTestId": "611",
+      "unit": "cd/m²"
     },
     {
       "id": "mixed-usage.brightness.sdr.612",
@@ -302,7 +315,8 @@
       "includeInParent": true,
       "mappingId": "anchor.612",
       "evidence": "A",
-      "csvTestId": "612"
+      "csvTestId": "612",
+      "unit": "cd/m²"
     },
     {
       "id": "mixed-usage.brightness.sdr.613",
@@ -314,7 +328,8 @@
       "includeInParent": true,
       "mappingId": "anchor.613",
       "evidence": "A",
-      "csvTestId": "613"
+      "csvTestId": "613",
+      "unit": "cd/m²"
     },
     {
       "id": "mixed-usage.black-level.contrast",
@@ -372,7 +387,8 @@
       "includeInParent": true,
       "mappingId": "anchor.641",
       "evidence": "A",
-      "csvTestId": "641"
+      "csvTestId": "641",
+      "unit": "%"
     },
     {
       "id": "mixed-usage.black-level.uniformity.130",
@@ -384,7 +400,8 @@
       "includeInParent": true,
       "mappingId": "anchor.130",
       "evidence": "A",
-      "csvTestId": "130"
+      "csvTestId": "130",
+      "unit": "%"
     },
     {
       "id": "mixed-usage.black-level.zone-precision",
@@ -419,7 +436,8 @@
       "includeInParent": true,
       "mappingId": "anchor.927",
       "evidence": "A",
-      "csvTestId": "927"
+      "csvTestId": "927",
+      "unit": "%"
     },
     {
       "id": "mixed-usage.color.sdr-volume",
@@ -442,7 +460,8 @@
       "includeInParent": true,
       "mappingId": "anchor.28334",
       "evidence": "A",
-      "csvTestId": "28334"
+      "csvTestId": "28334",
+      "unit": "%"
     },
     {
       "id": "mixed-usage.color.sdr-volume.28336",
@@ -454,7 +473,8 @@
       "includeInParent": true,
       "mappingId": "anchor.28336",
       "evidence": "A",
-      "csvTestId": "28336"
+      "csvTestId": "28336",
+      "unit": "%"
     },
     {
       "id": "mixed-usage.color.sdr-precal",
@@ -477,7 +497,8 @@
       "includeInParent": true,
       "mappingId": "anchor.150",
       "evidence": "A",
-      "csvTestId": "150"
+      "csvTestId": "150",
+      "unit": "ΔE"
     },
     {
       "id": "mixed-usage.color.sdr-precal.154",
@@ -489,7 +510,8 @@
       "includeInParent": true,
       "mappingId": "anchor.154",
       "evidence": "A",
-      "csvTestId": "154"
+      "csvTestId": "154",
+      "unit": "ΔE"
     },
     {
       "id": "mixed-usage.color.sdr-precal.1937",
@@ -501,7 +523,8 @@
       "includeInParent": true,
       "mappingId": "anchor.1937",
       "evidence": "A",
-      "csvTestId": "1937"
+      "csvTestId": "1937",
+      "unit": "K"
     },
     {
       "id": "mixed-usage.color.hdr-precal",
@@ -524,7 +547,8 @@
       "includeInParent": true,
       "mappingId": "anchor.29345",
       "evidence": "A",
-      "csvTestId": "29345"
+      "csvTestId": "29345",
+      "unit": "ΔE"
     },
     {
       "id": "mixed-usage.color.hdr-precal.29346",
@@ -536,7 +560,8 @@
       "includeInParent": true,
       "mappingId": "anchor.29346",
       "evidence": "A",
-      "csvTestId": "29346"
+      "csvTestId": "29346",
+      "unit": "ΔE"
     },
     {
       "id": "mixed-usage.color.hdr-precal.29347",
@@ -548,7 +573,8 @@
       "includeInParent": true,
       "mappingId": "anchor.29347",
       "evidence": "A",
-      "csvTestId": "29347"
+      "csvTestId": "29347",
+      "unit": "K"
     },
     {
       "id": "mixed-usage.color.sdr-postcal",
@@ -690,7 +716,8 @@
       "includeInParent": true,
       "mappingId": "anchor.39752",
       "evidence": "A",
-      "csvTestId": "39752"
+      "csvTestId": "39752",
+      "unit": "pixel/s"
     },
     {
       "id": "mixed-usage.motion.stutter.1925",
@@ -702,7 +729,8 @@
       "includeInParent": true,
       "mappingId": "anchor.1925",
       "evidence": "A",
-      "csvTestId": "1925"
+      "csvTestId": "1925",
+      "unit": "ms"
     },
     {
       "id": "mixed-usage.motion.transition",
@@ -760,7 +788,8 @@
       "includeInParent": true,
       "mappingId": "anchor.30862",
       "evidence": "A",
-      "csvTestId": "30862"
+      "csvTestId": "30862",
+      "unit": "ms"
     },
     {
       "id": "mixed-usage.motion.response-time.30860",
@@ -772,7 +801,8 @@
       "includeInParent": true,
       "mappingId": "anchor.30860",
       "evidence": "A",
-      "csvTestId": "30860"
+      "csvTestId": "30860",
+      "unit": "ms"
     },
     {
       "id": "mixed-usage.motion.response-time.30861",
@@ -784,7 +814,8 @@
       "includeInParent": true,
       "mappingId": "anchor.30861",
       "evidence": "A",
-      "csvTestId": "30861"
+      "csvTestId": "30861",
+      "unit": "ms"
     },
     {
       "id": "mixed-usage.motion.micro-judder",
@@ -1103,7 +1134,8 @@
       "includeInParent": true,
       "mappingId": "anchor.25",
       "evidence": "A",
-      "csvTestId": "25"
+      "csvTestId": "25",
+      "unit": "ms"
     },
     {
       "id": "mixed-usage.game-mode.input-lag.1466",
@@ -1115,7 +1147,8 @@
       "includeInParent": true,
       "mappingId": "anchor.1466",
       "evidence": "A",
-      "csvTestId": "1466"
+      "csvTestId": "1466",
+      "unit": "ms"
     },
     {
       "id": "mixed-usage.game-mode.input-lag.12237",
@@ -1127,7 +1160,8 @@
       "includeInParent": true,
       "mappingId": "anchor.12237",
       "evidence": "A",
-      "csvTestId": "12237"
+      "csvTestId": "12237",
+      "unit": "ms"
     },
     {
       "id": "mixed-usage.game-mode.input-lag.542",
@@ -1139,7 +1173,8 @@
       "includeInParent": true,
       "mappingId": "anchor.542",
       "evidence": "A",
-      "csvTestId": "542"
+      "csvTestId": "542",
+      "unit": "ms"
     },
     {
       "id": "mixed-usage.game-mode.input-lag.543",
@@ -1151,7 +1186,8 @@
       "includeInParent": true,
       "mappingId": "anchor.543",
       "evidence": "A",
-      "csvTestId": "543"
+      "csvTestId": "543",
+      "unit": "ms"
     },
     {
       "id": "mixed-usage.game-mode.input-lag.2194",
@@ -1163,7 +1199,8 @@
       "includeInParent": true,
       "mappingId": "anchor.2194",
       "evidence": "A",
-      "csvTestId": "2194"
+      "csvTestId": "2194",
+      "unit": "ms"
     },
     {
       "id": "mixed-usage.game-mode.input-lag.12239",
@@ -1175,7 +1212,8 @@
       "includeInParent": true,
       "mappingId": "anchor.12239",
       "evidence": "A",
-      "csvTestId": "12239"
+      "csvTestId": "12239",
+      "unit": "ms"
     },
     {
       "id": "mixed-usage.game-mode.cad-60",
@@ -1209,7 +1247,8 @@
       "includeInParent": true,
       "mappingId": "anchor.30878",
       "evidence": "A",
-      "csvTestId": "30878"
+      "csvTestId": "30878",
+      "unit": "counts/s"
     },
     {
       "id": "mixed-usage.game-mode.cad-120.30880",
@@ -1221,7 +1260,8 @@
       "includeInParent": true,
       "mappingId": "anchor.30880",
       "evidence": "A",
-      "csvTestId": "30880"
+      "csvTestId": "30880",
+      "unit": "counts/s"
     },
     {
       "id": "mixed-usage.game-mode.cad-120.30879",
@@ -1233,7 +1273,8 @@
       "includeInParent": true,
       "mappingId": "anchor.30879",
       "evidence": "A",
-      "csvTestId": "30879"
+      "csvTestId": "30879",
+      "unit": "counts/s"
     },
     {
       "id": "mixed-usage.game-mode.cad-max",
@@ -1256,7 +1297,8 @@
       "includeInParent": true,
       "mappingId": "anchor.30870",
       "evidence": "A",
-      "csvTestId": "30870"
+      "csvTestId": "30870",
+      "unit": "counts/s"
     },
     {
       "id": "mixed-usage.game-mode.cad-max.30872",
@@ -1268,7 +1310,8 @@
       "includeInParent": true,
       "mappingId": "anchor.30872",
       "evidence": "A",
-      "csvTestId": "30872"
+      "csvTestId": "30872",
+      "unit": "counts/s"
     },
     {
       "id": "mixed-usage.game-mode.cad-max.30871",
@@ -1280,7 +1323,8 @@
       "includeInParent": true,
       "mappingId": "anchor.30871",
       "evidence": "A",
-      "csvTestId": "30871"
+      "csvTestId": "30871",
+      "unit": "counts/s"
     },
     {
       "id": "mixed-usage.game-mode.vrr",
@@ -1303,7 +1347,8 @@
       "includeInParent": true,
       "mappingId": "anchor.2191",
       "evidence": "A",
-      "csvTestId": "2191"
+      "csvTestId": "2191",
+      "unit": "Hz"
     },
     {
       "id": "mixed-usage.game-mode.vrr.2239",
@@ -1315,7 +1360,8 @@
       "includeInParent": true,
       "mappingId": "anchor.2239",
       "evidence": "A",
-      "csvTestId": "2239"
+      "csvTestId": "2239",
+      "unit": "Hz"
     },
     {
       "id": "mixed-usage.game-mode.resolutions",
@@ -1329,90 +1375,6 @@
       "csvTestId": "206"
     },
     {
-      "id": "mixed-usage.game-mode.resolutions.18909",
-      "parentId": "mixed-usage.game-mode.resolutions",
-      "label": "480p @ 59.94Hz (Widescreen)",
-      "kind": "leaf",
-      "inputType": "objective",
-      "weight": 0.31,
-      "includeInParent": true,
-      "mappingId": "categorical.18909",
-      "evidence": "B",
-      "csvTestId": "18909"
-    },
-    {
-      "id": "mixed-usage.game-mode.resolutions.107",
-      "parentId": "mixed-usage.game-mode.resolutions",
-      "label": "1080p @ 60Hz @ 4:4:4",
-      "kind": "leaf",
-      "inputType": "objective",
-      "weight": 0.32,
-      "includeInParent": true,
-      "mappingId": "categorical.107",
-      "evidence": "B",
-      "csvTestId": "107"
-    },
-    {
-      "id": "mixed-usage.game-mode.resolutions.125",
-      "parentId": "mixed-usage.game-mode.resolutions",
-      "label": "1080p @ 120Hz",
-      "kind": "leaf",
-      "inputType": "objective",
-      "weight": 0.09,
-      "includeInParent": true,
-      "mappingId": "categorical.125",
-      "evidence": "B",
-      "csvTestId": "125"
-    },
-    {
-      "id": "mixed-usage.game-mode.resolutions.33776",
-      "parentId": "mixed-usage.game-mode.resolutions",
-      "label": "1080p Maximum Refresh Rate",
-      "kind": "leaf",
-      "inputType": "objective",
-      "weight": 0.03,
-      "includeInParent": true,
-      "mappingId": "anchor.33776",
-      "evidence": "B",
-      "csvTestId": "33776"
-    },
-    {
-      "id": "mixed-usage.game-mode.resolutions.2219",
-      "parentId": "mixed-usage.game-mode.resolutions",
-      "label": "4k @ 120Hz",
-      "kind": "leaf",
-      "inputType": "objective",
-      "weight": 0.19,
-      "includeInParent": true,
-      "mappingId": "categorical.2219",
-      "evidence": "B",
-      "csvTestId": "2219"
-    },
-    {
-      "id": "mixed-usage.game-mode.resolutions.33777",
-      "parentId": "mixed-usage.game-mode.resolutions",
-      "label": "4k Maximum Refresh Rate",
-      "kind": "leaf",
-      "inputType": "objective",
-      "weight": 0.02,
-      "includeInParent": true,
-      "mappingId": "anchor.33777",
-      "evidence": "B",
-      "csvTestId": "33777"
-    },
-    {
-      "id": "mixed-usage.game-mode.resolutions.2620",
-      "parentId": "mixed-usage.game-mode.resolutions",
-      "label": "8k @ 60Hz",
-      "kind": "leaf",
-      "inputType": "objective",
-      "weight": 0.04,
-      "includeInParent": true,
-      "mappingId": "categorical.2620",
-      "evidence": "B",
-      "csvTestId": "2620"
-    },
-    {
       "id": "mixed-usage.direct-reflections.peak",
       "parentId": "mixed-usage.direct-reflections",
       "label": "Peak Direct Reflection Intensity",
@@ -1422,7 +1384,8 @@
       "includeInParent": true,
       "mappingId": "anchor.30856",
       "evidence": "A",
-      "csvTestId": "30856"
+      "csvTestId": "30856",
+      "unit": "%"
     },
     {
       "id": "mixed-usage.ambient-black.1000lx",
@@ -1434,7 +1397,8 @@
       "includeInParent": true,
       "mappingId": "anchor.29478",
       "evidence": "A",
-      "csvTestId": "29478"
+      "csvTestId": "29478",
+      "unit": "cd/m²"
     },
     {
       "id": "mixed-usage.ambient-black.0lx",
@@ -1446,7 +1410,141 @@
       "includeInParent": false,
       "evidence": "A",
       "csvTestId": "30809",
-      "note": "废弃指标，不计入"
+      "note": "废弃指标；实测值为 0 时计 0 分，其他值不外推",
+      "mappingId": "anchor.30809.zero",
+      "unit": "cd/m²"
+    },
+    {
+      "id": "mixed-usage.game-mode.resolutions.18909",
+      "parentId": "mixed-usage.game-mode.resolutions",
+      "label": "480p @ 59.94Hz (Widescreen)",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.0781,
+      "includeInParent": true,
+      "mappingId": "categorical.18909",
+      "evidence": "A",
+      "csvTestId": "18909"
+    },
+    {
+      "id": "mixed-usage.game-mode.resolutions.720p",
+      "parentId": "mixed-usage.game-mode.resolutions",
+      "label": "720p @ 59.94Hz",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.0781,
+      "includeInParent": true,
+      "mappingId": "categorical.720p",
+      "evidence": "C"
+    },
+    {
+      "id": "mixed-usage.game-mode.resolutions.107",
+      "parentId": "mixed-usage.game-mode.resolutions",
+      "label": "1080p @ 60Hz @ 4:4:4",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.1563,
+      "includeInParent": true,
+      "mappingId": "categorical.107",
+      "evidence": "A",
+      "csvTestId": "107"
+    },
+    {
+      "id": "mixed-usage.game-mode.resolutions.125",
+      "parentId": "mixed-usage.game-mode.resolutions",
+      "label": "1080p @ 120Hz",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.0938,
+      "includeInParent": true,
+      "mappingId": "categorical.125",
+      "evidence": "A",
+      "csvTestId": "125"
+    },
+    {
+      "id": "mixed-usage.game-mode.resolutions.33776",
+      "parentId": "mixed-usage.game-mode.resolutions",
+      "label": "1080p Maximum Refresh Rate",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.0313,
+      "includeInParent": true,
+      "mappingId": "anchor.33776",
+      "evidence": "A",
+      "csvTestId": "33776",
+      "unit": "Hz"
+    },
+    {
+      "id": "mixed-usage.game-mode.resolutions.139",
+      "parentId": "mixed-usage.game-mode.resolutions",
+      "label": "4k @ 60Hz",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.1563,
+      "includeInParent": true,
+      "mappingId": "categorical.139",
+      "evidence": "A",
+      "csvTestId": "139"
+    },
+    {
+      "id": "mixed-usage.game-mode.resolutions.138",
+      "parentId": "mixed-usage.game-mode.resolutions",
+      "label": "4k @ 60Hz @ 4:4:4",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.1563,
+      "includeInParent": true,
+      "mappingId": "categorical.138",
+      "evidence": "A",
+      "csvTestId": "138"
+    },
+    {
+      "id": "mixed-usage.game-mode.resolutions.2219",
+      "parentId": "mixed-usage.game-mode.resolutions",
+      "label": "4k @ 120Hz",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.0938,
+      "includeInParent": true,
+      "mappingId": "categorical.2219",
+      "evidence": "A",
+      "csvTestId": "2219"
+    },
+    {
+      "id": "mixed-usage.game-mode.resolutions.12243",
+      "parentId": "mixed-usage.game-mode.resolutions",
+      "label": "4k @ 120Hz @ 4:4:4",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.0938,
+      "includeInParent": true,
+      "mappingId": "categorical.12243",
+      "evidence": "A",
+      "csvTestId": "12243"
+    },
+    {
+      "id": "mixed-usage.game-mode.resolutions.33777",
+      "parentId": "mixed-usage.game-mode.resolutions",
+      "label": "4k Maximum Refresh Rate",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.0313,
+      "includeInParent": true,
+      "mappingId": "anchor.33777",
+      "evidence": "A",
+      "csvTestId": "33777",
+      "unit": "Hz"
+    },
+    {
+      "id": "mixed-usage.game-mode.resolutions.8k30",
+      "parentId": "mixed-usage.game-mode.resolutions",
+      "label": "8k @ 30Hz Or 24Hz",
+      "kind": "leaf",
+      "inputType": "objective",
+      "weight": 0.0313,
+      "includeInParent": true,
+      "mappingId": "categorical.8k30",
+      "evidence": "C"
     }
   ],
   "mappings": [
@@ -10634,6 +10732,883 @@
       ],
       "source": "csvRegression",
       "evidence": "A"
+    },
+    {
+      "id": "interval.engineer.yellow-skyscraper",
+      "label": "Yellow Skyscraper (~700 cd/m²)",
+      "unit": "cd/m²",
+      "direction": "higherBetter",
+      "kind": "intervals",
+      "intervals": [
+        {
+          "scoreTenths": 17,
+          "min": 80.0,
+          "max": 85.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "80~85"
+        },
+        {
+          "scoreTenths": 18,
+          "min": 85.0,
+          "max": 90.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "85~90"
+        },
+        {
+          "scoreTenths": 19,
+          "min": 90.0,
+          "max": 95.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "90~95"
+        },
+        {
+          "scoreTenths": 20,
+          "min": 95.0,
+          "max": 100.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "95~100"
+        },
+        {
+          "scoreTenths": 21,
+          "min": 100.0,
+          "max": 105.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "100~105"
+        },
+        {
+          "scoreTenths": 22,
+          "min": 105.0,
+          "max": 110.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "105~110"
+        },
+        {
+          "scoreTenths": 23,
+          "min": 110.0,
+          "max": 115.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "110~115"
+        },
+        {
+          "scoreTenths": 24,
+          "min": 115.0,
+          "max": 120.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "115~120"
+        },
+        {
+          "scoreTenths": 25,
+          "min": 120.0,
+          "max": 125.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "120~125"
+        },
+        {
+          "scoreTenths": 26,
+          "min": 125.0,
+          "max": 130.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "125~130"
+        },
+        {
+          "scoreTenths": 27,
+          "min": 130.0,
+          "max": 135.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "130~135"
+        },
+        {
+          "scoreTenths": 28,
+          "min": 135.0,
+          "max": 140.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "135~140"
+        },
+        {
+          "scoreTenths": 29,
+          "min": 140.0,
+          "max": 145.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "140~145"
+        },
+        {
+          "scoreTenths": 30,
+          "min": 145.0,
+          "max": 150.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "145~150"
+        },
+        {
+          "scoreTenths": 31,
+          "min": 150.0,
+          "max": 155.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "150~155"
+        },
+        {
+          "scoreTenths": 32,
+          "min": 155.0,
+          "max": 160.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "155~160"
+        },
+        {
+          "scoreTenths": 33,
+          "min": 160.0,
+          "max": 165.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "160~165"
+        },
+        {
+          "scoreTenths": 34,
+          "min": 165.0,
+          "max": 170.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "165~170"
+        },
+        {
+          "scoreTenths": 35,
+          "min": 170.0,
+          "max": 175.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "170~175"
+        },
+        {
+          "scoreTenths": 36,
+          "min": 175.0,
+          "max": 180.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "175~180"
+        },
+        {
+          "scoreTenths": 37,
+          "min": 180.0,
+          "max": 185.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "180~185"
+        },
+        {
+          "scoreTenths": 38,
+          "min": 185.0,
+          "max": 190.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "185~190"
+        },
+        {
+          "scoreTenths": 39,
+          "min": 190.0,
+          "max": 195.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "190~195"
+        },
+        {
+          "scoreTenths": 40,
+          "min": 195.0,
+          "max": 200.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "195~200"
+        },
+        {
+          "scoreTenths": 41,
+          "min": 200.0,
+          "max": 205.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "200~205"
+        },
+        {
+          "scoreTenths": 42,
+          "min": 205.0,
+          "max": 210.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "205~210"
+        },
+        {
+          "scoreTenths": 43,
+          "min": 210.0,
+          "max": 215.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "210~215"
+        },
+        {
+          "scoreTenths": 44,
+          "min": 215.0,
+          "max": 220.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "215~220"
+        },
+        {
+          "scoreTenths": 45,
+          "min": 220.0,
+          "max": 230.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "220~230"
+        },
+        {
+          "scoreTenths": 46,
+          "min": 230.0,
+          "max": 235.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "230~235"
+        },
+        {
+          "scoreTenths": 47,
+          "min": 235.0,
+          "max": 240.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "235~240"
+        },
+        {
+          "scoreTenths": 48,
+          "min": 240.0,
+          "max": 245.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "240~245"
+        },
+        {
+          "scoreTenths": 49,
+          "min": 245.0,
+          "max": 250.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "245~250"
+        },
+        {
+          "scoreTenths": 50,
+          "min": 250.0,
+          "max": 255.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "250~255"
+        },
+        {
+          "scoreTenths": 51,
+          "min": 255.0,
+          "max": 260.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "255~260"
+        },
+        {
+          "scoreTenths": 52,
+          "min": 260.0,
+          "max": 270.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "260~270"
+        },
+        {
+          "scoreTenths": 53,
+          "min": 270.0,
+          "max": 280.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "270~280"
+        },
+        {
+          "scoreTenths": 54,
+          "min": 280.0,
+          "max": 285.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "280~285"
+        },
+        {
+          "scoreTenths": 55,
+          "min": 285.0,
+          "max": 290.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "285~290"
+        },
+        {
+          "scoreTenths": 56,
+          "min": 290.0,
+          "max": 295.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "290~295"
+        },
+        {
+          "scoreTenths": 57,
+          "min": 295.0,
+          "max": 300.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "295~300"
+        },
+        {
+          "scoreTenths": 58,
+          "min": 300.0,
+          "max": 305.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "300~305"
+        },
+        {
+          "scoreTenths": 59,
+          "min": 305.0,
+          "max": 315.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "305~315"
+        },
+        {
+          "scoreTenths": 60,
+          "min": 315.0,
+          "max": 320.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "315~320"
+        },
+        {
+          "scoreTenths": 61,
+          "min": 320.0,
+          "max": 325.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "320~325"
+        },
+        {
+          "scoreTenths": 62,
+          "min": 325.0,
+          "max": 330.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "325~330"
+        },
+        {
+          "scoreTenths": 63,
+          "min": 330.0,
+          "max": 340.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "330~340"
+        },
+        {
+          "scoreTenths": 64,
+          "min": 340.0,
+          "max": 350.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "340~350"
+        },
+        {
+          "scoreTenths": 65,
+          "min": 350.0,
+          "max": 360.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "350~360"
+        },
+        {
+          "scoreTenths": 66,
+          "min": 360.0,
+          "max": 365.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "360~365"
+        },
+        {
+          "scoreTenths": 67,
+          "min": 365.0,
+          "max": 370.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "365~370"
+        },
+        {
+          "scoreTenths": 68,
+          "min": 370.0,
+          "max": 375.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "370~375"
+        },
+        {
+          "scoreTenths": 69,
+          "min": 375.0,
+          "max": 380.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "375~380"
+        },
+        {
+          "scoreTenths": 70,
+          "min": 380.0,
+          "max": 385.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "380~385"
+        },
+        {
+          "scoreTenths": 71,
+          "min": 385.0,
+          "max": 390.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "385~390"
+        },
+        {
+          "scoreTenths": 72,
+          "min": 390.0,
+          "max": 400.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "390~400"
+        },
+        {
+          "scoreTenths": 73,
+          "min": 400.0,
+          "max": 410.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "400~410"
+        },
+        {
+          "scoreTenths": 74,
+          "min": 410.0,
+          "max": 420.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "410~420"
+        },
+        {
+          "scoreTenths": 75,
+          "min": 420.0,
+          "max": 425.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "420~425"
+        },
+        {
+          "scoreTenths": 76,
+          "min": 425.0,
+          "max": 430.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "425~430"
+        },
+        {
+          "scoreTenths": 77,
+          "min": 430.0,
+          "max": 440.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "430~440"
+        },
+        {
+          "scoreTenths": 78,
+          "min": 440.0,
+          "max": 445.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "440~445"
+        },
+        {
+          "scoreTenths": 79,
+          "min": 445.0,
+          "max": 450.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "445~450"
+        },
+        {
+          "scoreTenths": 80,
+          "min": 450.0,
+          "max": 460.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "450~460"
+        },
+        {
+          "scoreTenths": 81,
+          "min": 460.0,
+          "max": 470.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "460~470"
+        },
+        {
+          "scoreTenths": 82,
+          "min": 470.0,
+          "max": 480.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "470~480"
+        },
+        {
+          "scoreTenths": 83,
+          "min": 480.0,
+          "max": 490.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "480~490"
+        },
+        {
+          "scoreTenths": 84,
+          "min": 490.0,
+          "max": 500.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "490~500"
+        },
+        {
+          "scoreTenths": 85,
+          "min": 500.0,
+          "max": 505.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "500~505"
+        },
+        {
+          "scoreTenths": 86,
+          "min": 505.0,
+          "max": 510.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "505~510"
+        },
+        {
+          "scoreTenths": 87,
+          "min": 510.0,
+          "max": 520.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "510~520"
+        },
+        {
+          "scoreTenths": 88,
+          "min": 520.0,
+          "max": 530.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "520~530"
+        },
+        {
+          "scoreTenths": 89,
+          "min": 530.0,
+          "max": 540.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "530~540"
+        },
+        {
+          "scoreTenths": 90,
+          "min": 540.0,
+          "max": 550.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "540~550"
+        },
+        {
+          "scoreTenths": 91,
+          "min": 550.0,
+          "max": 560.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "550~560"
+        },
+        {
+          "scoreTenths": 92,
+          "min": 560.0,
+          "max": 570.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "560~570"
+        },
+        {
+          "scoreTenths": 93,
+          "min": 570.0,
+          "max": 580.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "570~580"
+        },
+        {
+          "scoreTenths": 94,
+          "min": 580.0,
+          "max": 590.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "580~590"
+        },
+        {
+          "scoreTenths": 95,
+          "min": 590.0,
+          "max": 600.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "590~600"
+        },
+        {
+          "scoreTenths": 96,
+          "min": 600.0,
+          "max": 620.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "600~620"
+        },
+        {
+          "scoreTenths": 97,
+          "min": 620.0,
+          "max": 640.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "620~640"
+        },
+        {
+          "scoreTenths": 98,
+          "min": 640.0,
+          "max": 660.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "640~660"
+        },
+        {
+          "scoreTenths": 99,
+          "min": 660.0,
+          "max": 680.0,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "660~680"
+        },
+        {
+          "scoreTenths": 100,
+          "min": 680.0,
+          "max": null,
+          "minInclusive": true,
+          "maxInclusive": false,
+          "source": "engineerEstimate",
+          "rawText": "680~"
+        }
+      ],
+      "source": "engineerEstimate",
+      "evidence": "C"
+    },
+    {
+      "id": "anchor.30809.zero",
+      "label": "Black Luminance @ 0 lx",
+      "unit": "cd/m²",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          0,
+          0
+        ]
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "categorical.720p",
+      "label": "720p @ 59.94Hz",
+      "unit": "类别",
+      "direction": "higherBetter",
+      "kind": "categorical",
+      "values": [
+        {
+          "value": "Yes",
+          "score": 10
+        },
+        {
+          "value": "No",
+          "score": 0
+        }
+      ],
+      "source": "engineerEstimate",
+      "evidence": "C"
+    },
+    {
+      "id": "categorical.139",
+      "label": "4k @ 60Hz",
+      "unit": "类别",
+      "direction": "higherBetter",
+      "kind": "categorical",
+      "values": [
+        {
+          "value": "Yes",
+          "score": 10
+        },
+        {
+          "value": "No",
+          "score": 0
+        }
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "categorical.138",
+      "label": "4k @ 60Hz @ 4:4:4",
+      "unit": "类别",
+      "direction": "higherBetter",
+      "kind": "categorical",
+      "values": [
+        {
+          "value": "Yes",
+          "score": 10
+        },
+        {
+          "value": "No",
+          "score": 0
+        }
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "categorical.12243",
+      "label": "4k @ 120Hz @ 4:4:4",
+      "unit": "类别",
+      "direction": "higherBetter",
+      "kind": "categorical",
+      "values": [
+        {
+          "value": "Yes",
+          "score": 10
+        },
+        {
+          "value": "No",
+          "score": 0
+        }
+      ],
+      "source": "csvRegression",
+      "evidence": "A"
+    },
+    {
+      "id": "categorical.8k30",
+      "label": "8k @ 30Hz Or 24Hz",
+      "unit": "类别",
+      "direction": "higherBetter",
+      "kind": "categorical",
+      "values": [
+        {
+          "value": "Yes",
+          "score": 10
+        },
+        {
+          "value": "No",
+          "score": 0
+        }
+      ],
+      "source": "engineerEstimate",
+      "evidence": "C"
     }
   ]
 }

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import CheckboxChips from '../components/CheckboxChips.vue';
+import ChartCard from '../components/ChartCard.vue';
 import OptionChips from '../components/OptionChips.vue';
 import ProductSelector from '../components/ProductSelector.vue';
 import TestItemComparisonChart from '../components/charts/TestItemComparisonChart.vue';
@@ -78,8 +79,8 @@ function downloadExcel() {
     />
   </section>
 
-  <section :class="cardClass" class="mb-6 p-6">
-    <h2 class="mb-4 text-xl font-semibold tracking-tight text-gray-900">3. 选择产品</h2>
+  <section class="mb-6">
+    <h2 :class="['mb-3 text-xl font-semibold tracking-tight text-gray-900']">3. 选择产品</h2>
     <ProductSelector
       :products="allBaselines"
       :selected-ids="selectedProductIds"
@@ -87,21 +88,12 @@ function downloadExcel() {
     />
   </section>
 
-  <section :class="cardClass" class="p-6">
-    <div class="mb-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-      <div>
-        <h2 class="text-xl font-semibold tracking-tight text-gray-900">4. 测试项对比</h2>
-        <p :class="['mt-1 text-sm', mutedTextClass]">
-          图表高度随选中测试项数量自适应，便于查看细节
-        </p>
-      </div>
-      <div class="flex flex-wrap items-center gap-3">
-        <OptionChips v-model="chartType" :options="chartTypeOptions" />
-        <button :class="secondaryButtonClass" @click="downloadPng">导出 PNG</button>
-        <button :class="primaryButtonClass" @click="downloadExcel">导出 Excel</button>
-      </div>
-    </div>
-
+  <ChartCard title="4. 测试项对比" description="图表高度随选中测试项数量自适应，便于查看细节">
+    <template #actions>
+      <OptionChips v-model="chartType" :options="chartTypeOptions" />
+      <button :class="secondaryButtonClass" @click="downloadPng">导出 PNG</button>
+      <button :class="primaryButtonClass" @click="downloadExcel">导出 Excel</button>
+    </template>
     <TestItemComparisonChart
       ref="chartRef"
       :labels="chartLabels"
@@ -109,5 +101,5 @@ function downloadExcel() {
       :chart-type="chartType"
       :height="chartHeight"
     />
-  </section>
+  </ChartCard>
 </template>

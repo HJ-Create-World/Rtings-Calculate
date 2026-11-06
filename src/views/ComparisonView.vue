@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import ChartCard from '../components/ChartCard.vue';
 import ComparisonTable from '../components/ComparisonTable.vue';
 import ProductSelector from '../components/ProductSelector.vue';
 import GroupRadarChart from '../components/charts/GroupRadarChart.vue';
@@ -7,7 +8,7 @@ import GroupContributionChart from '../components/charts/GroupContributionChart.
 import TotalScoreChart from '../components/charts/TotalScoreChart.vue';
 import { useComparison } from '../composables/useComparison';
 import { exportComparisonExcel } from '../utils/export';
-import { cardClass, mutedTextClass, primaryButtonClass, secondaryButtonClass, sectionTitleClass } from '../utils/ui';
+import { mutedTextClass, primaryButtonClass, secondaryButtonClass, sectionTitleClass } from '../utils/ui';
 
 const {
   allBaselines,
@@ -50,52 +51,41 @@ function downloadExcel() {
   />
 
   <section class="mb-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
-    <article :class="cardClass" class="p-6">
-      <div class="mb-4 flex items-start justify-between gap-4">
-        <div>
-          <h2 class="text-xl font-semibold tracking-tight text-gray-900">总分对比</h2>
-          <p :class="['mt-1 text-sm', mutedTextClass]">Mixed Usage 总分</p>
-        </div>
+    <ChartCard title="总分对比" description="Mixed Usage 总分">
+      <template #actions>
         <button :class="secondaryButtonClass" @click="downloadTotalPng">导出 PNG</button>
-      </div>
+      </template>
       <TotalScoreChart ref="totalChartRef" :entries="totalEntries" height="520px" />
-    </article>
+    </ChartCard>
 
-    <article :class="cardClass" class="p-6">
-      <div class="mb-4 flex items-start justify-between gap-4">
-        <div>
-          <h2 class="text-xl font-semibold tracking-tight text-gray-900">顶层能力分布</h2>
-          <p :class="['mt-1 text-sm', mutedTextClass]">按顶层分组对比能力轮廓</p>
-        </div>
+    <ChartCard title="顶层能力分布" description="按顶层分组对比能力轮廓">
+      <template #actions>
         <button :class="secondaryButtonClass" @click="downloadRadarPng">导出 PNG</button>
-      </div>
+      </template>
       <GroupRadarChart
         ref="radarChartRef"
         :labels="radarLabels"
         :series="radarSeries"
         height="560px"
       />
-    </article>
+    </ChartCard>
   </section>
 
   <section class="mb-8">
-    <article :class="cardClass" class="p-6">
-      <div class="mb-4 flex items-start justify-between gap-4">
-        <div>
-          <h2 class="text-xl font-semibold tracking-tight text-gray-900">顶层贡献对比</h2>
-          <p :class="['mt-1 text-sm', mutedTextClass]">
-            展示每个分组按权重折算后的实际贡献，定位总分差异来源
-          </p>
-        </div>
+    <ChartCard
+      title="顶层贡献对比"
+      description="展示每个分组按权重折算后的实际贡献，定位总分差异来源"
+    >
+      <template #actions>
         <button :class="secondaryButtonClass" @click="downloadContributionPng">导出 PNG</button>
-      </div>
+      </template>
       <GroupContributionChart
         ref="contributionChartRef"
         :groups="topGroups"
         :products="selectedProducts"
         height="520px"
       />
-    </article>
+    </ChartCard>
   </section>
 
   <section class="mb-8">

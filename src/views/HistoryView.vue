@@ -1,30 +1,65 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import ChartCard from '../components/ChartCard.vue';
 import GroupRadarChart from '../components/charts/GroupRadarChart.vue';
+import OptionChips from '../components/OptionChips.vue';
 import { rtingsBaselinesV3, rtingsRule } from '../data/rtingsRule';
 import { formatScore } from '../utils/format';
-import { cardClass, inputClass, mutedTextClass, sectionTitleClass } from '../utils/ui';
+import { cardClass, inputClass, mutedTextClass, primaryButtonClass, sectionTitleClass } from '../utils/ui';
 
 const search = ref('');
+const brand = ref('');
+const year = ref('');
 const selectedId = ref(rtingsBaselinesV3.items[0]?.id ?? '');
+const expanded = ref(false);
+const visibleCount = 24;
+
+const brands = computed(() =>
+  [...new Set(rtingsBaselinesV3.items.map(item => item.brand ?? '未分类'))].sort((a, b) =>
+    a.localeCompare(b, 'zh-CN')
+  )
+);
+
+const years = computed(() =>
+  [...new Set(rtingsBaselinesV3.items.map(item => item.releaseYear).filter(Boolean) as number[])].sort(
+    (a, b) => b - a
+  )
+);
 
 const filteredBaselines = computed(() => {
   const text = search.value.trim().toLowerCase();
-  if (!text) return rtingsBaselinesV3.items;
-  return rtingsBaselinesV3.items.filter(baseline =>
-    `${baseline.label} ${baseline.brand ?? ''} ${baseline.model ?? ''} ${baseline.releaseYear ?? ''}`
-      .toLowerCase()
-      .includes(text)
-  );
+  return rtingsBaselinesV3.items
+    .filter(baseline => {
+      const matchesText =
+        !text ||
+        `${baseline.label} ${baseline.brand ?? ''} ${baseline.model ?? ''} ${baseline.releaseYear ?? ''}`
+          .toLowerCase()
+          .includes(text);
+      const matchesBrand = !brand.value || (baseline.brand ?? '未分类') === brand.value;
+      const matchesYear = !year.value || String(baseline.releaseYear ?? '') === year.value;
+      return matchesText && matchesBrand && matchesYear;
+    })
+    .sort((a, b) => {
+      const yearDiff = (b.releaseYear ?? 0) - (a.releaseYear ?? 0);
+      return yearDiff || a.label.localeCompare(b.label, 'zh-CN');
+    });
 });
 
+const visibleBaselines = computed(() =>
+  expanded.value ? filteredBaselines.value : filteredBaselines.value.slice(0, visibleCount)
+);
+
 const selectedBaseline = computed(
-  () => rtingsBaselinesV3.items.find(baseline => baseline.id === selectedId.value) ?? filteredBaselines.value[0]
+  () =>
+    rtingsBaselinesV3.items.find(baseline => baseline.id === selectedId.value) ??
+    filteredBaselines.value[0]
 );
 
 const topGroups = computed(() =>
   rtingsRule.nodes.filter(node => node.parentId === rtingsRule.rootId && node.includeInParent)
 );
+
+const selectedGroupId = ref(topGroups.value[0]?.id ?? '');
 
 const radarSeries = computed(() => {
   if (!selectedBaseline.value) return [];
@@ -44,19 +79,28 @@ function collectLeafNodes(nodeId: string): typeof rtingsRule.nodes {
     );
 }
 
+const parentById = computed(() => new Map(rtingsRule.nodes.map(node => [node.id, node])));
+
+const detailItems = computed(() => {
+  const parentMap = parentById.value;
+  return collectLeafNodes(selectedGroupId.value)
+    .filter(node => node.includeInParent)
+    .map(node => ({
+      node,
+      parentLabel: parentMap.get(node.parentId ?? '')?.label ?? '',
+      score: selectedBaseline.value?.expectedScores[node.id] ?? null
+    }))
+    .sort((a, b) => a.parentLabel.localeCompare(b.parentLabel, 'zh-CN') || a.node.label.localeCompare(b.node.label, 'zh-CN'));
+});
+
 const leafRanking = computed(() => {
-  if (!selectedBaseline.value) return { strengths: [], weaknesses: [] };
-  const parentById = new Map(rtingsRule.nodes.map(node => [node.id, node]));
   const scored = collectLeafNodes(rtingsRule.rootId)
     .filter(node => node.includeInParent)
-    .map(node => {
-      const parent = parentById.get(node.parentId ?? '');
-      return {
-        node,
-        parentLabel: parent?.label ?? '',
-        score: selectedBaseline.value!.expectedScores[node.id] ?? null
-      };
-    })
+    .map(node => ({
+      node,
+      parentLabel: parentById.value.get(node.parentId ?? '')?.label ?? '',
+      score: selectedBaseline.value?.expectedScores[node.id] ?? null
+    }))
     .filter(item => item.score !== null)
     .sort((left, right) => right.score! - left.score!);
 
@@ -74,10 +118,24 @@ const leafRanking = computed(() => {
         <h2 :class="['text-xl md:text-2xl', sectionTitleClass]">历史机型库</h2>
         <span :class="['text-xs', mutedTextClass]">{{ filteredBaselines.length }} 台</span>
       </div>
-      <input v-model="search" type="search" placeholder="搜索品牌、型号或年份" :class="[inputClass, 'mt-4 w-full']" />
-      <div class="mt-4 max-h-[480px] space-y-2 overflow-y-auto pr-1">
+
+      <div class="mt-4 grid gap-3">
+        <input v-model="search" type="search" placeholder="搜索品牌、型号或年份" :class="inputClass" />
+        <div class="grid grid-cols-2 gap-3">
+          <select v-model="brand" :class="inputClass" aria-label="按品牌筛选">
+            <option value="">全部品牌</option>
+            <option v-for="item in brands" :key="item" :value="item">{{ item }}</option>
+          </select>
+          <select v-model="year" :class="inputClass" aria-label="按年份筛选">
+            <option value="">全部年份</option>
+            <option v-for="item in years" :key="item" :value="String(item)">{{ item }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mt-4 max-h-[520px] space-y-2 overflow-y-auto pr-1">
         <button
-          v-for="baseline in filteredBaselines"
+          v-for="baseline in visibleBaselines"
           :key="baseline.id"
           type="button"
           class="w-full rounded-lg border px-3 py-2 text-left text-sm transition-all duration-200 ease-out"
@@ -92,6 +150,12 @@ const leafRanking = computed(() => {
           <span :class="['mt-1 block text-xs', mutedTextClass]">
             {{ baseline.releaseYear ?? '—' }} · {{ formatScore(baseline.expectedTotal) }}
           </span>
+        </button>
+      </div>
+
+      <div v-if="filteredBaselines.length > visibleCount" class="mt-4">
+        <button :class="primaryButtonClass" @click="expanded = !expanded">
+          {{ expanded ? '收起机型列表' : `展开全部 ${filteredBaselines.length} 台` }}
         </button>
       </div>
     </article>
@@ -113,13 +177,13 @@ const leafRanking = computed(() => {
         </div>
       </div>
 
-      <div class="mt-6">
+      <ChartCard class="mt-6 !border-0 !p-0 !shadow-none" title="能力轮廓" description="按顶层分组查看评分分布">
         <GroupRadarChart
           :labels="topGroups.map(group => group.label)"
           :series="radarSeries"
           height="420px"
         />
-      </div>
+      </ChartCard>
 
       <div class="mt-6 overflow-x-auto rounded-xl border border-gray-200">
         <table class="min-w-full divide-y divide-gray-200 text-sm">
@@ -143,6 +207,37 @@ const leafRanking = computed(() => {
           </tbody>
         </table>
       </div>
+
+      <div class="mt-8">
+        <h3 class="text-xl font-semibold tracking-tight text-gray-900">具体测试项评分</h3>
+        <p :class="['mt-2 text-sm', mutedTextClass]">选择子类目，查看其中的节点级得分</p>
+        <OptionChips class="mt-4" v-model="selectedGroupId" :options="topGroups.map(group => ({ value: group.id, label: group.label }))" />
+        <div class="mt-4 overflow-x-auto rounded-xl border border-gray-200">
+          <table class="min-w-full divide-y divide-gray-200 text-sm">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left font-semibold text-gray-900">子类维度</th>
+                <th class="px-4 py-3 text-left font-semibold text-gray-900">具体测试项</th>
+                <th class="px-4 py-3 text-right font-semibold text-gray-900">得分</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <tr
+                v-for="item in detailItems"
+                :key="item.node.id"
+                class="transition-colors duration-200 hover:bg-gray-50"
+              >
+                <td class="px-4 py-3 text-gray-700">{{ item.parentLabel }}</td>
+                <td class="px-4 py-3 text-gray-900">{{ item.node.label }}</td>
+                <td class="px-4 py-3 text-right font-medium text-gray-900">
+                  {{ formatScore(item.score) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="mt-6 grid gap-4 md:grid-cols-2">
         <article class="rounded-xl bg-green-50 p-4">
           <h3 class="text-sm font-semibold text-green-700">优势测试项</h3>
