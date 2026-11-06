@@ -35,6 +35,36 @@ const radarSeries = computed(() => {
     }
   ];
 });
+
+function collectLeafNodes(nodeId: string): typeof rtingsRule.nodes {
+  return rtingsRule.nodes
+    .filter(node => node.parentId === nodeId)
+    .flatMap(child =>
+      child.inputType === 'aggregate' ? collectLeafNodes(child.id) : [child]
+    );
+}
+
+const leafRanking = computed(() => {
+  if (!selectedBaseline.value) return { strengths: [], weaknesses: [] };
+  const parentById = new Map(rtingsRule.nodes.map(node => [node.id, node]));
+  const scored = collectLeafNodes(rtingsRule.rootId)
+    .filter(node => node.includeInParent)
+    .map(node => {
+      const parent = parentById.get(node.parentId ?? '');
+      return {
+        node,
+        parentLabel: parent?.label ?? '',
+        score: selectedBaseline.value!.expectedScores[node.id] ?? null
+      };
+    })
+    .filter(item => item.score !== null)
+    .sort((left, right) => right.score! - left.score!);
+
+  return {
+    strengths: scored.slice(0, 5),
+    weaknesses: scored.slice(-5).reverse()
+  };
+});
 </script>
 
 <template>
@@ -112,6 +142,40 @@ const radarSeries = computed(() => {
             </tr>
           </tbody>
         </table>
+      </div>
+      <div class="mt-6 grid gap-4 md:grid-cols-2">
+        <article class="rounded-xl bg-green-50 p-4">
+          <h3 class="text-sm font-semibold text-green-700">优势测试项</h3>
+          <ul class="mt-3 space-y-2 text-sm text-green-700">
+            <li
+              v-for="item in leafRanking.strengths"
+              :key="`strength-${item.node.id}`"
+              class="flex items-start justify-between gap-3"
+            >
+              <span>
+                {{ item.node.label }}
+                <span class="block text-xs text-green-600">{{ item.parentLabel }}</span>
+              </span>
+              <strong>{{ formatScore(item.score) }}</strong>
+            </li>
+          </ul>
+        </article>
+        <article class="rounded-xl bg-amber-50 p-4">
+          <h3 class="text-sm font-semibold text-amber-700">短板测试项</h3>
+          <ul class="mt-3 space-y-2 text-sm text-amber-700">
+            <li
+              v-for="item in leafRanking.weaknesses"
+              :key="`weakness-${item.node.id}`"
+              class="flex items-start justify-between gap-3"
+            >
+              <span>
+                {{ item.node.label }}
+                <span class="block text-xs text-amber-600">{{ item.parentLabel }}</span>
+              </span>
+              <strong>{{ formatScore(item.score) }}</strong>
+            </li>
+          </ul>
+        </article>
       </div>
     </article>
   </section>

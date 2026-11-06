@@ -1,6 +1,17 @@
 # 数据架构与规则版本方案
 
-状态：设计稿，按“离线优先、联网落库、历史可复用”的目标制定。
+状态：云端 MVP 已接入。当前先落地评测快照表，后续再拆分归一化明细表。
+
+## 0. 当前云数据库 MVP
+
+- 应用：`Rtings评分工作台`
+- 表：`evaluations`
+- 关键字段：`client_id`、`brand`、`model`、`test_date`、`engineer`、`remark`、`rule_version`、`status`、`inputs JSONB`、`expected_total`
+- 安全策略：当前无登录场景，采用公开读写；后续接入账号后应改为 owner-only
+- 写入方式：前端按 `client_id` upsert，可重复保存同一份草稿
+- 验证结果：SDK 写入 → 读取 → 删除已完成
+
+MVP 阶段把 `inputs` 作为 JSONB 快照保存，优先保证“历史评测可复用”。后续如果需要复杂查询，再拆出 `evaluation_items` 明细表。
 
 ## 1. 目标
 

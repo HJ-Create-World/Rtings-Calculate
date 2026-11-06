@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import ComparisonTable from '../components/ComparisonTable.vue';
 import ProductSelector from '../components/ProductSelector.vue';
 import GroupRadarChart from '../components/charts/GroupRadarChart.vue';
+import GroupContributionChart from '../components/charts/GroupContributionChart.vue';
 import TotalScoreChart from '../components/charts/TotalScoreChart.vue';
 import { useComparison } from '../composables/useComparison';
 import { exportComparisonExcel } from '../utils/export';
@@ -21,6 +22,7 @@ const {
 
 const totalChartRef = ref<InstanceType<typeof TotalScoreChart> | null>(null);
 const radarChartRef = ref<InstanceType<typeof GroupRadarChart> | null>(null);
+const contributionChartRef = ref<InstanceType<typeof GroupContributionChart> | null>(null);
 
 function downloadTotalPng() {
   totalChartRef.value?.downloadPng('Rtings-多产品总分对比');
@@ -28,6 +30,10 @@ function downloadTotalPng() {
 
 function downloadRadarPng() {
   radarChartRef.value?.downloadPng('Rtings-顶层能力雷达对比');
+}
+
+function downloadContributionPng() {
+  contributionChartRef.value?.downloadPng('Rtings-顶层贡献对比');
 }
 
 function downloadExcel() {
@@ -68,6 +74,26 @@ function downloadExcel() {
         :labels="radarLabels"
         :series="radarSeries"
         height="560px"
+      />
+    </article>
+  </section>
+
+  <section class="mb-8">
+    <article :class="cardClass" class="p-6">
+      <div class="mb-4 flex items-start justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-semibold tracking-tight text-gray-900">顶层贡献对比</h2>
+          <p :class="['mt-1 text-sm', mutedTextClass]">
+            展示每个分组按权重折算后的实际贡献，定位总分差异来源
+          </p>
+        </div>
+        <button :class="secondaryButtonClass" @click="downloadContributionPng">导出 PNG</button>
+      </div>
+      <GroupContributionChart
+        ref="contributionChartRef"
+        :groups="topGroups"
+        :products="selectedProducts"
+        height="520px"
       />
     </article>
   </section>

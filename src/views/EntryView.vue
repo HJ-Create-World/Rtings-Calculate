@@ -4,8 +4,9 @@ import OptionChips from '../components/OptionChips.vue';
 import { useEvaluationDraft } from '../composables/useEvaluationDraft';
 import { rtingsRule } from '../data/rtingsRule';
 import type { ScoreNode } from '../core/types';
+import { cloudErrorMessage, saveEvaluationToCloud } from '../services/cloud';
 import { formatScore, statusClass, statusLabel, warningLabel } from '../utils/format';
-import { cardClass, inputClass, mutedTextClass, secondaryButtonClass, sectionTitleClass } from '../utils/ui';
+import { cardClass, inputClass, mutedTextClass, primaryButtonClass, secondaryButtonClass, sectionTitleClass } from '../utils/ui';
 
 const {
   draft,
@@ -70,6 +71,28 @@ const metaFields = [
   { key: 'testDate', label: '测试日期' },
   { key: 'engineer', label: '测试工程师' }
 ] as const;
+
+const cloudSaving = ref(false);
+const cloudMessage = ref<{ type: 'success' | 'error'; text: string } | null>(null);
+
+async function saveToCloud() {
+  cloudSaving.value = true;
+  cloudMessage.value = null;
+  try {
+    await saveEvaluationToCloud(draft.value, result.value.value);
+    cloudMessage.value = {
+      type: 'success',
+      text: '已保存到云端历史评测库'
+    };
+  } catch (error) {
+    cloudMessage.value = {
+      type: 'error',
+      text: cloudErrorMessage(error)
+    };
+  } finally {
+    cloudSaving.value = false;
+  }
+}
 
 function objectiveValue(node: ScoreNode): string {
   return draft.value.values[node.id]?.objectiveRaw ?? '';
@@ -154,6 +177,25 @@ function itemScoreTitle(node: ScoreNode): string {
         </div>
       </div>
       <button :class="secondaryButtonClass" class="mt-4 w-full" @click="resetDraft">清空草稿</button>
+      <button
+        :class="primaryButtonClass"
+        class="mt-3 w-full"
+        :disabled="cloudSaving"
+        @click="saveToCloud"
+      >
+        {{ cloudSaving ? '保存中…' : '保存到云端' }}
+      </button>
+      <p
+        v-if="cloudMessage"
+        :class="[
+          'mt-3 rounded-lg p-3 text-xs',
+          cloudMessage.type === 'success'
+            ? 'bg-green-50 text-green-700'
+            : 'bg-red-50 text-red-600'
+        ]"
+      >
+        {{ cloudMessage.text }}
+      </p>
     </article>
   </section>
 
