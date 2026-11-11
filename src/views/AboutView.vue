@@ -9,11 +9,11 @@ import {
   timeline,
   milestoneRows,
   roadmapCards,
-  team,
   sourceRows,
   accuracyRows
 } from '../data/systemIntro';
-import { cardClass, mutedTextClass, primaryButtonClass, sectionTitleClass } from '../utils/ui';
+import SystemVideo from '../components/SystemVideo.vue';
+import { cardClass, mutedTextClass, sectionTitleClass } from '../utils/ui';
 
 const leafCount = computed(
   () => rtingsRule.nodes.filter(node => node.inputType !== 'aggregate').length
@@ -198,31 +198,8 @@ const engineering = [
     </div>
   </section>
 
-  <section :class="cardClass" class="mb-10 p-6">
-    <div class="grid gap-6 lg:grid-cols-3">
-      <div class="lg:col-span-2">
-        <h3 class="text-xl font-semibold tracking-tight text-gray-900">系统展示视频</h3>
-        <p :class="['mt-2 text-sm', mutedTextClass]">
-          视频位已预留，后续上传系统演示后可替换当前占位区域。
-        </p>
-        <div class="mt-5 flex aspect-video w-full items-center justify-center rounded-xl border border-dashed border-blue-200 bg-blue-50/60 text-center">
-          <div>
-            <p class="text-lg font-semibold text-blue-700">系统演示视频位</p>
-            <p :class="['mt-2 text-sm', mutedTextClass]">建议内容：30~60 秒覆盖录入、追踪、对比与导出</p>
-            <button :class="primaryButtonClass" class="mt-4" disabled>视频待上传</button>
-          </div>
-        </div>
-      </div>
-      <div class="rounded-xl bg-gray-50 p-5">
-        <p class="text-sm font-semibold text-gray-900">开发团队</p>
-        <div class="mt-4 space-y-3 text-sm">
-          <div v-for="member in team" :key="member.role">
-            <p class="text-xs text-gray-500">{{ member.role }}</p>
-            <p class="font-medium text-gray-900">{{ member.name }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
+  <section class="mb-10">
+    <SystemVideo />
   </section>
 
   <section class="mb-4">

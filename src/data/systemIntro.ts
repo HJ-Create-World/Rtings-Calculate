@@ -145,12 +145,6 @@ export const roadmapCards: IntroCard[] = [
   }
 ];
 
-export const team = [
-  { role: '开发团队', name: 'S02-软件开发组' },
-  { role: '组长', name: '邹代好' },
-  { role: '系统开发', name: '林艺霖、傅鸿钧' }
-];
-
 export const sourceRows = [
   { label: 'Rtings 公开数据', value: 'rtings_data.csv：107 款机型 × 344 列（172 个测试项的原始值 + 得分）' },
   { label: '工程师拆解表', value: 'Rtings计算文档.xlsx：8 个工作表，包含权重树、7/8 分门槛、得分范围与实测样本' },
