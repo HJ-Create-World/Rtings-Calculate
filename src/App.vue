@@ -6,17 +6,15 @@ import AppLogo from './components/AppLogo.vue';
 const route = useRoute();
 
 const navItems = [
-  { to: '/', label: '首页对比', title: '多机型横向对比', description: '用真实数据快速比较总分、顶层能力与测试项差异' },
-  { to: '/overview', label: '产品介绍', title: '产品与规则介绍', description: '了解软件定位、评分逻辑专业性与数据来源' },
-  { to: '/history', label: '历史追溯', title: '历史机型追溯', description: '选择已入库机型，查看评分轮廓与关键维度' },
-  { to: '/drilldown', label: '测试项对比', title: '测试项对比', description: '选择分组、测试项和产品，进行节点级差异分析' },
-  { to: '/entry', label: '评分录入', title: '评分录入', description: '填写产品档案、客观测试值和主观评分' },
-  { to: '/import', label: 'Excel 导入', title: 'Excel 导入', description: '下载模板、导入测试值并检查校验结果' },
-  { to: '/cloud', label: '云端历史', title: '云端历史', description: '查看云端评测输入，载入修改并导出完整报告' }
+  { to: '/', label: 'Rtings评分' },
+  { to: '/history', label: '详细参数' },
+  { to: '/drilldown', label: '维度对比' },
+  { to: '/entry', label: '评分录入' },
+  { to: '/cloud', label: '云端数据' },
+  { to: '/overview', label: '系统介绍' }
 ];
 
 const currentPath = computed(() => route.path);
-const pageMeta = computed(() => navItems.find(item => item.to === currentPath.value) ?? navItems[0]);
 
 function linkClass(path: string) {
   const active = currentPath.value === path;
@@ -41,18 +39,9 @@ function linkClass(path: string) {
               TV Scoring Workbench
             </p>
             <p class="mt-1 text-3xl font-semibold tracking-tight text-gray-900 md:text-4xl">
-              Rtings Calculate
+              BOE Rtings 评测系统
             </p>
           </div>
-        </div>
-
-        <div class="mt-5">
-          <h2 class="text-xl font-semibold tracking-tight text-gray-900 md:text-2xl">
-            {{ pageMeta.title }}
-          </h2>
-          <p class="mt-1 max-w-3xl text-sm text-gray-500 md:text-base">
-            {{ pageMeta.description }}
-          </p>
         </div>
 
         <nav class="mt-6 inline-flex max-w-full gap-1 overflow-x-auto rounded-xl bg-gray-100 p-1" aria-label="功能页面">

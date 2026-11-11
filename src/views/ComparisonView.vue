@@ -30,11 +30,11 @@ function downloadTotalPng() {
 }
 
 function downloadRadarPng() {
-  radarChartRef.value?.downloadPng('Rtings-顶层能力雷达对比');
+  radarChartRef.value?.downloadPng('Rtings-各维度评分对比');
 }
 
 function downloadContributionPng() {
-  contributionChartRef.value?.downloadPng('Rtings-顶层贡献对比');
+  contributionChartRef.value?.downloadPng('Rtings-各维度对比评分');
 }
 
 function downloadExcel() {
@@ -58,7 +58,7 @@ function downloadExcel() {
       <TotalScoreChart ref="totalChartRef" :entries="totalEntries" height="520px" />
     </ChartCard>
 
-    <ChartCard title="顶层能力分布" description="按顶层分组对比能力轮廓">
+    <ChartCard title="各维度评分" description="按主维度对比评分轮廓">
       <template #actions>
         <button :class="secondaryButtonClass" @click="downloadRadarPng">导出 PNG</button>
       </template>
@@ -73,8 +73,8 @@ function downloadExcel() {
 
   <section class="mb-8">
     <ChartCard
-      title="顶层贡献对比"
-      description="展示每个分组按权重折算后的实际贡献，定位总分差异来源"
+      title="各维度对比评分"
+      description="展示每个主维度按权重折算后的实际贡献，定位总分差异来源"
     >
       <template #actions>
         <button :class="secondaryButtonClass" @click="downloadContributionPng">导出 PNG</button>
@@ -91,8 +91,8 @@ function downloadExcel() {
   <section class="mb-8">
     <div class="mb-4 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
       <div>
-        <h2 :class="['text-2xl md:text-3xl', sectionTitleClass]">对比明细</h2>
-        <p :class="['mt-2 text-sm', mutedTextClass]">数据来源为工作簿已确认基准分</p>
+      <h2 :class="['text-2xl md:text-3xl', sectionTitleClass]">对比明细</h2>
+        <p :class="['mt-2 text-sm', mutedTextClass]">包含 Rtings 基准、云端与本机评测数据</p>
       </div>
       <button :class="primaryButtonClass" @click="downloadExcel">导出 Excel</button>
     </div>

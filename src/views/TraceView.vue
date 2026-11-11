@@ -24,7 +24,7 @@ const selectedPath = computed(() => pathFor(selectedNodeId.value));
 <template>
   <section class="mb-8">
     <div class="mb-4">
-      <h2 :class="['text-2xl md:text-3xl', sectionTitleClass]">顶层分组</h2>
+      <h2 :class="['text-2xl md:text-3xl', sectionTitleClass]">主维度</h2>
       <p :class="['mt-2 text-sm', mutedTextClass]">点击子项查看计算过程</p>
     </div>
     <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">

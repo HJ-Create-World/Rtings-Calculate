@@ -1219,12 +1219,12 @@
       "id": "mixed-usage.game-mode.cad-60",
       "parentId": "mixed-usage.game-mode",
       "label": "CAD @60Hz",
-      "kind": "leaf",
-      "inputType": "subjective",
+      "kind": "dimension",
+      "inputType": "aggregate",
       "weight": 0.2,
       "includeInParent": true,
       "evidence": "C",
-      "note": "CSV 缺失；工程师结构暂用主观分，积累数据后校准"
+      "note": "CSV 缺失 CAD@60Hz；三项子项由工程师按同构 CAD 规则直接评分，积累数据后校准"
     },
     {
       "id": "mixed-usage.game-mode.cad-120",
@@ -1545,6 +1545,42 @@
       "includeInParent": true,
       "mappingId": "categorical.8k30",
       "evidence": "C"
+    },
+    {
+      "id": "mixed-usage.game-mode.cad-60.avg",
+      "parentId": "mixed-usage.game-mode.cad-60",
+      "label": "Avg. CAD",
+      "kind": "leaf",
+      "inputType": "subjective",
+      "weight": 0.6,
+      "includeInParent": true,
+      "unit": "工程师评分",
+      "evidence": "C",
+      "note": "CSV 无 CAD@60Hz 原始值；工程师直接评分"
+    },
+    {
+      "id": "mixed-usage.game-mode.cad-60.best",
+      "parentId": "mixed-usage.game-mode.cad-60",
+      "label": "Best 10% CAD",
+      "kind": "leaf",
+      "inputType": "subjective",
+      "weight": 0.2,
+      "includeInParent": true,
+      "unit": "工程师评分",
+      "evidence": "C",
+      "note": "CSV 无 CAD@60Hz 原始值；工程师直接评分"
+    },
+    {
+      "id": "mixed-usage.game-mode.cad-60.worst",
+      "parentId": "mixed-usage.game-mode.cad-60",
+      "label": "Worst 10% CAD",
+      "kind": "leaf",
+      "inputType": "subjective",
+      "weight": 0.2,
+      "includeInParent": true,
+      "unit": "工程师评分",
+      "evidence": "C",
+      "note": "CSV 无 CAD@60Hz 原始值；工程师直接评分"
     }
   ],
   "mappings": [

@@ -40,7 +40,7 @@ function importDraft() {
       <div>
           <h2 class="text-xl font-semibold tracking-tight text-gray-900">第 1 步：下载导入模板</h2>
           <p :class="['mt-2 text-sm', mutedTextClass]">
-            模板包含产品信息、分组测试输入和导入说明；每个顶层分组独立一个工作表
+            模板包含产品信息、主维度测试输入和导入说明；每个主维度独立一个工作表
           </p>
       </div>
       <button :class="primaryButtonClass" @click="downloadImportTemplate">下载模板</button>

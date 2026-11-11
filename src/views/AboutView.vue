@@ -42,7 +42,7 @@ const stats = computed(() => [
           让 TV 评分计算从表格走向可审计的工程系统
         </h2>
         <p :class="['mt-4 text-sm md:text-base', mutedTextClass]">
-          Rtings Calculate 把人工 Excel 拆解、Rtings 官方实测数据和工程师经验锚点融合成一套可执行、可解释、可迭代的评分系统。
+          BOE Rtings 评测系统把人工 Excel 拆解、Rtings 官方实测数据和工程师经验锚点融合成一套可执行、可解释、可迭代的评分系统。
           它既服务实验室的日常评分录入，也支持产品团队做横向对比和内部报告。
         </p>
         <div class="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">

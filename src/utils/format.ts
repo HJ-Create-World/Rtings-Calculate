@@ -59,6 +59,8 @@ export function warningLabel(code: string): string {
       return '规则异常';
     case 'INCOMPLETE_CHILD':
       return '子项不完整';
+    case 'EXTRAPOLATED_SCORE':
+      return '范围外预估';
     default:
       return code;
   }

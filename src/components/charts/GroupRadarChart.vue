@@ -55,6 +55,6 @@ defineExpose({ downloadPng });
     ref="baseChartRef"
     :configuration="configuration"
     :height="height"
-    label="顶层分组能力雷达图"
+    label="主维度评分雷达图"
   />
 </template>

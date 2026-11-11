@@ -81,14 +81,17 @@ export interface NodeInput {
 
 export type EvaluationInputs = Record<NodeId, NodeInput>;
 
+export type RuleWarningCode =
+  | 'WEIGHT_SUM_NOT_ONE'
+  | 'NO_MATCHING_INTERVAL'
+  | 'OVERLAP_INTERVALS'
+  | 'INVALID_SUBJECTIVE_SCORE'
+  | 'INVALID_RULE'
+  | 'INCOMPLETE_CHILD'
+  | 'EXTRAPOLATED_SCORE';
+
 export interface RuleWarning {
-  code:
-    | 'WEIGHT_SUM_NOT_ONE'
-    | 'NO_MATCHING_INTERVAL'
-    | 'OVERLAP_INTERVALS'
-    | 'INVALID_SUBJECTIVE_SCORE'
-    | 'INVALID_RULE'
-    | 'INCOMPLETE_CHILD';
+  code: RuleWarningCode;
   message: string;
   nodeId?: NodeId;
 }
@@ -106,6 +109,8 @@ export interface MappingTrace {
   matchedInterval?: MappingInterval;
   scoreTenths: ScoreTenths | null;
   status: Extract<ScoreStatus, 'scored' | 'incomplete'>;
+  /** true 表示输入超出实测锚点范围，分数由外推规则估算。 */
+  estimated?: boolean;
   warnings: RuleWarning[];
 }
 

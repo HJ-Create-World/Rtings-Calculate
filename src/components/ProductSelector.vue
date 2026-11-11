@@ -90,15 +90,14 @@ function clearFilters() {
 
 <template>
   <section :class="cardClass" class="p-6">
-    <div class="mb-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-      <div>
-        <h2 class="text-lg font-semibold tracking-tight text-gray-900">选择产品</h2>
+    <div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <div class="shrink-0">
+        <h2 class="text-lg font-semibold tracking-tight text-gray-900">产品搜索</h2>
         <p :class="['mt-1 text-sm', mutedTextClass]">
           已选 {{ selectedIds.length }} 台 · 筛选结果 {{ filteredProducts.length }} 台
         </p>
       </div>
-      <div class="grid gap-3 md:grid-cols-3">
-        <input v-model="keyword" type="search" placeholder="搜索品牌 / 型号" :class="inputClass" />
+      <div class="grid gap-3 md:grid-cols-3 lg:w-auto lg:min-w-[680px]">
         <select v-model="brand" :class="inputClass" aria-label="按品牌筛选">
           <option value="">全部品牌</option>
           <option v-for="item in brands" :key="item" :value="item">{{ item }}</option>
@@ -107,6 +106,7 @@ function clearFilters() {
           <option value="">全部年份</option>
           <option v-for="item in years" :key="item" :value="String(item)">{{ item }}</option>
         </select>
+        <input v-model="keyword" type="search" placeholder="搜索品牌 / 型号" :class="inputClass" />
       </div>
     </div>
 

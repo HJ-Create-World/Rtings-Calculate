@@ -105,17 +105,47 @@ function mapByAnchors(mapping: ObjectiveMapping, value: number): MappingTrace {
   const upper = anchors.find(anchor => anchor.value > value);
 
   if (!lower || !upper) {
+    // 单锚点废弃项（如 Black Luminance @ 0 lx）：不外推新数值，但按锚点分预估。
+    const only = anchors[0];
     return {
       mappingId: mapping.id,
       value,
-      scoreTenths: null,
-      status: 'incomplete',
+      scoreTenths: only.score * 10,
+      status: 'scored',
+      estimated: true,
       warnings: [
         {
-          code: 'NO_MATCHING_INTERVAL',
-          message: `值 ${value} 超出 ${mapping.label} 的实测锚点范围 [${anchors[0].value}, ${
+          code: 'EXTRAPOLATED_SCORE',
+          message: `值 ${value} 超出 ${mapping.label} 实测锚点 [${only.value}，${only.value}]，按锚点分 ${only.score} 预估`,
+          nodeId: mapping.id
+        }
+      ]
+    };
+  }
+
+  if (value < anchors[0].value || value > anchors[anchors.length - 1].value) {
+    // 线性外推：用最近两个锚点的斜率估算，并限制在 0~10。
+    const reference =
+      value < anchors[0].value
+        ? [anchors[0], anchors[1]]
+        : [anchors[anchors.length - 2], anchors[anchors.length - 1]];
+    const [pointA, pointB] = reference;
+    const slope = (pointB.score - pointA.score) / (pointB.value - pointA.value);
+    const estimated = pointA.score + slope * (value - pointA.value);
+    const clamped = Math.min(10, Math.max(0, estimated));
+
+    return {
+      mappingId: mapping.id,
+      value,
+      scoreTenths: clamped * 10,
+      status: 'scored',
+      estimated: true,
+      warnings: [
+        {
+          code: 'EXTRAPOLATED_SCORE',
+          message: `值 ${value} 超出 ${mapping.label} 实测范围 [${anchors[0].value}，${
             anchors[anchors.length - 1].value
-          }]，不外推`,
+          }]，按 ${clamped.toFixed(1)} 分预估（非实测区间内评分）`,
           nodeId: mapping.id
         }
       ]

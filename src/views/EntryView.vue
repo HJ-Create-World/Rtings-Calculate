@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import OptionChips from '../components/OptionChips.vue';
+import ImportView from './ImportView.vue';
 import { useEvaluationDraft } from '../composables/useEvaluationDraft';
 import { rtingsRule } from '../data/rtingsRule';
 import type { ScoreNode } from '../core/types';
@@ -28,6 +29,11 @@ const groups = rtingsRule.nodes.filter(node => node.parentId === rtingsRule.root
 const groupOptions = groups.map(group => ({ value: group.id, label: group.label }));
 const selectedGroupId = ref(groups[0]?.id ?? '');
 const keyword = ref('');
+const inputMode = ref<'manual' | 'import'>('manual');
+const inputModeOptions = [
+  { value: 'manual', label: '手工录入' },
+  { value: 'import', label: 'Excel 导入' }
+];
 
 const inputNodeCount = rtingsRule.nodes.filter(node => node.inputType !== 'aggregate').length;
 const hasAnyInput = computed(() => filledCount.value > 0);
@@ -188,8 +194,15 @@ function itemScoreLabel(node: ScoreNode): string {
   return '待确认';
 }
 
+function isEstimated(node: ScoreNode): boolean {
+  return Boolean(result.value.nodes[node.id]?.mappingTrace?.estimated);
+}
+
 function itemScoreTitle(node: ScoreNode): string {
   const evaluation = result.value.nodes[node.id];
+  if (node.inputType === 'subjective' && evaluation?.status === 'scored') {
+    return '主观项：工程师直接评分，不走映射或反推规则';
+  }
   if (evaluation?.status === 'scored') {
     return evaluation.mappingTrace?.matchedInterval?.rawText ?? '';
   }
@@ -198,6 +211,13 @@ function itemScoreTitle(node: ScoreNode): string {
 </script>
 
 <template>
+  <div class="mb-6">
+    <OptionChips v-model="inputMode" :options="inputModeOptions" />
+  </div>
+
+  <ImportView v-if="inputMode === 'import'" />
+
+  <template v-else>
   <section class="mb-8 grid gap-6 lg:grid-cols-4">
     <article :class="cardClass" class="p-6 lg:col-span-3">
       <h2 :class="['text-xl md:text-2xl', sectionTitleClass]">产品档案</h2>
@@ -437,14 +457,21 @@ function itemScoreTitle(node: ScoreNode): string {
               />
             </td>
             <td class="px-4 py-3 text-gray-700">
-              {{ node.inputType === 'objective' ? '客观' : '主观' }} · {{ unitOf(node) }}
+              {{ node.inputType === 'objective' ? '客观' : '主观' }} ·
+              {{ node.inputType === 'subjective' ? '工程师评分' : unitOf(node) }}
             </td>
             <td class="px-4 py-3">
               <span
-                :class="['inline-flex rounded-full px-2 py-1 text-xs', itemStatusClass(node)]"
+                :class="['inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs', itemStatusClass(node)]"
                 :title="itemScoreTitle(node)"
               >
                 {{ itemScoreLabel(node) }}
+                <span
+                  v-if="isEstimated(node)"
+                  class="rounded-full bg-amber-100 px-1.5 text-[10px] font-medium text-amber-700"
+                >
+                  预估
+                </span>
               </span>
             </td>
             <td class="px-4 py-3">
@@ -461,4 +488,5 @@ function itemScoreTitle(node: ScoreNode): string {
       </table>
     </div>
   </section>
+  </template>
 </template>

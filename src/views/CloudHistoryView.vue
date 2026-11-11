@@ -128,7 +128,7 @@ async function exportExcel() {
 
 <template>
   <section class="mb-8">
-    <h1 :class="['text-3xl md:text-4xl', sectionTitleClass]">云端历史</h1>
+    <h1 :class="['text-3xl md:text-4xl', sectionTitleClass]">云端数据</h1>
     <p :class="['mt-2 text-sm md:text-base', mutedTextClass]">
       查看云端评测输入，载入修改，并导出完整 Excel 报告
     </p>
@@ -224,7 +224,7 @@ async function exportExcel() {
   </section>
 
   <section v-if="selectedRecord && selectedDraft && selectedResult" class="mb-6">
-    <ChartCard title="能力轮廓" description="云端评测的顶层分组得分">
+    <ChartCard title="能力轮廓" description="云端评测的主维度得分">
       <GroupRadarChart
         :labels="topGroups.map(group => group.label)"
         :series="radarSeries"

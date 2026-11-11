@@ -113,7 +113,7 @@ export async function exportEvaluationExcel(draft: EvaluationDraft): Promise<voi
 
   const detailSheet = workbook.addWorksheet('测试项明细');
   detailSheet.columns = [
-    { header: '顶层分组', key: 'group', width: 28 },
+    { header: '主维度', key: 'group', width: 28 },
     { header: '子类维度', key: 'dimension', width: 30 },
     { header: '测试项', key: 'label', width: 42 },
     { header: '输入类型', key: 'inputType', width: 12 },
@@ -189,7 +189,7 @@ export async function exportEvaluationExcel(draft: EvaluationDraft): Promise<voi
     ext: { width: 880, height: 440 }
   });
 
-  chartSheet.getCell('B30').value = '顶层能力雷达';
+  chartSheet.getCell('B30').value = '主维度评分雷达';
   chartSheet.getCell('B30').font = { bold: true, size: 14 };
   const radarImage = workbook.addImage({
     base64: createGroupRadarChartImage(

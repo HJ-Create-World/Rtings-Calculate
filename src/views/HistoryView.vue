@@ -122,7 +122,7 @@ const leafRanking = computed(() => {
   <section class="mb-8 grid gap-6 lg:grid-cols-5">
     <article :class="cardClass" class="p-6 lg:col-span-2">
       <div class="flex items-center justify-between gap-4">
-        <h2 :class="['text-xl md:text-2xl', sectionTitleClass]">历史机型库</h2>
+        <h2 :class="['text-xl md:text-2xl', sectionTitleClass]">详细参数</h2>
         <span :class="['text-xs', mutedTextClass]">
           含云端 / 本机 · {{ filteredBaselines.length }} 台
         </span>
@@ -194,7 +194,7 @@ const leafRanking = computed(() => {
         </div>
       </div>
 
-      <ChartCard class="mt-6 !border-0 !p-0 !shadow-none" title="能力轮廓" description="按顶层分组查看评分分布">
+      <ChartCard class="mt-6 !border-0 !p-0 !shadow-none" title="能力轮廓" description="按主维度查看评分分布">
         <GroupRadarChart
           :labels="topGroups.map(group => group.label)"
           :series="radarSeries"
@@ -206,7 +206,7 @@ const leafRanking = computed(() => {
         <table class="min-w-full divide-y divide-gray-200 text-sm">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-4 py-3 text-left font-semibold text-gray-900">顶层分组</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-900">主维度</th>
               <th class="px-4 py-3 text-right font-semibold text-gray-900">得分</th>
             </tr>
           </thead>

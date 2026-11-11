@@ -66,6 +66,6 @@ defineExpose({ downloadPng });
     ref="baseChartRef"
     :configuration="configuration"
     :height="height"
-    label="顶层分组贡献对比图"
+    label="主维度贡献对比图"
   />
 </template>
