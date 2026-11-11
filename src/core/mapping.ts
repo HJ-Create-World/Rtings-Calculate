@@ -101,10 +101,7 @@ function mapByAnchors(mapping: ObjectiveMapping, value: number): MappingTrace {
     };
   }
 
-  const lower = [...anchors].reverse().find(anchor => anchor.value < value);
-  const upper = anchors.find(anchor => anchor.value > value);
-
-  if (!lower || !upper) {
+  if (anchors.length === 1) {
     // 单锚点废弃项（如 Black Luminance @ 0 lx）：不外推新数值，但按锚点分预估。
     const only = anchors[0];
     return {
@@ -152,8 +149,22 @@ function mapByAnchors(mapping: ObjectiveMapping, value: number): MappingTrace {
     };
   }
 
-  const ratio = (value - lower.value) / (upper.value - lower.value);
-  const score = lower.score + ratio * (upper.score - lower.score);
+  const lowerAnchor = [...anchors].reverse().find(anchor => anchor.value < value);
+  const upperAnchor = anchors.find(anchor => anchor.value > value);
+  if (!lowerAnchor || !upperAnchor) {
+    return {
+      mappingId: mapping.id,
+      value,
+      scoreTenths: null,
+      status: 'incomplete',
+      warnings: [
+        { code: 'INVALID_RULE', message: `${mapping.label} 锚点区间异常`, nodeId: mapping.id }
+      ]
+    };
+  }
+
+  const ratio = (value - lowerAnchor.value) / (upperAnchor.value - lowerAnchor.value);
+  const score = lowerAnchor.score + ratio * (upperAnchor.score - lowerAnchor.score);
   return {
     mappingId: mapping.id,
     value,

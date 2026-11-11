@@ -116,8 +116,14 @@ export function useEvaluationDraft() {
 
   const inputs = computed<EvaluationInputs>(() => buildDraftInputs(draft.value));
   const result = computed(() => evaluateRule(rtingsRule, inputs.value));
+  const leafNodeIds = new Set(
+    rtingsRule.nodes
+      .filter(node => node.inputType !== 'aggregate')
+      .map(node => node.id)
+  );
   const filledCount = computed(() =>
-    Object.values(draft.value.values).filter(value => {
+    Object.entries(draft.value.values).filter(([nodeId, value]) => {
+      if (!leafNodeIds.has(nodeId)) return false;
       return Boolean(value.objectiveRaw?.trim()) || value.subjectiveScore !== null && value.subjectiveScore !== undefined;
     }).length
   );

@@ -62,6 +62,7 @@ function downloadExcel() {
 
   <section :class="cardClass" class="mb-6 p-6">
     <h2 class="text-xl font-semibold tracking-tight text-gray-900">主维度选择</h2>
+    <p :class="['mt-1 text-sm', mutedTextClass]">选择要对比的主维度</p>
     <OptionChips v-model="selectedGroupId" :options="groupOptions" />
   </section>
 
@@ -70,7 +71,7 @@ function downloadExcel() {
       <div>
         <h2 class="text-xl font-semibold tracking-tight text-gray-900">子维度选择</h2>
         <p :class="['mt-1 text-sm', mutedTextClass]">
-          已选 {{ selectedTestItemIds.length }} 项 · 可筛选后勾选
+          在当前主维度下选择要对比的子维度 · 已选 {{ selectedTestItemIds.length }} 项
         </p>
       </div>
       <input

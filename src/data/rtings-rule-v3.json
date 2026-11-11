@@ -1551,36 +1551,39 @@
       "parentId": "mixed-usage.game-mode.cad-60",
       "label": "Avg. CAD",
       "kind": "leaf",
-      "inputType": "subjective",
+      "inputType": "objective",
       "weight": 0.6,
       "includeInParent": true,
-      "unit": "工程师评分",
+      "unit": "counts/s",
       "evidence": "C",
-      "note": "CSV 无 CAD@60Hz 原始值；工程师直接评分"
+      "note": "工程师 7/8 分门槛 + 65U7N 60Hz 实测样本；CSV 无该列",
+      "mappingId": "anchor.engineer.cad60.avg"
     },
     {
       "id": "mixed-usage.game-mode.cad-60.best",
       "parentId": "mixed-usage.game-mode.cad-60",
       "label": "Best 10% CAD",
       "kind": "leaf",
-      "inputType": "subjective",
+      "inputType": "objective",
       "weight": 0.2,
       "includeInParent": true,
-      "unit": "工程师评分",
+      "unit": "counts/s",
       "evidence": "C",
-      "note": "CSV 无 CAD@60Hz 原始值；工程师直接评分"
+      "note": "工程师 7/8 分门槛 + 65U7N 60Hz 实测样本；CSV 无该列",
+      "mappingId": "anchor.engineer.cad60.best"
     },
     {
       "id": "mixed-usage.game-mode.cad-60.worst",
       "parentId": "mixed-usage.game-mode.cad-60",
       "label": "Worst 10% CAD",
       "kind": "leaf",
-      "inputType": "subjective",
+      "inputType": "objective",
       "weight": 0.2,
       "includeInParent": true,
-      "unit": "工程师评分",
+      "unit": "counts/s",
       "evidence": "C",
-      "note": "CSV 无 CAD@60Hz 原始值；工程师直接评分"
+      "note": "工程师 7/8 分门槛 + 65U7N 60Hz 实测样本；CSV 无该列",
+      "mappingId": "anchor.engineer.cad60.worst"
     }
   ],
   "mappings": [
@@ -11645,6 +11648,122 @@
       ],
       "source": "engineerEstimate",
       "evidence": "C"
+    },
+    {
+      "id": "anchor.engineer.cad60.avg",
+      "label": "Avg. CAD @60Hz",
+      "unit": "counts/s",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          0,
+          10
+        ],
+        [
+          131,
+          8
+        ],
+        [
+          196,
+          7
+        ],
+        [
+          329,
+          5.3
+        ],
+        [
+          352,
+          5.0
+        ],
+        [
+          381,
+          4.7
+        ],
+        [
+          1000,
+          0
+        ]
+      ],
+      "source": "engineerEstimate",
+      "evidence": "C",
+      "note": "CAD@60Hz 无 CSV 列；锚点来自工程师 7/8 分门槛与 65U7N 60Hz 实测样本"
+    },
+    {
+      "id": "anchor.engineer.cad60.best",
+      "label": "Best 10% CAD @60Hz",
+      "unit": "counts/s",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          0,
+          10
+        ],
+        [
+          70,
+          8
+        ],
+        [
+          112,
+          7
+        ],
+        [
+          119,
+          6.5
+        ],
+        [
+          142,
+          6.3
+        ],
+        [
+          1000,
+          0
+        ]
+      ],
+      "source": "engineerEstimate",
+      "evidence": "C",
+      "note": "CAD@60Hz 无 CSV 列；锚点来自工程师 7/8 分门槛与 65U7N 60Hz 实测样本"
+    },
+    {
+      "id": "anchor.engineer.cad60.worst",
+      "label": "Worst 10% CAD @60Hz",
+      "unit": "counts/s",
+      "direction": "lowerBetter",
+      "kind": "anchors",
+      "anchors": [
+        [
+          0,
+          10
+        ],
+        [
+          260,
+          8
+        ],
+        [
+          360,
+          7
+        ],
+        [
+          498,
+          5.5
+        ],
+        [
+          581,
+          4.7
+        ],
+        [
+          718,
+          1.4
+        ],
+        [
+          1500,
+          0
+        ]
+      ],
+      "source": "engineerEstimate",
+      "evidence": "C",
+      "note": "CAD@60Hz 无 CSV 列；锚点来自工程师 7/8 分门槛与 65U7N 60Hz 实测样本"
     }
   ]
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import type { ChartConfiguration } from 'chart.js';
+import type { ChartConfiguration, Plugin } from 'chart.js';
 import BaseChart from './BaseChart.vue';
 import { corporatePalette } from '../../utils/chartTheme';
 
@@ -9,8 +9,31 @@ const props = defineProps<{
   height?: string;
 }>();
 
+const scoreLabelPlugin: Plugin<'bar'> = {
+  id: 'scoreLabel',
+  afterDatasetsDraw(chart) {
+    const meta = chart.getDatasetMeta(0);
+    const values = chart.data.datasets[0]?.data ?? [];
+
+    meta.data.forEach((bar, index) => {
+      const value = values[index];
+      if (typeof value !== 'number' || !Number.isFinite(value)) return;
+      const { ctx } = chart;
+      const nearRightEdge = bar.x > chart.chartArea.right - 42;
+      ctx.save();
+      ctx.font = '600 12px "Microsoft YaHei", "PingFang SC", system-ui, sans-serif';
+      ctx.textAlign = nearRightEdge ? 'right' : 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = nearRightEdge ? '#ffffff' : '#1f2937';
+      ctx.fillText(value.toFixed(1), nearRightEdge ? bar.x - 8 : bar.x + 8, bar.y);
+      ctx.restore();
+    });
+  }
+};
+
 const configuration = computed<ChartConfiguration<'bar'>>(() => ({
   type: 'bar',
+  plugins: [scoreLabelPlugin],
   data: {
     labels: props.entries.map(entry => entry.label),
     datasets: [
@@ -28,6 +51,7 @@ const configuration = computed<ChartConfiguration<'bar'>>(() => ({
     indexAxis: 'y',
     responsive: true,
     maintainAspectRatio: false,
+    layout: { padding: { right: 42 } },
     plugins: {
       legend: { display: false },
       tooltip: {

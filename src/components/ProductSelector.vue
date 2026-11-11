@@ -92,7 +92,7 @@ function clearFilters() {
   <section :class="cardClass" class="p-6">
     <div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
       <div class="shrink-0">
-        <h2 class="text-lg font-semibold tracking-tight text-gray-900">产品搜索</h2>
+        <h2 class="text-xl font-semibold tracking-tight text-gray-900">产品搜索</h2>
         <p :class="['mt-1 text-sm', mutedTextClass]">
           已选 {{ selectedIds.length }} 台 · 筛选结果 {{ filteredProducts.length }} 台
         </p>
