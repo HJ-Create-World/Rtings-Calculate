@@ -74,7 +74,7 @@ function resetColumns() {
 
 <template>
   <article class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-    <div class="mb-5 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+    <div class="mb-5 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
       <div class="min-w-0">
         <h3 class="text-xl font-semibold tracking-tight text-gray-900">具体测试项评分</h3>
         <p :class="['mt-1 text-sm', mutedTextClass]">
@@ -82,9 +82,8 @@ function resetColumns() {
         </p>
       </div>
 
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-        <label class="grid gap-1 sm:w-64">
-          <span class="text-xs font-medium text-gray-500">主维度</span>
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-end">
+        <div class="sm:w-64">
           <select
             :value="selectedGroupId"
             class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 transition-all duration-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
@@ -99,7 +98,7 @@ function resetColumns() {
               {{ group.label }}
             </option>
           </select>
-        </label>
+        </div>
 
         <details class="relative sm:w-44" :open="columnPanelOpen" @toggle="columnPanelOpen = ($event.target as HTMLDetailsElement).open">
           <summary
