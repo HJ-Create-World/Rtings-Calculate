@@ -1,5 +1,6 @@
 import { createWorkBuddyCloud } from '@tencent-ai/workbuddy-cloud-sdk';
 import type { EvaluationDraft, EvaluationDraftValue } from '../types/evaluation';
+import { migrateDraft } from '../utils/draftMigration';
 
 export const publicConfig = {
   endpoint: 'https://rtings-score-workbench.app.workbuddy.host',
@@ -117,7 +118,7 @@ export async function getCloudEvaluation(clientId: string): Promise<CloudEvaluat
 }
 
 export function cloudEvaluationToDraft(record: CloudEvaluation): EvaluationDraft {
-  return {
+  return migrateDraft({
     id: record.client_id,
     brand: record.brand ?? '',
     model: record.model ?? '',
@@ -127,7 +128,7 @@ export function cloudEvaluationToDraft(record: CloudEvaluation): EvaluationDraft
     ruleVersion: record.rule_version,
     values: record.inputs ?? {},
     updatedAt: record.updated_at
-  };
+  });
 }
 
 export function cloudErrorMessage(error: unknown): string {

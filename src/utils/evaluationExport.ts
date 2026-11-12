@@ -28,7 +28,9 @@ function topGroupLabel(nodeId: string): string {
 }
 
 function leafNodes() {
-  return collectLeafItemsByDocumentOrder(rtingsRule.rootId).map(item => item.node);
+  return collectLeafItemsByDocumentOrder(rtingsRule.rootId)
+    .map(item => item.node)
+    .filter(node => node.includeInParent);
 }
 
 function rawInputText(draft: EvaluationDraft, nodeId: string): string | number | null {

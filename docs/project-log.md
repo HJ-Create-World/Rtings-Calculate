@@ -49,6 +49,7 @@
 - 详细参数页布局再优化：机型选择与能力轮廓雷达图等高展示；主维度评分与具体测试项表格改为全宽；明细表顶部改为主维度下拉和展示列折叠面板。
 - 明细表顶部控件微调：删除“主维度”小字，主维度下拉与展示列按钮顶部对齐。
 - 统一下拉组件：新增 UiSelect 替换全部原生 select，主维度、品牌/年份筛选与类别输入的触发器和选项面板统一为企业简洁风。
+- 结构展示修正：Lighting Zone Precision / Upscaling / Lighting Zone Transitions 拆分为“子维度 + 100% 具体测试项”；ABL 与 SDR/HDR Post-Calibration 从录入和展示中隐藏；旧草稿节点 ID 自动迁移。
 - 产品选择器重构：支持搜索、品牌/年份筛选、已选产品回收、长列表折叠。
 - 历史机型页支持筛选和具体测试项评分下钻。
 - 修正 Yellow Skyscraper、Supported Resolutions、Ambient 0lx、单位标注和类别输入。

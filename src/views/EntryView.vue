@@ -37,7 +37,9 @@ const inputModeOptions = [
   { value: 'import', label: 'Excel 导入' }
 ];
 
-const inputNodeCount = rtingsRule.nodes.filter(node => node.inputType !== 'aggregate').length;
+const inputNodeCount = rtingsRule.nodes.filter(
+  node => node.inputType !== 'aggregate' && node.includeInParent
+).length;
 const hasAnyInput = computed(() => filledCount.value > 0);
 const warningGroups = computed(() => {
   const groupsByCode = new Map<string, { code: string; count: number; messages: string[] }>();
@@ -82,7 +84,9 @@ function categorySelectOptions(node: ScoreNode) {
 }
 
 const allItems = computed(() =>
-  collectLeafItemsByDocumentOrder(selectedGroupId.value).map(item => item.node)
+  collectLeafItemsByDocumentOrder(selectedGroupId.value)
+    .map(item => item.node)
+    .filter(node => node.includeInParent)
 );
 const visibleItems = computed(() => {
   const text = keyword.value.trim().toLowerCase();

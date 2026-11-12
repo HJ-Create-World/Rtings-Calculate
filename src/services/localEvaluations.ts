@@ -1,4 +1,5 @@
 import type { EvaluationDraft } from '../types/evaluation';
+import { migrateDraft } from '../utils/draftMigration';
 
 const STORAGE_KEY = 'rtings-calculate:local-evaluations:v3';
 
@@ -14,7 +15,9 @@ function safeRead(): LocalEvaluation[] {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as LocalEvaluation[];
-    return Array.isArray(parsed) ? parsed : [];
+    return Array.isArray(parsed)
+      ? parsed.map(item => ({ ...item, draft: migrateDraft(item.draft) }))
+      : [];
   } catch {
     return [];
   }

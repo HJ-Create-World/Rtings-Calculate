@@ -31,16 +31,13 @@ function linkClass(path: string) {
 <template>
   <div class="min-h-screen bg-slate-50">
     <header class="border-b border-gray-200 bg-white">
-      <div class="mx-auto max-w-7xl px-4 py-8 md:px-6 lg:px-8">
+      <div class="mx-auto max-w-7xl px-4 py-6 md:px-6 lg:px-8">
         <div class="flex items-center gap-4">
-          <AppLogo class="h-14 w-14 shrink-0" />
+          <AppLogo class="h-12 w-12 shrink-0" />
           <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-blue-600">
-              TV Scoring Workbench
-            </p>
-            <p class="mt-1 text-3xl font-semibold tracking-tight text-gray-900 md:text-4xl">
+            <h1 class="text-2xl font-semibold tracking-tight text-gray-900 md:text-3xl">
               BOE Rtings 评测系统
-            </p>
+            </h1>
           </div>
         </div>
 

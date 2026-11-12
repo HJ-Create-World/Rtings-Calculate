@@ -40,7 +40,9 @@ function inputRow(node: ScoreNode) {
 function groupedInputSheets() {
   const groups = getMainDimensionNodes();
   return groups.map((group, index) => {
-    const rows = collectLeafItemsByDocumentOrder(group.id).map(item => inputRow(item.node));
+    const rows = collectLeafItemsByDocumentOrder(group.id)
+      .filter(item => item.node.includeInParent)
+      .map(item => inputRow(item.node));
     const sheet = XLSX.utils.json_to_sheet(rows);
     sheet['!cols'] = [
       { wch: 26 },

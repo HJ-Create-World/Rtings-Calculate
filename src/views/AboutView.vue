@@ -16,7 +16,10 @@ import SystemVideo from '../components/SystemVideo.vue';
 import { cardClass, mutedTextClass, sectionTitleClass } from '../utils/ui';
 
 const leafCount = computed(
-  () => rtingsRule.nodes.filter(node => node.inputType !== 'aggregate').length
+  () =>
+    rtingsRule.nodes.filter(
+      node => node.inputType !== 'aggregate' && node.includeInParent
+    ).length
 );
 
 const metrics = computed(() => [

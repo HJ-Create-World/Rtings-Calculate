@@ -3,6 +3,7 @@ import { evaluateRule } from '../core/evaluate';
 import type { EvaluationInputs } from '../core/types';
 import { rtingsRule } from '../data/rtingsRule';
 import type { EvaluationDraft, EvaluationDraftValue } from '../types/evaluation';
+import { migrateDraftValues } from '../utils/draftMigration';
 
 const STORAGE_KEY = 'rtings-calculate:evaluation-draft:v3';
 
@@ -57,7 +58,7 @@ export function buildDraftInputs(draft: EvaluationDraft): EvaluationInputs {
 
   for (const [nodeId, value] of Object.entries(draft.values)) {
     const node = nodeById.get(nodeId);
-    if (!node) continue;
+    if (!node || !node.includeInParent) continue;
 
     if (node.inputType === 'objective') {
       const parsed = parseObjectiveNumber(value.objectiveRaw);
@@ -91,7 +92,7 @@ function loadDraft(): EvaluationDraft {
     return {
       ...emptyDraft(),
       ...parsed,
-      values: parsed.values ?? {}
+      values: migrateDraftValues(parsed.values ?? {})
     };
   } catch {
     return emptyDraft();
@@ -116,14 +117,14 @@ export function useEvaluationDraft() {
 
   const inputs = computed<EvaluationInputs>(() => buildDraftInputs(draft.value));
   const result = computed(() => evaluateRule(rtingsRule, inputs.value));
-  const leafNodeIds = new Set(
+  const includedLeafNodeIds = new Set(
     rtingsRule.nodes
-      .filter(node => node.inputType !== 'aggregate')
+      .filter(node => node.inputType !== 'aggregate' && node.includeInParent)
       .map(node => node.id)
   );
   const filledCount = computed(() =>
     Object.entries(draft.value.values).filter(([nodeId, value]) => {
-      if (!leafNodeIds.has(nodeId)) return false;
+      if (!includedLeafNodeIds.has(nodeId)) return false;
       return Boolean(value.objectiveRaw?.trim()) || value.subjectiveScore !== null && value.subjectiveScore !== undefined;
     }).length
   );

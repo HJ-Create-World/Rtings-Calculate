@@ -41,7 +41,12 @@ const mainDimensionOptions = computed(() =>
 );
 
 const groups = computed(() =>
-  collectSubDimensionGroups(props.selectedGroupId).filter(group => group.items.length > 0)
+  collectSubDimensionGroups(props.selectedGroupId)
+    .map(group => ({
+      node: group.node,
+      items: group.items.filter(item => item.node.includeInParent)
+    }))
+    .filter(group => group.items.length > 0)
 );
 
 function hasColumn(column: string) {
@@ -146,8 +151,8 @@ function resetColumns() {
             <th v-if="hasColumn('subDimension')" class="w-40 px-4 py-3 text-left font-semibold text-gray-900">子类维度</th>
             <th v-if="hasColumn('item')" class="min-w-52 px-4 py-3 text-left font-semibold text-gray-900">具体测试项</th>
             <th v-if="hasColumn('weight')" class="w-24 px-4 py-3 text-right font-semibold text-gray-900">权重</th>
-            <th v-if="hasColumn('seven')" class="min-w-40 px-4 py-3 text-left font-semibold text-gray-900">7分参考值</th>
-            <th v-if="hasColumn('eight')" class="min-w-40 px-4 py-3 text-left font-semibold text-gray-900">8分参考值</th>
+            <th v-if="hasColumn('seven')" class="min-w-40 px-4 py-3 text-center font-semibold text-gray-900">7分参考值</th>
+            <th v-if="hasColumn('eight')" class="min-w-40 px-4 py-3 text-center font-semibold text-gray-900">8分参考值</th>
             <th v-if="hasColumn('input')" class="w-32 px-4 py-3 text-right font-semibold text-gray-900">实测输入</th>
             <th v-if="hasColumn('score')" class="w-24 px-4 py-3 text-right font-semibold text-gray-900">得分</th>
           </tr>
@@ -179,10 +184,10 @@ function resetColumns() {
               <td v-if="hasColumn('weight')" class="px-4 py-3 text-right text-gray-700">
                 {{ formatWeight(item.node.weight) }}
               </td>
-              <td v-if="hasColumn('seven')" class="px-4 py-3 text-gray-700">
+              <td v-if="hasColumn('seven')" class="px-4 py-3 text-center text-gray-700">
                 {{ getReferenceValues(item.node.id).seven }}
               </td>
-              <td v-if="hasColumn('eight')" class="px-4 py-3 text-gray-700">
+              <td v-if="hasColumn('eight')" class="px-4 py-3 text-center text-gray-700">
                 {{ getReferenceValues(item.node.id).eight }}
               </td>
               <td v-if="hasColumn('input')" class="px-4 py-3 text-right text-gray-700">

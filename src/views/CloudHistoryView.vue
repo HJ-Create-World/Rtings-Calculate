@@ -223,7 +223,7 @@ async function exportExcel() {
     v-if="selectedRecord && selectedDraft && selectedResult && selectedProduct"
     class="mb-6"
   >
-    <ChartCard title="能力轮廓" description="云端评测的主维度得分">
+    <ChartCard title="主维度雷达图" description="云端评测的主维度得分">
       <GroupRadarChart
         :labels="topGroups.map(group => group.label)"
         :series="radarSeries"

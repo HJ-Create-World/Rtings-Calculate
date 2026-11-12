@@ -18,7 +18,7 @@ export const capabilityCards: IntroCard[] = [
   {
     title: '工程师录入工作台',
     description: '覆盖客观测试值、主观评分、必填档案校验、草稿自动保存和本机历史。',
-    points: ['98 个测试项录入', '日期选择器与类别选择', '本地/云端双保存']
+    points: ['94 个计入评分测试项', '日期选择器与类别选择', '本地/云端双保存']
   },
   {
     title: 'Excel 批量导入',

@@ -29,7 +29,7 @@ export const rtingsReferences: Record<string, ReferenceValues> = {
   'mixed-usage.black-level.contrast.native': { seven: '4,426:1', eight: '6,500:1' },
   'mixed-usage.black-level.uniformity.641': { seven: '≤0.78%', eight: '≤0.53%' },
   'mixed-usage.black-level.uniformity.130': { seven: '≤0.756%', eight: '≤0.524%' },
-  'mixed-usage.black-level.zone-precision': {
+  'mixed-usage.black-level.zone-precision.item': {
     seven: '分区最低要求 160（65"）',
     eight: 'SONY 7II-480区；三星-720区（65"）'
   },
@@ -51,7 +51,7 @@ export const rtingsReferences: Record<string, ReferenceValues> = {
     eight: 'Sony X90L/Hisense UR8SG'
   },
   'mixed-usage.processing.smoothing.18016': { seven: '—', eight: '—' },
-  'mixed-usage.processing.upscaling': { seven: '（MTK9615）', eight: '（MTK9618）' },
+  'mixed-usage.processing.upscaling.default': { seven: '（MTK9615）', eight: '（MTK9618）' },
   'mixed-usage.processing.pq-eotf.13904': { seven: '≤0.0083', eight: '≤0.0052' },
   'mixed-usage.processing.pq-eotf.13905': { seven: '≤0.0083', eight: '≤0.0052' },
   'mixed-usage.processing.pq-eotf.13906': { seven: '≤0.0083', eight: '≤0.0052' },
@@ -123,7 +123,7 @@ export const rtingsReferences: Record<string, ReferenceValues> = {
     seven: 'SOC：支持120Hz-MEMC；OC：支持120Hz刷新率',
     eight: 'SOC：支持120Hz-MEMC；OC：支持120Hz刷新率'
   },
-  'mixed-usage.motion.zone-transitions': { seven: 'NA', eight: 'NA' },
+  'mixed-usage.motion.zone-transitions.item': { seven: 'NA', eight: 'NA' },
 
   'mixed-usage.game-mode.input-lag.25': { seven: '≤16.7ms', eight: '≤13.6ms' },
   'mixed-usage.game-mode.input-lag.1466': { seven: '≤11.6ms', eight: '≤8.8ms' },

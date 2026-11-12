@@ -111,7 +111,7 @@ const leafRanking = computed(() => {
 </script>
 
 <template>
-  <section class="grid gap-6 lg:grid-cols-5">
+  <section class="grid gap-6 lg:grid-cols-5 mb-6">
     <article
       :class="cardClass"
       class="flex flex-col p-6 lg:col-span-2 lg:h-[660px] lg:min-h-0 lg:overflow-hidden"
@@ -198,7 +198,7 @@ const leafRanking = computed(() => {
 
       <ChartCard
         class="mt-6 !border-0 !p-0 !shadow-none"
-        title="能力轮廓"
+        title="主维度雷达图"
         description="按主维度查看评分分布"
       >
         <GroupRadarChart
