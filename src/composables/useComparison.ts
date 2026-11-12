@@ -2,6 +2,7 @@ import { computed, ref, watch } from 'vue';
 import type { ScoreNode } from '../core/types';
 import { rtingsRule } from '../data/rtingsRule';
 import { useEvaluationLibrary } from './useEvaluationLibrary';
+import { getMainDimensionNodes } from '../utils/ruleDisplay';
 
 export function useComparison() {
   const { allBaselines, refreshEvaluationLibrary, getEvaluationProductById } = useEvaluationLibrary();
@@ -16,8 +17,8 @@ export function useComparison() {
   );
 
   const topGroups = computed(() =>
-    rtingsRule.nodes.filter(
-      node => node.parentId === rtingsRule.rootId && node.includeInParent
+    getMainDimensionNodes(rtingsRule.nodes).filter(
+      node => node.includeInParent
     )
   );
 

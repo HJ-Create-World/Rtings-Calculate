@@ -2,20 +2,19 @@ import { computed, ref, watch } from 'vue';
 import type { ScoreNode } from '../core/types';
 import { rtingsRule } from '../data/rtingsRule';
 import { useEvaluationLibrary } from './useEvaluationLibrary';
+import { getChildrenByDocumentOrder, getMainDimensionNodes } from '../utils/ruleDisplay';
 
 function collectTestItems(nodeId: string): ScoreNode[] {
-  return rtingsRule.nodes
-    .filter(node => node.parentId === nodeId)
-    .flatMap(child => {
-      if (child.inputType !== 'aggregate') return [child];
-      return collectTestItems(child.id);
-    });
+  return getChildrenByDocumentOrder(nodeId).flatMap(child => {
+    if (child.inputType !== 'aggregate') return [child];
+    return collectTestItems(child.id);
+  });
 }
 
 export function useDrilldown() {
   const { allBaselines, refreshEvaluationLibrary, getEvaluationProductById } = useEvaluationLibrary();
   void refreshEvaluationLibrary();
-  const groups = rtingsRule.nodes.filter(node => node.parentId === rtingsRule.rootId);
+  const groups = getMainDimensionNodes();
   const groupOptions = groups.map(group => ({ value: group.id, label: group.label }));
   const selectedGroupId = ref(groups[0]?.id ?? '');
 

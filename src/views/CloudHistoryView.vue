@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import ChartCard from '../components/ChartCard.vue';
 import GroupRadarChart from '../components/charts/GroupRadarChart.vue';
-import OptionChips from '../components/OptionChips.vue';
+import TestItemDetailTable from '../components/TestItemDetailTable.vue';
 import { evaluateRule } from '../core/evaluate';
 import { buildDraftInputs, useEvaluationDraft } from '../composables/useEvaluationDraft';
 import { rtingsRule } from '../data/rtingsRule';
@@ -15,6 +15,7 @@ import {
 import type { CloudEvaluation } from '../services/cloud';
 import { formatScore, statusClass, statusLabel } from '../utils/format';
 import { exportEvaluationExcel } from '../utils/evaluationExport';
+import { getMainDimensionNodes } from '../utils/ruleDisplay';
 import { cardClass, inputClass, mutedTextClass, primaryButtonClass, secondaryButtonClass, sectionTitleClass } from '../utils/ui';
 
 const router = useRouter();
@@ -26,7 +27,7 @@ const error = ref('');
 const keyword = ref('');
 const selectedId = ref('');
 const exporting = ref(false);
-const selectedGroupId = ref(rtingsRule.nodes.find(node => node.parentId === rtingsRule.rootId)?.id ?? '');
+const selectedGroupId = ref(getMainDimensionNodes()[0]?.id ?? '');
 
 async function refresh() {
   loading.value = true;
@@ -69,7 +70,7 @@ const selectedResult = computed(() => {
 });
 
 const topGroups = computed(() =>
-  rtingsRule.nodes.filter(node => node.parentId === rtingsRule.rootId && node.includeInParent)
+  getMainDimensionNodes(rtingsRule.nodes).filter(node => node.includeInParent)
 );
 
 const radarSeries = computed(() => {
@@ -83,30 +84,25 @@ const radarSeries = computed(() => {
   ];
 });
 
-const detailItems = computed(() => {
-  if (!selectedDraft.value || !selectedResult.value) return [];
-  const result = selectedResult.value;
-  const parentMap = new Map(rtingsRule.nodes.map(node => [node.id, node]));
-
-  function collectLeafNodes(nodeId: string): typeof rtingsRule.nodes {
-    return rtingsRule.nodes
-      .filter(node => node.parentId === nodeId)
-      .flatMap(node =>
-        node.inputType === 'aggregate' ? collectLeafNodes(node.id) : [node]
-      );
+const selectedProduct = computed(() => {
+  if (!selectedDraft.value || !selectedResult.value) return null;
+  const expectedScores: Record<string, number | null> = {};
+  for (const node of rtingsRule.nodes) {
+    expectedScores[node.id] = selectedResult.value.nodes[node.id]?.value ?? null;
   }
-
-  return collectLeafNodes(selectedGroupId.value)
-    .map(node => ({
-      node,
-      parentLabel: parentMap.get(node.parentId ?? '')?.label ?? '',
-      input: selectedDraft.value!.values[node.id]?.objectiveRaw
-        ?? (selectedDraft.value!.values[node.id]?.subjectiveScore !== null
-          ? selectedDraft.value!.values[node.id]?.subjectiveScore! / 10
-          : null),
-      score: result.nodes[node.id]?.value ?? null,
-      warning: result.nodes[node.id]?.warnings[0]?.message ?? ''
-    }));
+  return {
+    expectedScores,
+    inputs: Object.fromEntries(
+      Object.entries(selectedDraft.value.values).map(([nodeId, value]) => [
+        nodeId,
+        value.objectiveRaw !== undefined
+          ? { objective: { value: null, text: value.objectiveRaw } }
+          : value.subjectiveScore !== null && value.subjectiveScore !== undefined
+            ? { subjective: { scoreTenths: value.subjectiveScore } }
+            : {}
+      ])
+    )
+  };
 });
 
 function loadForEdit() {
@@ -223,7 +219,10 @@ async function exportExcel() {
     </div>
   </section>
 
-  <section v-if="selectedRecord && selectedDraft && selectedResult" class="mb-6">
+  <section
+    v-if="selectedRecord && selectedDraft && selectedResult && selectedProduct"
+    class="mb-6"
+  >
     <ChartCard title="能力轮廓" description="云端评测的主维度得分">
       <GroupRadarChart
         :labels="topGroups.map(group => group.label)"
@@ -233,48 +232,11 @@ async function exportExcel() {
     </ChartCard>
   </section>
 
-  <section
-    v-if="selectedRecord && selectedDraft && selectedResult"
-    :class="cardClass"
-    class="p-6"
-  >
-    <h3 class="text-xl font-semibold tracking-tight text-gray-900">历史输入与评分</h3>
-    <p :class="['mt-2 text-sm', mutedTextClass]">选择子类目查看当时保存的输入值和计算得分</p>
-    <OptionChips
-      class="mt-4"
-      v-model="selectedGroupId"
-      :options="topGroups.map(group => ({ value: group.id, label: group.label }))"
-    />
-    <div class="mt-4 overflow-x-auto rounded-xl border border-gray-200">
-      <table class="min-w-full divide-y divide-gray-200 text-sm">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="w-32 px-4 py-3 text-left font-semibold text-gray-900">子类维度</th>
-            <th class="px-4 py-3 text-left font-semibold text-gray-900">测试项</th>
-            <th class="w-36 px-4 py-3 text-left font-semibold text-gray-900">历史输入</th>
-            <th class="w-28 px-4 py-3 text-right font-semibold text-gray-900">单项评分</th>
-            <th class="w-72 px-4 py-3 text-left font-semibold text-gray-900">提示</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-          <tr v-if="!detailItems.length">
-            <td colspan="5" class="px-4 py-6 text-center text-sm text-gray-500">
-              当前分组没有可展示的具体测试项。
-            </td>
-          </tr>
-          <tr
-            v-for="item in detailItems"
-            :key="item.node.id"
-            class="transition-colors duration-200 hover:bg-gray-50"
-          >
-            <td class="px-4 py-3 text-gray-700">{{ item.parentLabel }}</td>
-            <td class="px-4 py-3 text-gray-900">{{ item.node.label }}</td>
-            <td class="px-4 py-3 text-gray-700">{{ item.input ?? '未填写' }}</td>
-            <td class="px-4 py-3 text-right font-medium text-gray-900">{{ formatScore(item.score) }}</td>
-            <td class="px-4 py-3 text-xs text-amber-700">{{ item.warning || '—' }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+  <TestItemDetailTable
+    v-if="selectedRecord && selectedDraft && selectedResult && selectedProduct"
+    :baseline="selectedProduct"
+    :top-groups="topGroups"
+    :selected-group-id="selectedGroupId"
+    @update:selected-group-id="selectedGroupId = $event"
+  />
 </template>

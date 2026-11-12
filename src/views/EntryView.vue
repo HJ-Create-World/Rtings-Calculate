@@ -14,6 +14,7 @@ import {
 } from '../services/localEvaluations';
 import type { LocalEvaluation } from '../services/localEvaluations';
 import { formatScore, statusClass, statusLabel, warningLabel } from '../utils/format';
+import { collectLeafItemsByDocumentOrder, getMainDimensionNodes } from '../utils/ruleDisplay';
 import { cardClass, inputClass, mutedTextClass, primaryButtonClass, secondaryButtonClass, sectionTitleClass } from '../utils/ui';
 
 const {
@@ -25,7 +26,7 @@ const {
   resetDraft
 } = useEvaluationDraft();
 
-const groups = rtingsRule.nodes.filter(node => node.parentId === rtingsRule.rootId);
+const groups = getMainDimensionNodes();
 const groupOptions = groups.map(group => ({ value: group.id, label: group.label }));
 const selectedGroupId = ref(groups[0]?.id ?? '');
 const keyword = ref('');
@@ -52,12 +53,6 @@ const warningGroups = computed(() => {
   return [...groupsByCode.values()];
 });
 
-function collectTestItems(nodeId: string): ScoreNode[] {
-  return rtingsRule.nodes
-    .filter(node => node.parentId === nodeId)
-    .flatMap(child => (child.inputType === 'aggregate' ? collectTestItems(child.id) : [child]));
-}
-
 function parentLabel(node: ScoreNode): string {
   const parent = rtingsRule.nodes.find(item => item.id === node.parentId);
   return parent?.label ?? '';
@@ -78,7 +73,9 @@ function categoryOptions(node: ScoreNode) {
   return mapping?.kind === 'categorical' ? mapping.values ?? [] : [];
 }
 
-const allItems = computed(() => collectTestItems(selectedGroupId.value));
+const allItems = computed(() =>
+  collectLeafItemsByDocumentOrder(selectedGroupId.value).map(item => item.node)
+);
 const visibleItems = computed(() => {
   const text = keyword.value.trim().toLowerCase();
   if (!text) return allItems.value;

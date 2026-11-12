@@ -3,14 +3,7 @@ import { rtingsRule } from '../data/rtingsRule';
 import type { ScoreNode } from '../core/types';
 import type { EvaluationDraft, ImportValidation } from '../types/evaluation';
 import { parseObjectiveNumber } from '../composables/useEvaluationDraft';
-
-function collectDescendantInputNodes(nodeId: string): ScoreNode[] {
-  return rtingsRule.nodes
-    .filter(node => node.parentId === nodeId)
-    .flatMap(child =>
-      child.inputType === 'aggregate' ? collectDescendantInputNodes(child.id) : [child]
-    );
-}
+import { collectLeafItemsByDocumentOrder, getMainDimensionNodes } from './ruleDisplay';
 
 function shortGroupName(group: ScoreNode): string {
   const key = group.id.replace('mixed-usage.', '');
@@ -20,10 +13,9 @@ function shortGroupName(group: ScoreNode): string {
     color: 'Color',
     processing: 'Processing',
     'motion-handling': 'Motion Handling',
-    'game-mode-responsiveness': 'Game Mode',
+    'game-mode': 'Game Mode',
     'direct-reflections': 'Direct Reflections',
-    'ambient-black-level-raise': 'Ambient Black',
-    panel: 'Panel'
+    'ambient-black': 'Ambient Black'
   };
   return names[key] ?? group.label.replace(/[\\/?*[\]:]/g, ' ').slice(0, 28);
 }
@@ -46,18 +38,9 @@ function inputRow(node: ScoreNode) {
 }
 
 function groupedInputSheets() {
-  const groups = rtingsRule.nodes.filter(node => node.parentId === rtingsRule.rootId);
+  const groups = getMainDimensionNodes();
   return groups.map((group, index) => {
-    const rows = collectDescendantInputNodes(group.id)
-      .slice()
-      .sort((left, right) => {
-        const parentDiff = inputRow(left)['维度 / 父级'].localeCompare(
-          inputRow(right)['维度 / 父级'],
-          'zh-CN'
-        );
-        return parentDiff || left.label.localeCompare(right.label, 'zh-CN');
-      })
-      .map(inputRow);
+    const rows = collectLeafItemsByDocumentOrder(group.id).map(item => inputRow(item.node));
     const sheet = XLSX.utils.json_to_sheet(rows);
     sheet['!cols'] = [
       { wch: 26 },

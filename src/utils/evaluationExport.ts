@@ -8,6 +8,11 @@ import {
   createTotalScoreChartImage
 } from './chartImage';
 import { statusLabel } from './format';
+import {
+  collectLeafItemsByDocumentOrder,
+  collectNodesByDocumentOrder,
+  getMainDimensionNodes
+} from './ruleDisplay';
 
 function parentLabel(nodeId: string): string {
   const parent = rtingsRule.nodes.find(node => node.id === nodeId);
@@ -23,7 +28,7 @@ function topGroupLabel(nodeId: string): string {
 }
 
 function leafNodes() {
-  return rtingsRule.nodes.filter(node => node.inputType !== 'aggregate');
+  return collectLeafItemsByDocumentOrder(rtingsRule.rootId).map(item => item.node);
 }
 
 function rawInputText(draft: EvaluationDraft, nodeId: string): string | number | null {
@@ -83,8 +88,8 @@ export async function exportEvaluationExcel(draft: EvaluationDraft): Promise<voi
   ]);
   normalizeHeaderStyle(infoSheet);
 
-  const topGroups = rtingsRule.nodes.filter(
-    node => node.parentId === rtingsRule.rootId && node.includeInParent
+  const topGroups = getMainDimensionNodes(rtingsRule.nodes).filter(
+    node => node.includeInParent
   );
   const summarySheet = workbook.addWorksheet('评分汇总');
   summarySheet.columns = [
@@ -157,7 +162,11 @@ export async function exportEvaluationExcel(draft: EvaluationDraft): Promise<voi
     { header: '状态', key: 'status', width: 14 },
     { header: '警告', key: 'warning', width: 58 }
   ];
-  Object.values(result.nodes).forEach((evaluation: NodeEvaluation) => {
+  const orderedNodes = collectNodesByDocumentOrder(rtingsRule.nodes);
+  const orderById = new Map(orderedNodes.map((node, index) => [node.id, index]));
+  Object.values(result.nodes)
+    .sort((left, right) => (orderById.get(left.nodeId) ?? 0) - (orderById.get(right.nodeId) ?? 0))
+    .forEach((evaluation: NodeEvaluation) => {
     const node = rtingsRule.nodes.find(item => item.id === evaluation.nodeId);
     traceSheet.addRow({
       kind: node?.kind ?? '',

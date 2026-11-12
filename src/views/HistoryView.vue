@@ -2,10 +2,11 @@
 import { computed, onMounted, ref } from 'vue';
 import ChartCard from '../components/ChartCard.vue';
 import GroupRadarChart from '../components/charts/GroupRadarChart.vue';
-import OptionChips from '../components/OptionChips.vue';
+import TestItemDetailTable from '../components/TestItemDetailTable.vue';
 import { rtingsRule } from '../data/rtingsRule';
 import { useEvaluationLibrary } from '../composables/useEvaluationLibrary';
-import { formatScore } from '../utils/format';
+import { formatScore, formatWeight } from '../utils/format';
+import { collectLeafItemsByDocumentOrder, getMainDimensionNodes } from '../utils/ruleDisplay';
 import { cardClass, inputClass, mutedTextClass, primaryButtonClass, sectionTitleClass } from '../utils/ui';
 
 const { allBaselines, refreshEvaluationLibrary } = useEvaluationLibrary();
@@ -63,7 +64,7 @@ const selectedBaseline = computed(
 );
 
 const topGroups = computed(() =>
-  rtingsRule.nodes.filter(node => node.parentId === rtingsRule.rootId && node.includeInParent)
+  getMainDimensionNodes(rtingsRule.nodes).filter(node => node.includeInParent)
 );
 
 const selectedGroupId = ref(topGroups.value[0]?.id ?? '');
@@ -78,35 +79,15 @@ const radarSeries = computed(() => {
   ];
 });
 
-function collectLeafNodes(nodeId: string): typeof rtingsRule.nodes {
-  return rtingsRule.nodes
-    .filter(node => node.parentId === nodeId)
-    .flatMap(child =>
-      child.inputType === 'aggregate' ? collectLeafNodes(child.id) : [child]
-    );
-}
-
 const parentById = computed(() => new Map(rtingsRule.nodes.map(node => [node.id, node])));
 
-const detailItems = computed(() => {
-  const parentMap = parentById.value;
-  return collectLeafNodes(selectedGroupId.value)
-    .filter(node => node.includeInParent)
-    .map(node => ({
-      node,
-      parentLabel: parentMap.get(node.parentId ?? '')?.label ?? '',
-      score: selectedBaseline.value?.expectedScores[node.id] ?? null
-    }))
-    .sort((a, b) => a.parentLabel.localeCompare(b.parentLabel, 'zh-CN') || a.node.label.localeCompare(b.node.label, 'zh-CN'));
-});
-
 const leafRanking = computed(() => {
-  const scored = collectLeafNodes(rtingsRule.rootId)
-    .filter(node => node.includeInParent)
-    .map(node => ({
-      node,
-      parentLabel: parentById.value.get(node.parentId ?? '')?.label ?? '',
-      score: selectedBaseline.value?.expectedScores[node.id] ?? null
+  const scored = collectLeafItemsByDocumentOrder(rtingsRule.rootId)
+    .filter(item => item.node.includeInParent)
+    .map(item => ({
+      node: item.node,
+      parentLabel: parentById.value.get(item.node.parentId ?? '')?.label ?? '',
+      score: selectedBaseline.value?.expectedScores[item.node.id] ?? null
     }))
     .filter(item => item.score !== null)
     .sort((left, right) => right.score! - left.score!);
@@ -119,8 +100,8 @@ const leafRanking = computed(() => {
 </script>
 
 <template>
-  <section class="mb-8 grid gap-6 lg:grid-cols-5">
-    <article :class="cardClass" class="p-6 lg:col-span-2">
+  <section class="grid gap-6 lg:grid-cols-5">
+    <article :class="cardClass" class="flex flex-col p-6 lg:col-span-2">
       <div class="flex items-center justify-between gap-4">
         <h2 :class="['text-xl md:text-2xl', sectionTitleClass]">详细参数</h2>
         <span :class="['text-xs', mutedTextClass]">
@@ -142,7 +123,7 @@ const leafRanking = computed(() => {
         </div>
       </div>
 
-      <div class="mt-4 max-h-[520px] space-y-2 overflow-y-auto pr-1">
+      <div class="mt-4 min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
         <button
           v-for="baseline in visibleBaselines"
           :key="baseline.id"
@@ -177,85 +158,70 @@ const leafRanking = computed(() => {
       </div>
     </article>
 
-    <article v-if="selectedBaseline" :class="cardClass" class="p-6 lg:col-span-3">
-      <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-        <div>
-          <h2 :class="['text-2xl md:text-3xl', sectionTitleClass]">{{ selectedBaseline.label }}</h2>
-          <p :class="['mt-2 text-sm', mutedTextClass]">
-            {{ selectedBaseline.brand ?? '—' }} · {{ selectedBaseline.releaseYear ?? '—' }} ·
-            {{ selectedBaseline.methodology || 'Rtings 官方数据' }}
-          </p>
+    <div v-if="selectedBaseline" class="flex flex-col gap-6 lg:col-span-3">
+      <article :class="cardClass" class="p-6">
+        <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div>
+            <h2 :class="['text-2xl md:text-3xl', sectionTitleClass]">{{ selectedBaseline.label }}</h2>
+            <p :class="['mt-2 text-sm', mutedTextClass]">
+              {{ selectedBaseline.brand ?? '—' }} · {{ selectedBaseline.releaseYear ?? '—' }} ·
+              {{ selectedBaseline.methodology || 'Rtings 官方数据' }}
+            </p>
+          </div>
+          <div class="rounded-xl bg-blue-50 p-4 text-right">
+            <p class="text-xs text-blue-700">Mixed Usage</p>
+            <strong class="block text-3xl font-semibold text-blue-700">
+              {{ formatScore(selectedBaseline.expectedTotal) }}
+            </strong>
+          </div>
         </div>
-        <div class="rounded-xl bg-blue-50 p-4 text-right">
-          <p class="text-xs text-blue-700">Mixed Usage</p>
-          <strong class="block text-3xl font-semibold text-blue-700">
-            {{ formatScore(selectedBaseline.expectedTotal) }}
-          </strong>
-        </div>
-      </div>
 
-      <ChartCard class="mt-6 !border-0 !p-0 !shadow-none" title="能力轮廓" description="按主维度查看评分分布">
-        <GroupRadarChart
-          :labels="topGroups.map(group => group.label)"
-          :series="radarSeries"
-          height="420px"
-        />
-      </ChartCard>
+        <ChartCard class="mt-6 !border-0 !p-0 !shadow-none" title="能力轮廓" description="按主维度查看评分分布">
+          <GroupRadarChart
+            :labels="topGroups.map(group => group.label)"
+            :series="radarSeries"
+            height="420px"
+          />
+        </ChartCard>
+      </article>
 
-      <div class="mt-6 overflow-x-auto rounded-xl border border-gray-200">
-        <table class="min-w-full divide-y divide-gray-200 text-sm">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-4 py-3 text-left font-semibold text-gray-900">主维度</th>
-              <th class="px-4 py-3 text-right font-semibold text-gray-900">得分</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <tr
-              v-for="group in topGroups"
-              :key="group.id"
-              class="transition-colors duration-200 hover:bg-gray-50"
-            >
-              <td class="px-4 py-3 text-gray-700">{{ group.label }}</td>
-              <td class="px-4 py-3 text-right font-medium text-gray-900">
-                {{ formatScore(selectedBaseline.expectedScores[group.id] ?? null) }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="mt-8">
-        <h3 class="text-xl font-semibold tracking-tight text-gray-900">具体测试项评分</h3>
-        <p :class="['mt-2 text-sm', mutedTextClass]">选择子类目，查看其中的节点级得分</p>
-        <OptionChips class="mt-4" v-model="selectedGroupId" :options="topGroups.map(group => ({ value: group.id, label: group.label }))" />
+      <article :class="cardClass" class="p-6">
+        <h3 class="text-xl font-semibold tracking-tight text-gray-900">主维度评分与权重</h3>
+        <p :class="['mt-2 text-sm', mutedTextClass]">顺序与 Rtings计算文档.xlsx 保持一致</p>
         <div class="mt-4 overflow-x-auto rounded-xl border border-gray-200">
           <table class="min-w-full divide-y divide-gray-200 text-sm">
             <thead class="bg-gray-50">
               <tr>
-                <th class="px-4 py-3 text-left font-semibold text-gray-900">子类维度</th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-900">具体测试项</th>
-                <th class="px-4 py-3 text-right font-semibold text-gray-900">得分</th>
+                <th class="px-4 py-3 text-left font-semibold text-gray-900">主维度</th>
+                <th class="w-32 px-4 py-3 text-right font-semibold text-gray-900">权重</th>
+                <th class="w-24 px-4 py-3 text-right font-semibold text-gray-900">得分</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
               <tr
-                v-for="item in detailItems"
-                :key="item.node.id"
+                v-for="group in topGroups"
+                :key="group.id"
                 class="transition-colors duration-200 hover:bg-gray-50"
               >
-                <td class="px-4 py-3 text-gray-700">{{ item.parentLabel }}</td>
-                <td class="px-4 py-3 text-gray-900">{{ item.node.label }}</td>
+                <td class="px-4 py-3 text-gray-700">{{ group.label }}</td>
+                <td class="px-4 py-3 text-right text-gray-700">{{ formatWeight(group.weight) }}</td>
                 <td class="px-4 py-3 text-right font-medium text-gray-900">
-                  {{ formatScore(item.score) }}
+                  {{ formatScore(selectedBaseline.expectedScores[group.id] ?? null) }}
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-      </div>
+      </article>
 
-      <div class="mt-6 grid gap-4 md:grid-cols-2">
+      <TestItemDetailTable
+        :baseline="selectedBaseline"
+        :top-groups="topGroups"
+        :selected-group-id="selectedGroupId"
+        @update:selected-group-id="selectedGroupId = $event"
+      />
+
+      <div class="grid gap-4 md:grid-cols-2">
         <article class="rounded-xl bg-green-50 p-4">
           <h3 class="text-sm font-semibold text-green-700">优势测试项</h3>
           <ul class="mt-3 space-y-2 text-sm text-green-700">
@@ -289,6 +255,6 @@ const leafRanking = computed(() => {
           </ul>
         </article>
       </div>
-    </article>
+    </div>
   </section>
 </template>
