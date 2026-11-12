@@ -130,6 +130,8 @@
 - 修正 Yellow Skyscraper：恢复工程师预估区间（000002），不再误标为纯主观项。
 - 修正 Supported Resolutions：按工作簿展开为 11 个具体分辨率项，权重合计 1.0004，聚合时按可用子项重归一。
 - 修正 Black Luminance @ 0 lx：补充 0 分锚点映射，避免“缺少 mappingId”。
+- 子维度结构：Lighting Zone Precision、Upscaling、Lighting Zone Transitions 均为“子维度权重 + 单个 100% 具体测试项”；Upscaling 具体测试项名称为“默认状态设置”。
+- 不展示项：Automatic Brightness Limiting、SDR/HDR Post-Calibration、Black Luminance @ 0 lx 不进入录入与展示表。
 - 修正客观项单位与输入解析：Input Lag/Response Time/Frame Hold Time 显示 ms，CAD 显示 counts/s，VRR/最大刷新率显示 Hz，对比度支持 `272,400:1` 输入。
 - 录入界面对类别项改为下拉选择，避免 Yes/No/Glossy 等值被误当作数值。
 - 追踪链保存：原始输入→命中区间/规则版本→叶子分→权重与贡献→维度分→组分→总分。
