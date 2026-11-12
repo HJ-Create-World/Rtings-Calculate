@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import OptionChips from '../components/OptionChips.vue';
+import UiSelect from '../components/UiSelect.vue';
 import ImportView from './ImportView.vue';
 import { useEvaluationDraft } from '../composables/useEvaluationDraft';
 import { rtingsRule } from '../data/rtingsRule';
@@ -71,6 +72,13 @@ function mappingFor(node: ScoreNode) {
 function categoryOptions(node: ScoreNode) {
   const mapping = mappingFor(node);
   return mapping?.kind === 'categorical' ? mapping.values ?? [] : [];
+}
+
+function categorySelectOptions(node: ScoreNode) {
+  return [
+    { value: '', label: '请选择' },
+    ...categoryOptions(node).map(option => ({ value: option.value, label: option.value }))
+  ];
 }
 
 const allItems = computed(() =>
@@ -420,17 +428,14 @@ function itemScoreTitle(node: ScoreNode): string {
               <p class="text-xs text-gray-500">{{ parentLabel(node) }}</p>
             </td>
             <td class="px-4 py-3">
-              <select
-                v-if="categoryOptions(node).length"
-                :value="objectiveValue(node)"
-                :class="[inputClass, 'w-36']"
-                @change="updateValue(node.id, { objectiveRaw: ($event.target as HTMLSelectElement).value })"
-              >
-                <option value="">请选择</option>
-                <option v-for="option in categoryOptions(node)" :key="option.value" :value="option.value">
-                  {{ option.value }}
-                </option>
-              </select>
+              <div v-if="categoryOptions(node).length" class="w-36">
+                <UiSelect
+                  :model-value="objectiveValue(node)"
+                  :options="categorySelectOptions(node)"
+                  aria-label="选择类别值"
+                  @update:model-value="updateValue(node.id, { objectiveRaw: $event })"
+                />
+              </div>
               <input
                 v-else-if="node.inputType === 'objective'"
                 :value="objectiveValue(node)"

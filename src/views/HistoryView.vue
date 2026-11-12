@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue';
 import ChartCard from '../components/ChartCard.vue';
 import GroupRadarChart from '../components/charts/GroupRadarChart.vue';
 import TestItemDetailTable from '../components/TestItemDetailTable.vue';
+import UiSelect from '../components/UiSelect.vue';
 import { rtingsRule } from '../data/rtingsRule';
 import { useEvaluationLibrary } from '../composables/useEvaluationLibrary';
 import { formatScore, formatWeight } from '../utils/format';
@@ -33,6 +34,16 @@ const years = computed(() =>
     (a, b) => b - a
   )
 );
+
+const brandOptions = computed(() => [
+  { value: '', label: '全部品牌' },
+  ...brands.value.map(item => ({ value: item, label: item }))
+]);
+
+const yearOptions = computed(() => [
+  { value: '', label: '全部年份' },
+  ...years.value.map(item => ({ value: String(item), label: String(item) }))
+]);
 
 const filteredBaselines = computed(() => {
   const text = search.value.trim().toLowerCase();
@@ -115,14 +126,17 @@ const leafRanking = computed(() => {
       <div class="mt-4 grid gap-3">
         <input v-model="search" type="search" placeholder="搜索品牌、型号或年份" :class="inputClass" />
         <div class="grid grid-cols-2 gap-3">
-          <select v-model="brand" :class="inputClass" aria-label="按品牌筛选">
-            <option value="">全部品牌</option>
-            <option v-for="item in brands" :key="item" :value="item">{{ item }}</option>
-          </select>
-          <select v-model="year" :class="inputClass" aria-label="按年份筛选">
-            <option value="">全部年份</option>
-            <option v-for="item in years" :key="item" :value="String(item)">{{ item }}</option>
-          </select>
+          <UiSelect
+            v-model="brand"
+            :options="brandOptions"
+            aria-label="按品牌筛选"
+            searchable
+          />
+          <UiSelect
+            v-model="year"
+            :options="yearOptions"
+            aria-label="按年份筛选"
+          />
         </div>
       </div>
 

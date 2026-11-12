@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import UiSelect from './UiSelect.vue';
 import { getReferenceValues } from '../data/rtingsReferences';
 import type { ScoreNode } from '../core/types';
 import { collectSubDimensionGroups } from '../utils/ruleDisplay';
@@ -34,6 +35,10 @@ const columnOptions = [
 const visibleColumns = ref<string[]>(columnOptions.map(option => option.value));
 const visibleColumnSet = computed(() => new Set(visibleColumns.value));
 const columnPanelOpen = ref(false);
+
+const mainDimensionOptions = computed(() =>
+  props.topGroups.map(group => ({ value: group.id, label: group.label }))
+);
 
 const groups = computed(() =>
   collectSubDimensionGroups(props.selectedGroupId).filter(group => group.items.length > 0)
@@ -84,20 +89,12 @@ function resetColumns() {
 
       <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-end">
         <div class="sm:w-64">
-          <select
-            :value="selectedGroupId"
-            class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 transition-all duration-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          <UiSelect
+            :model-value="selectedGroupId"
+            :options="mainDimensionOptions"
             aria-label="选择主维度"
-            @change="emit('update:selectedGroupId', ($event.target as HTMLSelectElement).value)"
-          >
-            <option
-              v-for="group in topGroups"
-              :key="group.id"
-              :value="group.id"
-            >
-              {{ group.label }}
-            </option>
-          </select>
+            @update:model-value="emit('update:selectedGroupId', $event)"
+          />
         </div>
 
         <details class="relative sm:w-44" :open="columnPanelOpen" @toggle="columnPanelOpen = ($event.target as HTMLDetailsElement).open">

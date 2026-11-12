@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import UiSelect from './UiSelect.vue';
 import type { ProductBaseline } from '../data/rtingsRule';
 import { cardClass, inputClass, mutedTextClass, primaryButtonClass, secondaryButtonClass } from '../utils/ui';
 
@@ -51,6 +52,16 @@ const filteredProducts = computed(() => {
 
 const selectedSet = computed(() => new Set(props.selectedIds));
 
+const brandOptions = computed(() => [
+  { value: '', label: '全部品牌' },
+  ...brands.value.map(item => ({ value: item, label: item }))
+]);
+
+const yearOptions = computed(() => [
+  { value: '', label: '全部年份' },
+  ...years.value.map(item => ({ value: String(item), label: String(item) }))
+]);
+
 const selectedProducts = computed(() =>
   props.selectedIds
     .map(id => props.products.find(product => product.id === id))
@@ -98,14 +109,17 @@ function clearFilters() {
         </p>
       </div>
       <div class="grid gap-3 md:grid-cols-3 lg:w-auto lg:min-w-[680px]">
-        <select v-model="brand" :class="inputClass" aria-label="按品牌筛选">
-          <option value="">全部品牌</option>
-          <option v-for="item in brands" :key="item" :value="item">{{ item }}</option>
-        </select>
-        <select v-model="year" :class="inputClass" aria-label="按年份筛选">
-          <option value="">全部年份</option>
-          <option v-for="item in years" :key="item" :value="String(item)">{{ item }}</option>
-        </select>
+        <UiSelect
+          v-model="brand"
+          :options="brandOptions"
+          aria-label="按品牌筛选"
+          searchable
+        />
+        <UiSelect
+          v-model="year"
+          :options="yearOptions"
+          aria-label="按年份筛选"
+        />
         <input v-model="keyword" type="search" placeholder="搜索品牌 / 型号" :class="inputClass" />
       </div>
     </div>
