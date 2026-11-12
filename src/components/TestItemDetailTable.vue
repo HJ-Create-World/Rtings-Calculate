@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import CheckboxChips from './CheckboxChips.vue';
-import OptionChips from './OptionChips.vue';
 import { getReferenceValues } from '../data/rtingsReferences';
 import type { ScoreNode } from '../core/types';
 import { collectSubDimensionGroups } from '../utils/ruleDisplay';
@@ -35,6 +33,7 @@ const columnOptions = [
 
 const visibleColumns = ref<string[]>(columnOptions.map(option => option.value));
 const visibleColumnSet = computed(() => new Set(visibleColumns.value));
+const columnPanelOpen = ref(false);
 
 const groups = computed(() =>
   collectSubDimensionGroups(props.selectedGroupId).filter(group => group.items.length > 0)
@@ -62,36 +61,89 @@ function inputValue(nodeId: string, inputType: string): string | number {
 }
 
 function toggleColumn(column: string) {
+  if (visibleColumns.value.length === 1 && visibleColumns.value.includes(column)) return;
   visibleColumns.value = visibleColumns.value.includes(column)
     ? visibleColumns.value.filter(item => item !== column)
     : [...visibleColumns.value, column];
+}
+
+function resetColumns() {
+  visibleColumns.value = columnOptions.map(option => option.value);
 }
 </script>
 
 <template>
   <article class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-    <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-      <div>
+    <div class="mb-5 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+      <div class="min-w-0">
         <h3 class="text-xl font-semibold tracking-tight text-gray-900">具体测试项评分</h3>
-        <p :class="['mt-2 text-sm', mutedTextClass]">
-          按工作簿顺序展示，7/8 分参考值来自 Rtings计算文档.xlsx
+        <p :class="['mt-1 text-sm', mutedTextClass]">
+          按工作簿顺序展示 · 7/8 分参考值来自 Rtings计算文档.xlsx
         </p>
       </div>
-      <CheckboxChips
-        :options="columnOptions"
-        :model-value="visibleColumns"
-        @toggle="toggleColumn"
-      />
+
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+        <label class="grid gap-1 sm:w-64">
+          <span class="text-xs font-medium text-gray-500">主维度</span>
+          <select
+            :value="selectedGroupId"
+            class="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 transition-all duration-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            aria-label="选择主维度"
+            @change="emit('update:selectedGroupId', ($event.target as HTMLSelectElement).value)"
+          >
+            <option
+              v-for="group in topGroups"
+              :key="group.id"
+              :value="group.id"
+            >
+              {{ group.label }}
+            </option>
+          </select>
+        </label>
+
+        <details class="relative sm:w-44" :open="columnPanelOpen" @toggle="columnPanelOpen = ($event.target as HTMLDetailsElement).open">
+          <summary
+            class="flex h-10 cursor-pointer list-none select-none items-center justify-between rounded-lg border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 transition-all duration-200 ease-out hover:bg-gray-50 active:translate-y-0 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 [&::-webkit-details-marker]:hidden"
+            aria-label="选择表格展示项"
+          >
+            <span>展示列</span>
+            <span class="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+              {{ visibleColumns.length }}/{{ columnOptions.length }}
+            </span>
+          </summary>
+
+          <div class="absolute right-0 z-20 mt-2 w-72 rounded-xl border border-gray-200 bg-white p-3 shadow-md">
+            <div class="grid grid-cols-2 gap-x-3 gap-y-2">
+              <label
+                v-for="option in columnOptions"
+                :key="option.value"
+                class="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-gray-700 transition-colors duration-200 hover:bg-gray-50"
+              >
+                <input
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-2"
+                  :checked="hasColumn(option.value)"
+                  @change="toggleColumn(option.value)"
+                />
+                <span class="truncate">{{ option.label }}</span>
+              </label>
+            </div>
+            <div class="mt-3 flex items-center justify-between border-t border-gray-100 pt-3">
+              <button
+                type="button"
+                class="rounded-lg px-2 py-1 text-xs font-medium text-gray-500 transition-colors duration-200 hover:bg-gray-50 hover:text-gray-700"
+                @click="resetColumns"
+              >
+                重置
+              </button>
+              <span :class="['text-xs', mutedTextClass]">至少保留一项</span>
+            </div>
+          </div>
+        </details>
+      </div>
     </div>
 
-    <OptionChips
-      class="mt-5"
-      :model-value="selectedGroupId"
-      :options="topGroups.map(group => ({ value: group.id, label: group.label }))"
-      @update:model-value="emit('update:selectedGroupId', $event)"
-    />
-
-    <div class="mt-5 overflow-x-auto rounded-xl border border-gray-200">
+    <div class="overflow-x-auto rounded-xl border border-gray-200">
       <table class="min-w-full divide-y divide-gray-200 text-sm">
         <thead class="bg-gray-50">
           <tr>

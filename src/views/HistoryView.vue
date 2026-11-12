@@ -101,7 +101,10 @@ const leafRanking = computed(() => {
 
 <template>
   <section class="grid gap-6 lg:grid-cols-5">
-    <article :class="cardClass" class="flex flex-col p-6 lg:col-span-2">
+    <article
+      :class="cardClass"
+      class="flex flex-col p-6 lg:col-span-2 lg:h-[660px] lg:min-h-0 lg:overflow-hidden"
+    >
       <div class="flex items-center justify-between gap-4">
         <h2 :class="['text-xl md:text-2xl', sectionTitleClass]">详细参数</h2>
         <span :class="['text-xs', mutedTextClass]">
@@ -151,110 +154,118 @@ const leafRanking = computed(() => {
         </button>
       </div>
 
-      <div v-if="filteredBaselines.length > visibleCount" class="mt-4">
+      <div v-if="filteredBaselines.length > visibleCount" class="mt-4 shrink-0">
         <button :class="primaryButtonClass" @click="expanded = !expanded">
           {{ expanded ? '收起机型列表' : `展开全部 ${filteredBaselines.length} 台` }}
         </button>
       </div>
     </article>
 
-    <div v-if="selectedBaseline" class="flex flex-col gap-6 lg:col-span-3">
-      <article :class="cardClass" class="p-6">
-        <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-          <div>
-            <h2 :class="['text-2xl md:text-3xl', sectionTitleClass]">{{ selectedBaseline.label }}</h2>
-            <p :class="['mt-2 text-sm', mutedTextClass]">
-              {{ selectedBaseline.brand ?? '—' }} · {{ selectedBaseline.releaseYear ?? '—' }} ·
-              {{ selectedBaseline.methodology || 'Rtings 官方数据' }}
-            </p>
-          </div>
-          <div class="rounded-xl bg-blue-50 p-4 text-right">
-            <p class="text-xs text-blue-700">Mixed Usage</p>
-            <strong class="block text-3xl font-semibold text-blue-700">
-              {{ formatScore(selectedBaseline.expectedTotal) }}
-            </strong>
-          </div>
+    <article
+      v-if="selectedBaseline"
+      :class="cardClass"
+      class="p-6 lg:col-span-3 lg:h-[660px] lg:min-h-0 lg:overflow-hidden"
+    >
+      <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div class="min-w-0">
+          <h2 :class="['text-2xl md:text-3xl', sectionTitleClass]">{{ selectedBaseline.label }}</h2>
+          <p :class="['mt-2 text-sm', mutedTextClass]">
+            {{ selectedBaseline.brand ?? '—' }} · {{ selectedBaseline.releaseYear ?? '—' }} ·
+            {{ selectedBaseline.methodology || 'Rtings 官方数据' }}
+          </p>
         </div>
-
-        <ChartCard class="mt-6 !border-0 !p-0 !shadow-none" title="能力轮廓" description="按主维度查看评分分布">
-          <GroupRadarChart
-            :labels="topGroups.map(group => group.label)"
-            :series="radarSeries"
-            height="420px"
-          />
-        </ChartCard>
-      </article>
-
-      <article :class="cardClass" class="p-6">
-        <h3 class="text-xl font-semibold tracking-tight text-gray-900">主维度评分与权重</h3>
-        <p :class="['mt-2 text-sm', mutedTextClass]">顺序与 Rtings计算文档.xlsx 保持一致</p>
-        <div class="mt-4 overflow-x-auto rounded-xl border border-gray-200">
-          <table class="min-w-full divide-y divide-gray-200 text-sm">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-4 py-3 text-left font-semibold text-gray-900">主维度</th>
-                <th class="w-32 px-4 py-3 text-right font-semibold text-gray-900">权重</th>
-                <th class="w-24 px-4 py-3 text-right font-semibold text-gray-900">得分</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-              <tr
-                v-for="group in topGroups"
-                :key="group.id"
-                class="transition-colors duration-200 hover:bg-gray-50"
-              >
-                <td class="px-4 py-3 text-gray-700">{{ group.label }}</td>
-                <td class="px-4 py-3 text-right text-gray-700">{{ formatWeight(group.weight) }}</td>
-                <td class="px-4 py-3 text-right font-medium text-gray-900">
-                  {{ formatScore(selectedBaseline.expectedScores[group.id] ?? null) }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="rounded-xl bg-blue-50 p-4 text-right">
+          <p class="text-xs text-blue-700">Mixed Usage</p>
+          <strong class="block text-3xl font-semibold text-blue-700">
+            {{ formatScore(selectedBaseline.expectedTotal) }}
+          </strong>
         </div>
-      </article>
-
-      <TestItemDetailTable
-        :baseline="selectedBaseline"
-        :top-groups="topGroups"
-        :selected-group-id="selectedGroupId"
-        @update:selected-group-id="selectedGroupId = $event"
-      />
-
-      <div class="grid gap-4 md:grid-cols-2">
-        <article class="rounded-xl bg-green-50 p-4">
-          <h3 class="text-sm font-semibold text-green-700">优势测试项</h3>
-          <ul class="mt-3 space-y-2 text-sm text-green-700">
-            <li
-              v-for="item in leafRanking.strengths"
-              :key="`strength-${item.node.id}`"
-              class="flex items-start justify-between gap-3"
-            >
-              <span>
-                {{ item.node.label }}
-                <span class="block text-xs text-green-600">{{ item.parentLabel }}</span>
-              </span>
-              <strong>{{ formatScore(item.score) }}</strong>
-            </li>
-          </ul>
-        </article>
-        <article class="rounded-xl bg-amber-50 p-4">
-          <h3 class="text-sm font-semibold text-amber-700">短板测试项</h3>
-          <ul class="mt-3 space-y-2 text-sm text-amber-700">
-            <li
-              v-for="item in leafRanking.weaknesses"
-              :key="`weakness-${item.node.id}`"
-              class="flex items-start justify-between gap-3"
-            >
-              <span>
-                {{ item.node.label }}
-                <span class="block text-xs text-amber-600">{{ item.parentLabel }}</span>
-              </span>
-              <strong>{{ formatScore(item.score) }}</strong>
-            </li>
-          </ul>
-        </article>
       </div>
+
+      <ChartCard
+        class="mt-6 !border-0 !p-0 !shadow-none"
+        title="能力轮廓"
+        description="按主维度查看评分分布"
+      >
+        <GroupRadarChart
+          :labels="topGroups.map(group => group.label)"
+          :series="radarSeries"
+          height="420px"
+        />
+      </ChartCard>
+    </article>
+  </section>
+
+  <section v-if="selectedBaseline" :class="cardClass" class="mb-6 p-6">
+    <h3 class="text-xl font-semibold tracking-tight text-gray-900">主维度评分与权重</h3>
+    <p :class="['mt-2 text-sm', mutedTextClass]">顺序与 Rtings计算文档.xlsx 保持一致</p>
+    <div class="mt-4 overflow-x-auto rounded-xl border border-gray-200">
+      <table class="min-w-full divide-y divide-gray-200 text-sm">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-3 text-left font-semibold text-gray-900">主维度</th>
+            <th class="w-32 px-4 py-3 text-right font-semibold text-gray-900">权重</th>
+            <th class="w-24 px-4 py-3 text-right font-semibold text-gray-900">得分</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr
+            v-for="group in topGroups"
+            :key="group.id"
+            class="transition-colors duration-200 hover:bg-gray-50"
+          >
+            <td class="px-4 py-3 text-gray-700">{{ group.label }}</td>
+            <td class="px-4 py-3 text-right text-gray-700">{{ formatWeight(group.weight) }}</td>
+            <td class="px-4 py-3 text-right font-medium text-gray-900">
+              {{ formatScore(selectedBaseline.expectedScores[group.id] ?? null) }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </section>
+
+  <TestItemDetailTable
+    v-if="selectedBaseline"
+    class="mb-6"
+    :baseline="selectedBaseline"
+    :top-groups="topGroups"
+    :selected-group-id="selectedGroupId"
+    @update:selected-group-id="selectedGroupId = $event"
+  />
+
+  <div v-if="selectedBaseline" class="grid gap-4 md:grid-cols-2">
+    <article class="rounded-xl bg-green-50 p-4">
+      <h3 class="text-sm font-semibold text-green-700">优势测试项</h3>
+      <ul class="mt-3 space-y-2 text-sm text-green-700">
+        <li
+          v-for="item in leafRanking.strengths"
+          :key="`strength-${item.node.id}`"
+          class="flex items-start justify-between gap-3"
+        >
+          <span>
+            {{ item.node.label }}
+            <span class="block text-xs text-green-600">{{ item.parentLabel }}</span>
+          </span>
+          <strong>{{ formatScore(item.score) }}</strong>
+        </li>
+      </ul>
+    </article>
+    <article class="rounded-xl bg-amber-50 p-4">
+      <h3 class="text-sm font-semibold text-amber-700">短板测试项</h3>
+      <ul class="mt-3 space-y-2 text-sm text-amber-700">
+        <li
+          v-for="item in leafRanking.weaknesses"
+          :key="`weakness-${item.node.id}`"
+          class="flex items-start justify-between gap-3"
+        >
+          <span>
+            {{ item.node.label }}
+            <span class="block text-xs text-amber-600">{{ item.parentLabel }}</span>
+          </span>
+          <strong>{{ formatScore(item.score) }}</strong>
+        </li>
+      </ul>
+    </article>
+  </div>
 </template>
