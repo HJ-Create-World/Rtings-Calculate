@@ -22,7 +22,6 @@ const emit = defineEmits<{
     <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
       <div class="shrink-0">
         <h2 class="text-lg font-semibold tracking-tight text-gray-900">排序与展示</h2>
-        <p class="mt-1 text-sm text-gray-500">按得分排序，聚焦重点产品，避免图表过载</p>
       </div>
       <div class="grid gap-3 sm:grid-cols-3 lg:w-auto lg:min-w-[560px]">
         <UiSelect

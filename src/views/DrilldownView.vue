@@ -84,7 +84,6 @@ function clearTestItems() {
 
   <section :class="cardClass" class="mb-6 p-6">
     <h2 class="text-xl font-semibold tracking-tight text-gray-900">主维度选择</h2>
-    <p :class="['mt-1 text-sm', mutedTextClass]">选择要对比的主维度</p>
     <OptionChips v-model="selectedGroupId" :options="groupOptions" />
   </section>
 

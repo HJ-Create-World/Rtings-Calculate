@@ -29,4 +29,32 @@ describe('Rtings 融合版规则 v3', () => {
 
     expect(failures, failures.slice(0, 10).join('\n')).toHaveLength(0);
   });
+
+  it('评分输入引用完整且支持类类别项均可表达 No', () => {
+    const mappingIds = new Set(rtingsRuleV3.mappings.map(mapping => mapping.id));
+    const issues: string[] = [];
+
+    for (const node of rtingsRuleV3.nodes) {
+      if (node.inputType === 'objective' && !node.mappingId) {
+        issues.push(`${node.id}: 客观项缺少 mappingId`);
+      }
+      if (node.mappingId && !mappingIds.has(node.mappingId)) {
+        issues.push(`${node.id}: mappingId 不存在`);
+      }
+    }
+
+    for (const mapping of rtingsRuleV3.mappings) {
+      if (mapping.kind !== 'categorical') continue;
+      const values = mapping.values ?? [];
+      const lower = values.map(value => value.value.toLowerCase());
+      if (lower.includes('yes') && !lower.includes('no')) {
+        issues.push(`${mapping.id}: 含 Yes 但缺少 No`);
+      }
+      if (new Set(values.map(value => value.value)).size !== values.length) {
+        issues.push(`${mapping.id}: 类别选项重复`);
+      }
+    }
+
+    expect(issues, issues.join('\n')).toHaveLength(0);
+  });
 });

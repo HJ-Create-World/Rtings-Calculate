@@ -81,7 +81,14 @@ function mappingFor(node: ScoreNode) {
 
 function categoryOptions(node: ScoreNode) {
   const mapping = mappingFor(node);
-  return mapping?.kind === 'categorical' ? mapping.values ?? [] : [];
+  if (mapping?.kind !== 'categorical') return [];
+
+  // 运行时兜底：支持类布尔项只要包含 Yes，就必须能表达 No，防止规则导入遗漏。
+  const options = [...(mapping.values ?? [])];
+  const hasYes = options.some(option => option.value.toLowerCase() === 'yes');
+  const hasNo = options.some(option => option.value.toLowerCase() === 'no');
+  if (hasYes && !hasNo) options.push({ value: 'No', score: 0 });
+  return options;
 }
 
 function categorySelectOptions(node: ScoreNode) {
