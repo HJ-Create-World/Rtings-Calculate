@@ -237,8 +237,10 @@ function clearFilters() {
     </div>
 
     <div v-if="selectedProducts.length" class="mt-4 mb-4">
-      <div class="max-h-[76px] overflow-hidden">
-        <div class="flex flex-wrap gap-2">
+      <div
+        class="flex flex-wrap gap-2"
+        :class="showAllSelected ? '' : 'max-h-[76px] overflow-hidden'"
+      >
           <button
             v-for="product in visibleSelectedProducts"
             :key="`selected-${product.id}`"
@@ -250,7 +252,6 @@ function clearFilters() {
             {{ product.label }}
             <span aria-hidden="true">×</span>
           </button>
-        </div>
       </div>
       <button
         v-if="hiddenSelectedCount > 0 || showAllSelected"
@@ -262,7 +263,7 @@ function clearFilters() {
       </button>
     </div>
 
-    <div class="flex flex-wrap gap-3">
+    <div v-if="expanded || !filteredAllSelected" class="flex flex-wrap gap-3" :class="expanded ? '' : 'max-h-[76px] overflow-hidden'">
       <button
         v-for="product in visibleProducts"
         :key="product.id"
@@ -284,9 +285,9 @@ function clearFilters() {
       </button>
     </div>
 
-    <div v-if="filteredProducts.length > (collapsedCount ?? defaultCollapsedCount)" class="mt-4">
+    <div v-if="filteredProducts.length > (collapsedCount ?? defaultCollapsedCount) || filteredAllSelected" class="mt-4">
       <button :class="primaryButtonClass" @click="expanded = !expanded">
-        {{ expanded ? '收起产品列表' : `展开全部 ${filteredProducts.length} 台` }}
+        {{ expanded ? '收起产品列表' : `展开产品列表 ${filteredProducts.length} 台` }}
       </button>
     </div>
 

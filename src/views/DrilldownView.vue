@@ -84,7 +84,7 @@ function clearTestItems() {
 
   <section :class="cardClass" class="mb-6 p-6">
     <h2 class="text-xl font-semibold tracking-tight text-gray-900">主维度选择</h2>
-    <OptionChips v-model="selectedGroupId" :options="groupOptions" />
+    <OptionChips class="mt-4" v-model="selectedGroupId" :options="groupOptions" />
   </section>
 
   <section :class="cardClass" class="mb-6 p-6">

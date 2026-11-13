@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import ChartCard from '../components/ChartCard.vue';
 import ComparisonTable from '../components/ComparisonTable.vue';
 import ProductSelector from '../components/ProductSelector.vue';
@@ -27,6 +27,7 @@ const {
   sortDirectionOptions,
   displayLimitOptions,
   sortSummary,
+  comparisonTitle,
   toggleProduct,
   setSelection,
   clearSelection
@@ -35,6 +36,11 @@ const {
 const totalChartRef = ref<InstanceType<typeof TotalScoreChart> | null>(null);
 const radarChartRef = ref<InstanceType<typeof GroupRadarChart> | null>(null);
 const contributionChartRef = ref<InstanceType<typeof GroupContributionChart> | null>(null);
+
+const totalChartHeight = computed(() => {
+  const base = totalEntries.value.length * 40 + 180;
+  return `${Math.max(520, base)}px`;
+});
 
 function downloadTotalPng() {
   totalChartRef.value?.downloadPng('Rtings-多产品总分对比');
@@ -77,11 +83,13 @@ function downloadExcel() {
   />
 
   <section class="mb-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
-    <ChartCard title="总分对比" :description="sortSummary">
+    <ChartCard :title="comparisonTitle" :description="sortSummary">
       <template #actions>
         <button :class="secondaryButtonClass" @click="downloadTotalPng">导出 PNG</button>
       </template>
-      <TotalScoreChart ref="totalChartRef" :entries="totalEntries" height="520px" />
+      <div class="max-h-[640px] overflow-y-auto pr-1">
+        <TotalScoreChart ref="totalChartRef" :entries="totalEntries" :height="totalChartHeight" />
+      </div>
     </ChartCard>
 
     <ChartCard title="各维度评分" description="按主维度对比评分轮廓">

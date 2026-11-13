@@ -65,12 +65,23 @@ export function useComparison() {
     return sortedProducts.value.slice(0, limit);
   });
 
-  const totalEntries = computed(() =>
-    displayedProducts.value.map(baseline => ({
+  const totalEntries = computed(() => {
+    // 总分/维度梯形图固定为“高分在上、低分在下”。
+    // 横向柱状图的数组首项默认渲染在底部，因此先降序再反转。
+    const ladder = [...displayedProducts.value].sort((left, right) => {
+      const leftValue = getSortValue(left);
+      const rightValue = getSortValue(right);
+      if (leftValue === null && rightValue === null) return left.label.localeCompare(right.label, 'zh-CN');
+      if (leftValue === null) return 1;
+      if (rightValue === null) return -1;
+      return rightValue - leftValue || left.label.localeCompare(right.label, 'zh-CN');
+    }).reverse();
+
+    return ladder.map(baseline => ({
       label: baseline.label,
-      value: baseline.expectedTotal
-    }))
-  );
+      value: getSortValue(baseline)
+    }));
+  });
 
   const radarLabels = computed(() => topGroups.value.map(group => group.label));
 
@@ -82,6 +93,12 @@ export function useComparison() {
       )
     }))
   );
+
+  const comparisonTitle = computed(() => {
+    if (sortMetricId.value === 'total') return '总分对比';
+    const metric = sortMetricOptions.value.find(option => option.value === sortMetricId.value)?.label ?? '';
+    return metric ? `${metric} 对比` : '维度对比';
+  });
 
   const sortSummary = computed(() => {
     const metric = sortMetricOptions.value.find(option => option.value === sortMetricId.value)?.label ?? '总分';
@@ -131,6 +148,7 @@ export function useComparison() {
     sortDirectionOptions,
     displayLimitOptions,
     sortSummary,
+    comparisonTitle,
     toggleProduct,
     setSelection,
     clearSelection

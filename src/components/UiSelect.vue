@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 
 export interface UiSelectOption {
   value: string;
@@ -34,8 +34,13 @@ const emit = defineEmits<{
 }>();
 
 const rootRef = ref<HTMLElement | null>(null);
+const panelRef = ref<HTMLElement | null>(null);
 const open = ref(false);
 const query = ref('');
+const panelLeft = ref(0);
+const panelTop = ref(0);
+const panelWidth = ref(0);
+const panelMaxHeight = ref(256);
 
 const selectedOption = computed(
   () => props.options.find(option => option.value === props.modelValue) ?? null
@@ -50,10 +55,11 @@ const filteredOptions = computed(() => {
 });
 
 function handleClickOutside(event: MouseEvent) {
-  if (!open.value || !rootRef.value) return;
-  if (!rootRef.value.contains(event.target as Node)) {
-    close();
-  }
+  if (!open.value) return;
+  const target = event.target as Node;
+  if (rootRef.value?.contains(target)) return;
+  if (panelRef.value?.contains(target)) return;
+  close();
 }
 
 function handleKeydown(event: KeyboardEvent) {
@@ -62,9 +68,44 @@ function handleKeydown(event: KeyboardEvent) {
   }
 }
 
+function updatePanelPosition() {
+  const root = rootRef.value;
+  if (!root) return;
+  const rect = root.getBoundingClientRect();
+  panelWidth.value = rect.width;
+  const margin = 8;
+  const desired = 256;
+  const belowSpace = window.innerHeight - rect.bottom - margin;
+  const aboveSpace = rect.top - margin;
+
+  if (belowSpace >= Math.min(desired, 128) || belowSpace >= aboveSpace) {
+    panelMaxHeight.value = Math.max(96, Math.min(desired, belowSpace));
+    panelTop.value = rect.bottom + margin;
+  } else {
+    panelMaxHeight.value = Math.max(96, Math.min(desired, aboveSpace));
+    panelTop.value = Math.max(margin, rect.top - panelMaxHeight.value - margin);
+  }
+
+  panelLeft.value = Math.min(
+    Math.max(margin, rect.left),
+    window.innerWidth - panelWidth.value - margin
+  );
+}
+
 function close() {
   open.value = false;
   query.value = '';
+}
+
+function handleScroll() {
+  if (open.value) updatePanelPosition();
+}
+
+async function openPanel() {
+  open.value = true;
+  query.value = '';
+  await nextTick();
+  requestAnimationFrame(updatePanelPosition);
 }
 
 function choose(option: UiSelectOption) {
@@ -75,11 +116,15 @@ function choose(option: UiSelectOption) {
 onMounted(() => {
   document.addEventListener('mousedown', handleClickOutside, true);
   document.addEventListener('keydown', handleKeydown);
+  window.addEventListener('scroll', handleScroll, true);
+  window.addEventListener('resize', handleScroll);
 });
 
 onBeforeUnmount(() => {
   document.removeEventListener('mousedown', handleClickOutside, true);
   document.removeEventListener('keydown', handleKeydown);
+  window.removeEventListener('scroll', handleScroll, true);
+  window.removeEventListener('resize', handleScroll);
 });
 </script>
 
@@ -99,7 +144,7 @@ onBeforeUnmount(() => {
         open ? 'border-blue-500 ring-2 ring-blue-500 ring-offset-2' : '',
         buttonClass
       ]"
-      @click="open = !open"
+      @click="open ? close() : openPanel()"
     >
       <span class="min-w-0 truncate">
         {{ selectedOption?.label ?? placeholder }}
@@ -119,23 +164,34 @@ onBeforeUnmount(() => {
       </svg>
     </button>
 
-    <div
-      v-if="open"
-      class="absolute z-50 mt-2 w-full min-w-48 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md"
-      :class="panelClass"
-      role="dialog"
-      :aria-label="ariaLabel ?? '选项列表'"
-    >
-      <div v-if="searchable" class="border-b border-gray-100 p-2">
-        <input
-          v-model="query"
-          type="search"
-          placeholder="搜索选项"
-          class="h-9 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 placeholder:text-gray-400 transition-all duration-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        />
-      </div>
+    <Teleport to="body">
+      <div
+        v-if="open"
+        ref="panelRef"
+        class="fixed z-[1000] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md"
+        :class="panelClass"
+        :style="{
+          left: `${panelLeft}px`,
+          top: `${panelTop}px`,
+          width: `${panelWidth}px`,
+          maxHeight: `${panelMaxHeight}px`
+        }"
+        role="dialog"
+        :aria-label="ariaLabel ?? '选项列表'"
+      >
+        <div v-if="searchable" class="border-b border-gray-100 p-2">
+          <input
+            v-model="query"
+            type="search"
+            placeholder="搜索选项"
+            class="h-9 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 placeholder:text-gray-400 transition-all duration-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          />
+        </div>
 
-      <div class="max-h-64 overflow-y-auto p-1.5">
+        <div
+          class="overflow-y-auto p-1.5"
+          :style="{ maxHeight: `${Math.max(48, panelMaxHeight - (searchable ? 56 : 0))}px` }"
+        >
         <button
           v-for="option in filteredOptions"
           :key="option.value"
@@ -177,7 +233,8 @@ onBeforeUnmount(() => {
         >
           没有匹配的选项
         </p>
+        </div>
       </div>
-    </div>
+    </Teleport>
   </div>
 </template>

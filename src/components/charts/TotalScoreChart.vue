@@ -70,7 +70,6 @@ const configuration = computed<ChartConfiguration<'bar'>>(() => ({
         ticks: { precision: 1 }
       },
       y: {
-        reverse: true,
         grid: { display: false }
       }
     }
