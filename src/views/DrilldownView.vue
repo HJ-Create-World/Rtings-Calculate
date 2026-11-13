@@ -34,7 +34,8 @@ const {
   toggleProduct,
   setSelection,
   clearSelection,
-  toggleTestItem
+  toggleTestItem,
+  setTestItemSelection
 } = useDrilldown();
 
 const chartRef = ref<InstanceType<typeof TestItemComparisonChart> | null>(null);
@@ -59,6 +60,14 @@ function downloadPng() {
 
 function downloadExcel() {
   exportDrilldownExcel(sortedProducts.value, selectedTestItems.value);
+}
+
+function selectFilteredTestItems() {
+  setTestItemSelection(filteredTestItemOptions.value.map(option => option.value));
+}
+
+function clearTestItems() {
+  setTestItemSelection([]);
 }
 </script>
 
@@ -87,12 +96,31 @@ function downloadExcel() {
           在当前主维度下选择要对比的子维度 · 已选 {{ selectedTestItemIds.length }} 项
         </p>
       </div>
-      <input
-        v-model="keyword"
-        type="search"
-        placeholder="搜索子维度"
-        class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 md:w-72"
-      />
+      <div class="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          :class="secondaryButtonClass"
+          :disabled="!filteredTestItemOptions.length"
+          @click="selectFilteredTestItems"
+        >
+          全选筛选结果
+        </button>
+        <button
+          type="button"
+          :class="secondaryButtonClass"
+          class="!text-red-600 hover:!bg-red-50"
+          :disabled="!selectedTestItemIds.length"
+          @click="clearTestItems"
+        >
+          清空子维度
+        </button>
+        <input
+          v-model="keyword"
+          type="search"
+          placeholder="搜索子维度"
+          class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-64"
+        />
+      </div>
     </div>
     <CheckboxChips
       :options="filteredTestItemOptions"
@@ -115,7 +143,7 @@ function downloadExcel() {
   />
   <p :class="['mb-6 text-sm', mutedTextClass]">{{ sortSummary }}</p>
 
-  <ChartCard title="维度对比" description="图表高度随选中子维度数量自适应，便于查看细节">
+  <ChartCard title="维度对比" :description="sortSummary">
     <template #actions>
       <OptionChips v-model="chartType" :options="chartTypeOptions" />
       <button :class="secondaryButtonClass" @click="downloadPng">导出 PNG</button>

@@ -107,6 +107,18 @@ const visibleProducts = computed(() => {
   return [...selectedVisible, ...remaining.slice(0, limit)];
 });
 
+const showAllSelected = ref(false);
+
+const collapsedSelectedLimit = 12;
+const visibleSelectedProducts = computed(() =>
+  showAllSelected.value
+    ? selectedProducts.value
+    : selectedProducts.value.slice(0, collapsedSelectedLimit)
+);
+const hiddenSelectedCount = computed(() =>
+  Math.max(0, selectedProducts.value.length - visibleSelectedProducts.value.length)
+);
+
 const hasActiveFilters = computed(() => Boolean(
   keyword.value || brand.value || year.value || size.value ||
   screenType.value !== 'unknown' || backlightType.value !== 'unknown'
@@ -193,7 +205,7 @@ function clearFilters() {
       </div>
     </div>
 
-    <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+    <div class="grid gap-3 grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
       <UiSelect
         v-model="brand"
         :options="brandOptions"
@@ -224,17 +236,29 @@ function clearFilters() {
       <input v-model="keyword" type="search" placeholder="搜索品牌 / 型号" :class="inputClass" />
     </div>
 
-    <div v-if="selectedProducts.length" class="mt-4 mb-4 flex flex-wrap gap-2">
+    <div v-if="selectedProducts.length" class="mt-4 mb-4">
+      <div class="max-h-[76px] overflow-hidden">
+        <div class="flex flex-wrap gap-2">
+          <button
+            v-for="product in visibleSelectedProducts"
+            :key="`selected-${product.id}`"
+            type="button"
+            class="inline-flex items-center gap-2 rounded-full bg-blue-600 px-3 py-1 text-xs font-medium text-white transition-all duration-200 ease-out hover:bg-blue-700 active:translate-y-0 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            :aria-label="`取消选择 ${product.label}`"
+            @click="emit('toggle', product.id)"
+          >
+            {{ product.label }}
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+      </div>
       <button
-        v-for="product in selectedProducts"
-        :key="`selected-${product.id}`"
+        v-if="hiddenSelectedCount > 0 || showAllSelected"
         type="button"
-        class="inline-flex items-center gap-2 rounded-full bg-blue-600 px-3 py-1 text-xs font-medium text-white transition-all duration-200 ease-out hover:bg-blue-700 active:translate-y-0 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        :aria-label="`取消选择 ${product.label}`"
-        @click="emit('toggle', product.id)"
+        class="mt-2 rounded-lg px-2 py-1 text-xs font-medium text-blue-600 transition-colors duration-200 hover:bg-blue-50"
+        @click="showAllSelected = !showAllSelected"
       >
-        {{ product.label }}
-        <span aria-hidden="true">×</span>
+        {{ showAllSelected ? '收起已选' : `展开已选 ${selectedProducts.length} 台` }}
       </button>
     </div>
 

@@ -64,6 +64,7 @@ function downloadExcel() {
   />
 
   <SortControls
+    class="mb-6"
     :metric-options="sortMetricOptions"
     :direction-options="sortDirectionOptions"
     :limit-options="displayLimitOptions"
@@ -74,10 +75,9 @@ function downloadExcel() {
     @update:direction="sortDirection = $event as typeof sortDirection"
     @update:limit="displayLimit = $event"
   />
-  <p :class="['mb-6 text-sm', mutedTextClass]">{{ sortSummary }}</p>
 
   <section class="mb-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
-    <ChartCard title="总分对比" description="Mixed Usage 总分">
+    <ChartCard title="总分对比" :description="sortSummary">
       <template #actions>
         <button :class="secondaryButtonClass" @click="downloadTotalPng">导出 PNG</button>
       </template>

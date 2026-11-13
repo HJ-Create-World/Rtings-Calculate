@@ -183,6 +183,10 @@ export function useDrilldown() {
       : [...selectedTestItemIds.value, nodeId];
   }
 
+  function setTestItemSelection(nodeIds: string[]) {
+    selectedTestItemIds.value = nodeIds;
+  }
+
   function setSelection(productIds: string[]) {
     selectedProductIds.value = productIds;
   }
@@ -218,7 +222,8 @@ export function useDrilldown() {
     toggleProduct,
     setSelection,
     clearSelection,
-    toggleTestItem
+    toggleTestItem,
+    setTestItemSelection
   };
 }
 

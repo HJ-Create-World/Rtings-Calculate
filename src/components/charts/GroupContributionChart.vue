@@ -37,8 +37,13 @@ const configuration = computed<ChartConfiguration<'bar'>>(() => ({
       legend: { position: 'bottom' },
       tooltip: {
         callbacks: {
+          title(context) {
+            const product = props.products[context[0]?.datasetIndex ?? 0];
+            return product?.model || context[0]?.dataset?.label || '';
+          },
           label(context) {
-            return `贡献 ${Number(context.parsed.y).toFixed(3)}`;
+            const group = props.groups[context.dataIndex];
+            return `${group?.label ?? ''} · 贡献 ${Number(context.parsed.y).toFixed(3)}`;
           }
         }
       }
