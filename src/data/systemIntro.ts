@@ -8,7 +8,7 @@ export const capabilityCards: IntroCard[] = [
   {
     title: '结构化评分引擎',
     description: '把 Rtings 规则拆成节点树与权重路径，支持缺失子项重归一和逐级 0.1 舍入。',
-    points: ['129 个评分节点', '90 条评分映射', 'Mixed Usage 总分']
+    points: ['132 个评分节点', '93 条评分映射', 'Mixed Usage 总分']
   },
   {
     title: '全链路计算追踪',
@@ -85,9 +85,14 @@ export const difficultyCards: IntroCard[] = [
 
 export const timeline = [
   {
+    date: '2026-06-01',
+    title: '规划、数据采集与规则反推',
+    description: '建立评分口径与统计框架，启动 Rtings 官方数据采集，整理 107 款机型 × 344 列数据，并开始评分规则反推与验证。'
+  },
+  {
     date: '2026-11-04',
     title: '规则基线与核心引擎',
-    description: '确认需求与工作簿口径，建立 TypeScript 评分核心、规则导入和权威基准测试。'
+    description: '在前期反推结论基础上确认工程口径，建立 TypeScript 评分核心、规则导入和权威基准测试。'
   },
   {
     date: '2026-11-05',
@@ -101,18 +106,34 @@ export const timeline = [
   },
   {
     date: '2026-11-11',
-    title: '系统化收口',
-    description: '重构导航与产品搜索，修正 CAD@60 客观锚点，新增范围外预估和系统介绍。'
+    title: '规则结构与计算收口',
+    description: '重构导航与产品搜索，修正 CAD@60 客观锚点、特殊子维度权重和范围外预估。'
+  },
+  {
+    date: '2026-11-12',
+    title: '展示与录入增强',
+    description: '统一展示顺序，丰富主维度权重与 7/8 分参考值，接入演示视频和系统介绍页。'
+  },
+  {
+    date: '2026-11-13',
+    title: '筛选、排序与档案扩展',
+    description: '上线产品全选/筛选、总分与维度排序、屏幕与背光档案，并同步修复类别项选项。'
   }
 ];
 
 export const milestoneRows = [
+  { version: '规则研究版', date: '2026-06-01 ~ 2026-11-03', summary: '规划与口径确认、Rtings 数据采集、统计汇总、规则反推、评分曲线验证与工程师表融合' },
   { version: 'v0.1.0', date: '2026-11-04 ~ 2026-11-05', summary: '评分核心、规则导入、只读展示、对比图、录入与 Excel 导入' },
   { version: '规则 v3.0', date: '2026-11-06', summary: '融合工程师表与 CSV 反推；接入云端持久化、历史载入和报告导出' },
-  { version: '当前迭代', date: '2026-11-11', summary: '导航与文案重构；CAD@60 客观锚点；范围外预估；本介绍页' }
+  { version: '当前迭代', date: '2026-11-12 ~ 2026-11-13', summary: '展示顺序统一；产品档案扩展；全选筛选；总分与维度排序；类别项修复' }
 ];
 
 export const roadmapCards: IntroCard[] = [
+  {
+    title: '测试方法与规则可视化',
+    description: '把每个测试项的设备、环境、步骤、数据处理、备注、参考图片/视频与评分锚点做成结构化知识库。',
+    points: ['测试方法页', '评分区间可视化', '媒体资料管理']
+  },
   {
     title: '权限与数据安全',
     description: '从公开读写升级为账号/角色权限，保证评测数据只能由授权工程师修改。',

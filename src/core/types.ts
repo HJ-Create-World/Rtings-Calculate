@@ -39,8 +39,8 @@ export interface ObjectiveMapping {
   intervals?: MappingInterval[];
   /** 数值锚点线性插值；来自 CSV 反推时使用。 */
   anchors?: Array<{ value: number; score: number }>;
-  /** 类别值精确映射。 */
-  values?: Array<{ value: string; score: number }>;
+  /** 类别值精确映射；label 用于 UI 展示，value 用于精确匹配。 */
+  values?: Array<{ value: string; score: number; label?: string }>;
   source?: string;
   evidence?: string;
 }

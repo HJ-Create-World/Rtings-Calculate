@@ -7694,6 +7694,10 @@
         {
           "value": "Yes",
           "score": 10.0
+        },
+        {
+          "value": "No",
+          "score": 0
         }
       ],
       "source": "csvRegression",
@@ -10328,6 +10332,10 @@
         {
           "value": "Yes",
           "score": 10.0
+        },
+        {
+          "value": "No",
+          "score": 0
         }
       ],
       "source": "csvRegression",
@@ -10369,7 +10377,8 @@
         },
         {
           "value": "Yes (Forced Resolution Required)",
-          "score": 10.0
+          "score": 10.0,
+          "label": "Yes（需强制分辨率）"
         }
       ],
       "source": "csvRegression",

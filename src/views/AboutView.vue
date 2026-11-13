@@ -34,9 +34,10 @@ const metrics = computed(() => [
 const engineering = [
   { label: '应用版本', value: `v${packageJson.version}` },
   { label: '规则版本', value: `v${rtingsRule.version}` },
-  { label: 'Git 提交', value: '20+ 次' },
-  { label: '开发周期', value: '2026-11-04 至 2026-11-11' },
-  { label: '前端与核心源码', value: '45+ 个 Vue/TS 文件 · 4,900+ 行' },
+  { label: 'Git 提交', value: '30+ 次' },
+  { label: '项目总周期', value: '2026-06-01 至 2026-11-13 · 166 天' },
+  { label: '数据采集与规则反推', value: '2026-06-01 起 · 107 款 × 344 列' },
+  { label: '前端与核心源码', value: '55+ 个 Vue/TS 文件 · 6,900+ 行' },
   { label: '规则与基准数据', value: '4 个 JSON 文件 · 95,000+ 行' },
   { label: '测试代码', value: '3 个测试文件 · 270+ 行' },
   { label: '文档资产', value: '需求、规则拆解、架构、部署、项目日志' }

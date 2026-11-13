@@ -87,7 +87,11 @@ function categoryOptions(node: ScoreNode) {
 function categorySelectOptions(node: ScoreNode) {
   return [
     { value: '', label: '请选择' },
-    ...categoryOptions(node).map(option => ({ value: option.value, label: option.value }))
+    ...categoryOptions(node).map(option => ({
+      value: option.value,
+      label: option.label ?? option.value,
+      description: option.label && option.label !== option.value ? option.value : undefined
+    }))
   ];
 }
 
