@@ -1,5 +1,6 @@
 import { createWorkBuddyCloud } from '@tencent-ai/workbuddy-cloud-sdk';
 import type { EvaluationDraft, EvaluationDraftValue } from '../types/evaluation';
+import { normalizeBacklightType, normalizeScreenType } from '../utils/productMetadata';
 import { migrateDraft } from '../utils/draftMigration';
 
 export const publicConfig = {
@@ -7,6 +8,14 @@ export const publicConfig = {
   oauthRelayBaseUrl: 'https://www.workbuddy.cn/v2/as/genie-baas/oauth',
   publishableKey: 'wbpk_rA0i84BMgp4SbpWeJ6Capl_2v3398kTvA7fu4hLcSmDnAXc5C3fC9d8'
 } as const;
+
+export interface EvaluationMetadata {
+  size: number | null;
+  screenType: 'oled' | 'lcd' | 'unknown';
+  backlightType: 'emissive' | 'mini-led' | 'led' | 'unknown';
+}
+
+const METADATA_KEY = '__meta__';
 
 export interface CloudEvaluation {
   id: number;
@@ -68,6 +77,11 @@ function unwrap<T>(result: { data: T | null; error: unknown }): T {
 }
 
 function toRecord(draft: EvaluationDraft, expectedTotal: number | null): CloudEvaluationInsert {
+  const metadata: EvaluationMetadata = {
+    size: draft.size ?? null,
+    screenType: draft.screenType,
+    backlightType: draft.backlightType
+  };
   return {
     client_id: draft.id,
     brand: draft.brand,
@@ -77,7 +91,10 @@ function toRecord(draft: EvaluationDraft, expectedTotal: number | null): CloudEv
     remark: draft.remark,
     rule_version: draft.ruleVersion,
     status: 'draft',
-    inputs: draft.values,
+    inputs: {
+      ...draft.values,
+      [METADATA_KEY]: metadata
+    } as Record<string, EvaluationDraftValue>,
     expected_total: expectedTotal
   };
 }
@@ -118,15 +135,21 @@ export async function getCloudEvaluation(clientId: string): Promise<CloudEvaluat
 }
 
 export function cloudEvaluationToDraft(record: CloudEvaluation): EvaluationDraft {
+  const inputs = { ...(record.inputs ?? {}) } as Record<string, EvaluationDraftValue & Partial<EvaluationMetadata>>;
+  const metadata = inputs[METADATA_KEY] as Partial<EvaluationMetadata> | undefined;
+  delete inputs[METADATA_KEY];
   return migrateDraft({
     id: record.client_id,
     brand: record.brand ?? '',
     model: record.model ?? '',
     testDate: record.test_date ?? '',
     engineer: record.engineer ?? '',
+    size: typeof metadata?.size === 'number' ? metadata.size : null,
+    screenType: normalizeScreenType(metadata?.screenType),
+    backlightType: normalizeBacklightType(metadata?.backlightType),
     remark: record.remark ?? '',
     ruleVersion: record.rule_version,
-    values: record.inputs ?? {},
+    values: inputs,
     updatedAt: record.updated_at
   });
 }

@@ -9,6 +9,9 @@ export function useComparison() {
   void refreshEvaluationLibrary();
 
   const selectedIds = ref<string[]>(allBaselines.value.slice(0, 6).map(baseline => baseline.id));
+  const sortMetricId = ref('total');
+  const sortDirection = ref<'desc' | 'asc'>('desc');
+  const displayLimit = ref('10');
 
   const selectedProducts = computed(() =>
     selectedIds.value
@@ -22,8 +25,48 @@ export function useComparison() {
     )
   );
 
+  const sortMetricOptions = computed(() => [
+    { value: 'total', label: 'Mixed Usage 总分' },
+    ...topGroups.value.map(group => ({ value: group.id, label: group.label }))
+  ]);
+
+  const sortDirectionOptions = [
+    { value: 'desc', label: '高分 → 低分' },
+    { value: 'asc', label: '低分 → 高分' }
+  ];
+
+  const displayLimitOptions = [
+    { value: '10', label: 'Top 10' },
+    { value: '20', label: 'Top 20' },
+    { value: 'all', label: '全部' }
+  ];
+
+  function getSortValue(baseline: NonNullable<ReturnType<typeof getEvaluationProductById>>): number | null {
+    if (sortMetricId.value === 'total') return baseline.expectedTotal;
+    return baseline.expectedScores[sortMetricId.value] ?? null;
+  }
+
+  const sortedProducts = computed(() => {
+    const direction = sortDirection.value === 'asc' ? 1 : -1;
+    return [...selectedProducts.value].sort((left, right) => {
+      const leftValue = getSortValue(left);
+      const rightValue = getSortValue(right);
+      if (leftValue === null && rightValue === null) return left.label.localeCompare(right.label, 'zh-CN');
+      if (leftValue === null) return 1;
+      if (rightValue === null) return -1;
+      const diff = (leftValue - rightValue) * direction;
+      return diff || left.label.localeCompare(right.label, 'zh-CN');
+    });
+  });
+
+  const displayedProducts = computed(() => {
+    if (displayLimit.value === 'all') return sortedProducts.value;
+    const limit = Number(displayLimit.value);
+    return sortedProducts.value.slice(0, limit);
+  });
+
   const totalEntries = computed(() =>
-    selectedProducts.value.map(baseline => ({
+    displayedProducts.value.map(baseline => ({
       label: baseline.label,
       value: baseline.expectedTotal
     }))
@@ -32,13 +75,20 @@ export function useComparison() {
   const radarLabels = computed(() => topGroups.value.map(group => group.label));
 
   const radarSeries = computed(() =>
-    selectedProducts.value.map(baseline => ({
+    displayedProducts.value.map(baseline => ({
       label: baseline.label,
       values: topGroups.value.map(
         (group: ScoreNode) => baseline.expectedScores[group.id] ?? null
       )
     }))
   );
+
+  const sortSummary = computed(() => {
+    const metric = sortMetricOptions.value.find(option => option.value === sortMetricId.value)?.label ?? '总分';
+    const direction = sortDirectionOptions.find(option => option.value === sortDirection.value)?.label ?? '';
+    const shown = displayedProducts.value.length;
+    return `按 ${metric} ${direction} 排序 · 展示 ${shown} / ${selectedProducts.value.length} 台`;
+  });
 
   watch(
     allBaselines,
@@ -56,15 +106,34 @@ export function useComparison() {
       : [...selectedIds.value, productId];
   }
 
+  function setSelection(productIds: string[]) {
+    selectedIds.value = productIds;
+  }
+
+  function clearSelection() {
+    selectedIds.value = [];
+  }
+
   return {
     allBaselines,
     selectedIds,
     selectedProducts,
+    sortedProducts,
+    displayedProducts,
     topGroups,
     totalEntries,
     radarLabels,
     radarSeries,
-    toggleProduct
+    sortMetricId,
+    sortDirection,
+    displayLimit,
+    sortMetricOptions,
+    sortDirectionOptions,
+    displayLimitOptions,
+    sortSummary,
+    toggleProduct,
+    setSelection,
+    clearSelection
   };
 }
 

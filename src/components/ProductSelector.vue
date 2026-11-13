@@ -2,6 +2,13 @@
 import { computed, ref, watch } from 'vue';
 import UiSelect from './UiSelect.vue';
 import type { ProductBaseline } from '../data/rtingsRule';
+import {
+  BACKLIGHT_TYPE_OPTIONS,
+  SCREEN_TYPE_OPTIONS,
+  getProductMetadata,
+  type BacklightType,
+  type ScreenType
+} from '../utils/productMetadata';
 import { cardClass, inputClass, mutedTextClass, primaryButtonClass, secondaryButtonClass } from '../utils/ui';
 
 const props = defineProps<{
@@ -12,11 +19,16 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (event: 'toggle', productId: string): void;
+  (event: 'selectMany', productIds: string[]): void;
+  (event: 'clearSelection'): void;
 }>();
 
 const keyword = ref('');
 const brand = ref('');
 const year = ref('');
+const size = ref('');
+const screenType = ref<ScreenType>('unknown');
+const backlightType = ref<BacklightType>('unknown');
 const expanded = ref(false);
 const defaultCollapsedCount = 12;
 
@@ -31,10 +43,18 @@ const years = computed(() =>
     .sort((a, b) => b - a)
 );
 
+const sizes = computed(() =>
+  [...new Set(
+    props.products.flatMap(product => getProductMetadata(product).sizes)
+  )].sort((a, b) => a - b)
+);
+
 const filteredProducts = computed(() => {
   const text = keyword.value.trim().toLowerCase();
+  const selectedSize = Number(size.value);
   return props.products
     .filter(product => {
+      const metadata = getProductMetadata(product);
       const matchesText =
         !text ||
         `${product.label} ${product.brand ?? ''} ${product.model ?? ''}`
@@ -42,7 +62,11 @@ const filteredProducts = computed(() => {
           .includes(text);
       const matchesBrand = !brand.value || (product.brand ?? '未分类') === brand.value;
       const matchesYear = !year.value || String(product.releaseYear ?? '') === year.value;
-      return matchesText && matchesBrand && matchesYear;
+      const matchesSize = !size.value || metadata.sizes.includes(selectedSize);
+      const matchesScreen = screenType.value === 'unknown' || metadata.screenType === screenType.value;
+      const matchesBacklight =
+        backlightType.value === 'unknown' || metadata.backlightType === backlightType.value;
+      return matchesText && matchesBrand && matchesYear && matchesSize && matchesScreen && matchesBacklight;
     })
     .sort((a, b) => {
       const yearDiff = (b.releaseYear ?? 0) - (a.releaseYear ?? 0);
@@ -62,6 +86,11 @@ const yearOptions = computed(() => [
   ...years.value.map(item => ({ value: String(item), label: String(item) }))
 ]);
 
+const sizeOptions = computed(() => [
+  { value: '', label: '全部尺寸' },
+  ...sizes.value.map(item => ({ value: String(item), label: `${item} 英寸` }))
+]);
+
 const selectedProducts = computed(() =>
   props.selectedIds
     .map(id => props.products.find(product => product.id === id))
@@ -78,7 +107,15 @@ const visibleProducts = computed(() => {
   return [...selectedVisible, ...remaining.slice(0, limit)];
 });
 
-const hasActiveFilters = computed(() => Boolean(keyword.value || brand.value || year.value));
+const hasActiveFilters = computed(() => Boolean(
+  keyword.value || brand.value || year.value || size.value ||
+  screenType.value !== 'unknown' || backlightType.value !== 'unknown'
+));
+
+const filteredAllSelected = computed(() =>
+  filteredProducts.value.length > 0 &&
+  filteredProducts.value.every(product => selectedSet.value.has(product.id))
+);
 
 watch(
   () => props.products.length,
@@ -92,10 +129,28 @@ function isSelected(productId: string) {
   return selectedSet.value.has(productId);
 }
 
+function selectFiltered() {
+  const merged = new Set(props.selectedIds);
+  filteredProducts.value.forEach(product => merged.add(product.id));
+  emit('selectMany', [...merged]);
+}
+
+function clearFiltered() {
+  const excluded = new Set(filteredProducts.value.map(product => product.id));
+  emit('selectMany', props.selectedIds.filter(id => !excluded.has(id)));
+}
+
+function clearAll() {
+  emit('clearSelection');
+}
+
 function clearFilters() {
   keyword.value = '';
   brand.value = '';
   year.value = '';
+  size.value = '';
+  screenType.value = 'unknown';
+  backlightType.value = 'unknown';
 }
 </script>
 
@@ -106,25 +161,70 @@ function clearFilters() {
         <h2 class="text-xl font-semibold tracking-tight text-gray-900">产品搜索</h2>
         <p :class="['mt-1 text-sm', mutedTextClass]">
           已选 {{ selectedIds.length }} 台 · 筛选结果 {{ filteredProducts.length }} 台
+          <span v-if="filteredAllSelected" class="ml-2 text-blue-600">筛选结果已全选</span>
         </p>
       </div>
-      <div class="grid gap-3 md:grid-cols-3 lg:w-auto lg:min-w-[680px]">
-        <UiSelect
-          v-model="brand"
-          :options="brandOptions"
-          aria-label="按品牌筛选"
-          searchable
-        />
-        <UiSelect
-          v-model="year"
-          :options="yearOptions"
-          aria-label="按年份筛选"
-        />
-        <input v-model="keyword" type="search" placeholder="搜索品牌 / 型号" :class="inputClass" />
+      <div class="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          :class="secondaryButtonClass"
+          :disabled="!filteredProducts.length"
+          @click="selectFiltered"
+        >
+          全选筛选结果
+        </button>
+        <button
+          type="button"
+          :class="secondaryButtonClass"
+          :disabled="!filteredProducts.length || !selectedIds.length"
+          @click="clearFiltered"
+        >
+          取消全选
+        </button>
+        <button
+          type="button"
+          :class="secondaryButtonClass"
+          class="!text-red-600 hover:!bg-red-50"
+          :disabled="!selectedIds.length"
+          @click="clearAll"
+        >
+          清空选择
+        </button>
       </div>
     </div>
 
-    <div v-if="selectedProducts.length" class="mb-4 flex flex-wrap gap-2">
+    <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+      <UiSelect
+        v-model="brand"
+        :options="brandOptions"
+        aria-label="按品牌筛选"
+        searchable
+      />
+      <UiSelect
+        v-model="year"
+        :options="yearOptions"
+        aria-label="按年份筛选"
+      />
+      <UiSelect
+        v-model="size"
+        :options="sizeOptions"
+        aria-label="按尺寸筛选"
+        searchable
+      />
+      <UiSelect
+        v-model="screenType"
+        :options="SCREEN_TYPE_OPTIONS"
+        aria-label="按屏幕类型筛选"
+      />
+      <UiSelect
+        v-model="backlightType"
+        :options="BACKLIGHT_TYPE_OPTIONS"
+        aria-label="按背光类型筛选"
+      />
+      <input v-model="keyword" type="search" placeholder="搜索品牌 / 型号" :class="inputClass" />
+    </div>
+
+    <div v-if="selectedProducts.length" class="mt-4 mb-4 flex flex-wrap gap-2">
       <button
         v-for="product in selectedProducts"
         :key="`selected-${product.id}`"
@@ -135,15 +235,6 @@ function clearFilters() {
       >
         {{ product.label }}
         <span aria-hidden="true">×</span>
-      </button>
-      <button
-        v-if="selectedProducts.length > 1"
-        type="button"
-        :class="secondaryButtonClass"
-        class="!px-3 !py-1 !text-xs"
-        @click="selectedProducts.forEach(product => emit('toggle', product.id))"
-      >
-        清空选择
       </button>
     </div>
 

@@ -16,6 +16,12 @@ import {
 import type { LocalEvaluation } from '../services/localEvaluations';
 import { formatScore, statusClass, statusLabel, warningLabel } from '../utils/format';
 import { collectLeafItemsByDocumentOrder, getMainDimensionNodes } from '../utils/ruleDisplay';
+import {
+  BACKLIGHT_TYPE_OPTIONS,
+  SCREEN_TYPE_OPTIONS,
+  type BacklightType,
+  type ScreenType
+} from '../utils/productMetadata';
 import { cardClass, inputClass, mutedTextClass, primaryButtonClass, secondaryButtonClass, sectionTitleClass } from '../utils/ui';
 
 const {
@@ -36,6 +42,8 @@ const inputModeOptions = [
   { value: 'manual', label: '手工录入' },
   { value: 'import', label: 'Excel 导入' }
 ];
+const screenTypeOptions = SCREEN_TYPE_OPTIONS;
+const backlightTypeOptions = BACKLIGHT_TYPE_OPTIONS;
 
 const inputNodeCount = rtingsRule.nodes.filter(
   node => node.inputType !== 'aggregate' && node.includeInParent
@@ -103,7 +111,7 @@ const metaFields = [
   { key: 'engineer', label: '测试工程师', required: true, type: 'text' }
 ] as const;
 
-const metaErrors = ref<Partial<Record<'brand' | 'model' | 'testDate' | 'engineer', string>>>({});
+const metaErrors = ref<Partial<Record<'brand' | 'model' | 'testDate' | 'engineer' | 'size' | 'screenType' | 'backlightType', string>>>({});
 const cloudSaving = ref(false);
 const cloudMessage = ref<{ type: 'success' | 'error'; text: string } | null>(null);
 const localSaving = ref(false);
@@ -119,7 +127,7 @@ function saveToLocal() {
   const validation = validateDraftMeta(draft.value);
   metaErrors.value = validation.errors;
   if (!validation.valid) {
-    localMessage.value = { type: 'error', text: '请先填写品牌、型号、测试日期和测试工程师' };
+    localMessage.value = { type: 'error', text: '请先补齐产品档案必填项' };
     return;
   }
 
@@ -139,7 +147,7 @@ async function saveToCloud() {
   const validation = validateDraftMeta(draft.value);
   metaErrors.value = validation.errors;
   if (!validation.valid) {
-    cloudMessage.value = { type: 'error', text: '请先填写品牌、型号、测试日期和测试工程师' };
+    cloudMessage.value = { type: 'error', text: '请先补齐产品档案必填项' };
     return;
   }
 
@@ -250,6 +258,49 @@ function itemScoreTitle(node: ScoreNode): string {
             {{ metaErrors[field.key] }}
           </span>
         </label>
+        <label class="grid gap-2 text-sm">
+          <span class="text-gray-700">
+            尺寸（英寸）
+            <span class="text-red-500">*</span>
+          </span>
+          <input
+            :value="draft.size ?? ''"
+            type="number"
+            min="1"
+            max="300"
+            step="1"
+            placeholder="如 65"
+            :class="[inputClass, metaErrors.size ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '']"
+            @input="updateMeta({ size: ($event.target as HTMLInputElement).valueAsNumber })"
+          />
+          <span v-if="metaErrors.size" class="text-xs text-red-600">{{ metaErrors.size }}</span>
+        </label>
+        <div class="grid gap-2 text-sm">
+          <span class="text-gray-700">
+            屏幕类型
+            <span class="text-red-500">*</span>
+          </span>
+          <UiSelect
+            :model-value="draft.screenType"
+            :options="screenTypeOptions"
+            aria-label="选择屏幕类型"
+            @update:model-value="updateMeta({ screenType: $event as ScreenType })"
+          />
+          <span v-if="metaErrors.screenType" class="text-xs text-red-600">{{ metaErrors.screenType }}</span>
+        </div>
+        <div class="grid gap-2 text-sm">
+          <span class="text-gray-700">
+            背光类型
+            <span class="text-red-500">*</span>
+          </span>
+          <UiSelect
+            :model-value="draft.backlightType"
+            :options="backlightTypeOptions"
+            aria-label="选择背光类型"
+            @update:model-value="updateMeta({ backlightType: $event as BacklightType })"
+          />
+          <span v-if="metaErrors.backlightType" class="text-xs text-red-600">{{ metaErrors.backlightType }}</span>
+        </div>
         <label class="grid gap-2 text-sm md:col-span-2">
           <span class="text-gray-700">备注</span>
           <textarea

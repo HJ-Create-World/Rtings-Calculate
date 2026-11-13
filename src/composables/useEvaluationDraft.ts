@@ -3,6 +3,7 @@ import { evaluateRule } from '../core/evaluate';
 import type { EvaluationInputs } from '../core/types';
 import { rtingsRule } from '../data/rtingsRule';
 import type { EvaluationDraft, EvaluationDraftValue } from '../types/evaluation';
+import { normalizeBacklightType, normalizeScreenType } from '../utils/productMetadata';
 import { migrateDraftValues } from '../utils/draftMigration';
 
 const STORAGE_KEY = 'rtings-calculate:evaluation-draft:v3';
@@ -21,6 +22,9 @@ function emptyDraft(): EvaluationDraft {
     model: '',
     testDate: '',
     engineer: '',
+    size: null,
+    screenType: 'unknown',
+    backlightType: 'unknown',
     remark: '',
     ruleVersion: rtingsRule.version,
     values: {},
@@ -92,6 +96,9 @@ function loadDraft(): EvaluationDraft {
     return {
       ...emptyDraft(),
       ...parsed,
+      size: typeof parsed.size === 'number' ? parsed.size : null,
+      screenType: normalizeScreenType(parsed.screenType),
+      backlightType: normalizeBacklightType(parsed.backlightType),
       values: migrateDraftValues(parsed.values ?? {})
     };
   } catch {

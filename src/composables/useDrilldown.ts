@@ -40,6 +40,10 @@ export function useDrilldown() {
   });
 
   const selectedProductIds = ref(allBaselines.value.slice(0, 6).map(baseline => baseline.id));
+  const sortMetricId = ref('average');
+  const sortDirection = ref<'desc' | 'asc'>('desc');
+  const displayLimit = ref('10');
+
   const selectedProducts = computed(() =>
     selectedProductIds.value
       .map(id => getEvaluationProductById(id))
@@ -48,6 +52,98 @@ export function useDrilldown() {
 
   const selectedTestItems = computed(() =>
     testItems.value.filter(item => selectedTestItemIds.value.includes(item.id))
+  );
+
+  const sortMetricOptions = computed(() => [
+    { value: 'average', label: '已选测试项均值' },
+    { value: 'weighted', label: '已选测试项加权均值' },
+    ...selectedTestItems.value.map(item => {
+      const parent = rtingsRule.nodes.find(node => node.id === item.parentId);
+      const prefix = parent && parent.kind === 'dimension' ? `${parent.label} / ` : '';
+      return { value: item.id, label: `${prefix}${item.label}` };
+    })
+  ]);
+
+  const sortDirectionOptions = [
+    { value: 'desc', label: '高分 → 低分' },
+    { value: 'asc', label: '低分 → 高分' }
+  ];
+
+  const displayLimitOptions = [
+    { value: '10', label: 'Top 10' },
+    { value: '20', label: 'Top 20' },
+    { value: 'all', label: '全部' }
+  ];
+
+  function getSortValue(product: NonNullable<ReturnType<typeof getEvaluationProductById>>): number | null {
+    const scores = selectedTestItems.value
+      .map(item => product.expectedScores[item.id])
+      .filter((score): score is number => typeof score === 'number');
+
+    if (sortMetricId.value === 'average') {
+      return scores.length ? scores.reduce((sum, score) => sum + score, 0) / scores.length : null;
+    }
+    if (sortMetricId.value === 'weighted') {
+      const weighted = selectedTestItems.value
+        .map(item => {
+          const score = product.expectedScores[item.id];
+          return typeof score === 'number' ? score * (item.weight ?? 0) : null;
+        })
+        .filter((score): score is number => typeof score === 'number');
+      const weightSum = selectedTestItems.value
+        .filter(item => typeof product.expectedScores[item.id] === 'number')
+        .reduce((sum, item) => sum + (item.weight ?? 0), 0);
+      return weightSum > 0 ? weighted.reduce((sum, score) => sum + score, 0) / weightSum : null;
+    }
+    return product.expectedScores[sortMetricId.value] ?? null;
+  }
+
+  const sortedProducts = computed(() => {
+    const direction = sortDirection.value === 'asc' ? 1 : -1;
+    return [...selectedProducts.value].sort((left, right) => {
+      const leftValue = getSortValue(left);
+      const rightValue = getSortValue(right);
+      if (leftValue === null && rightValue === null) return left.label.localeCompare(right.label, 'zh-CN');
+      if (leftValue === null) return 1;
+      if (rightValue === null) return -1;
+      const diff = (leftValue - rightValue) * direction;
+      return diff || left.label.localeCompare(right.label, 'zh-CN');
+    });
+  });
+
+  const displayedProducts = computed(() => {
+    if (displayLimit.value === 'all') return sortedProducts.value;
+    const limit = Number(displayLimit.value);
+    return sortedProducts.value.slice(0, limit);
+  });
+
+  const highlightItemId = computed(() =>
+    sortMetricId.value !== 'average' && sortMetricId.value !== 'weighted'
+      ? sortMetricId.value
+      : null
+  );
+
+  const highlightIndex = computed(() =>
+    highlightItemId.value === null
+      ? null
+      : selectedTestItems.value.findIndex(item => item.id === highlightItemId.value)
+  );
+
+  const sortSummary = computed(() => {
+    const metric = sortMetricOptions.value.find(option => option.value === sortMetricId.value)?.label ?? '均值';
+    const direction = sortDirectionOptions.find(option => option.value === sortDirection.value)?.label ?? '';
+    const shown = displayedProducts.value.length;
+    return `按 ${metric} ${direction} 排序 · 展示 ${shown} / ${selectedProducts.value.length} 台`;
+  });
+
+  watch(
+    selectedTestItemIds,
+    items => {
+      if (!['average', 'weighted'].includes(sortMetricId.value) && !items.includes(sortMetricId.value)) {
+        sortMetricId.value = 'average';
+      }
+    },
+    { deep: true }
   );
 
   const chartLabels = computed(() =>
@@ -60,7 +156,7 @@ export function useDrilldown() {
   );
 
   const chartSeries = computed(() =>
-    selectedProducts.value.map(product => ({
+    displayedProducts.value.map(product => ({
       label: product.label,
       values: selectedTestItems.value.map(
         item => product.expectedScores[item.id] ?? null
@@ -87,6 +183,14 @@ export function useDrilldown() {
       : [...selectedTestItemIds.value, nodeId];
   }
 
+  function setSelection(productIds: string[]) {
+    selectedProductIds.value = productIds;
+  }
+
+  function clearSelection() {
+    selectedProductIds.value = [];
+  }
+
   return {
     allBaselines,
     groupOptions,
@@ -96,11 +200,24 @@ export function useDrilldown() {
     selectedTestItems,
     selectedProductIds,
     selectedProducts,
+    sortedProducts,
+    displayedProducts,
+    highlightItemId,
+    highlightIndex,
+    sortMetricId,
+    sortDirection,
+    displayLimit,
+    sortMetricOptions,
+    sortDirectionOptions,
+    displayLimitOptions,
+    sortSummary,
     chartLabels,
     chartSeries,
     chartType,
     chartHeight,
     toggleProduct,
+    setSelection,
+    clearSelection,
     toggleTestItem
   };
 }

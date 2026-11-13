@@ -21,7 +21,9 @@
     "vue-tsc": "^3.3.14"
   },
   "dependencies": {
+    "@tencent-ai/workbuddy-cloud-sdk": "^0.1.4-dev.ca27990.202610161713",
     "chart.js": "^4.6.1",
+    "exceljs": "^4.4.0",
     "vue": "^3.5.44",
     "vue-router": "^4.6.4",
     "xlsx": "^0.18.5"

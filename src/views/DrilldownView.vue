@@ -4,6 +4,7 @@ import CheckboxChips from '../components/CheckboxChips.vue';
 import ChartCard from '../components/ChartCard.vue';
 import OptionChips from '../components/OptionChips.vue';
 import ProductSelector from '../components/ProductSelector.vue';
+import SortControls from '../components/SortControls.vue';
 import TestItemComparisonChart from '../components/charts/TestItemComparisonChart.vue';
 import { useDrilldown } from '../composables/useDrilldown';
 import { exportDrilldownExcel } from '../utils/export';
@@ -17,12 +18,22 @@ const {
   selectedTestItemIds,
   selectedTestItems,
   selectedProductIds,
-  selectedProducts,
+  sortedProducts,
+  highlightIndex,
+  sortMetricId,
+  sortDirection,
+  displayLimit,
+  sortMetricOptions,
+  sortDirectionOptions,
+  displayLimitOptions,
+  sortSummary,
   chartLabels,
   chartSeries,
   chartType,
   chartHeight,
   toggleProduct,
+  setSelection,
+  clearSelection,
   toggleTestItem
 } = useDrilldown();
 
@@ -47,7 +58,7 @@ function downloadPng() {
 }
 
 function downloadExcel() {
-  exportDrilldownExcel(selectedProducts.value, selectedTestItems.value);
+  exportDrilldownExcel(sortedProducts.value, selectedTestItems.value);
 }
 </script>
 
@@ -57,6 +68,8 @@ function downloadExcel() {
       :products="allBaselines"
       :selected-ids="selectedProductIds"
       @toggle="toggleProduct"
+      @select-many="setSelection"
+      @clear-selection="clearSelection"
     />
   </section>
 
@@ -88,6 +101,20 @@ function downloadExcel() {
     />
   </section>
 
+  <SortControls
+    class="mb-6"
+    :metric-options="sortMetricOptions"
+    :direction-options="sortDirectionOptions"
+    :limit-options="displayLimitOptions"
+    :metric="sortMetricId"
+    :direction="sortDirection"
+    :limit="displayLimit"
+    @update:metric="sortMetricId = $event"
+    @update:direction="sortDirection = $event as typeof sortDirection"
+    @update:limit="displayLimit = $event"
+  />
+  <p :class="['mb-6 text-sm', mutedTextClass]">{{ sortSummary }}</p>
+
   <ChartCard title="维度对比" description="图表高度随选中子维度数量自适应，便于查看细节">
     <template #actions>
       <OptionChips v-model="chartType" :options="chartTypeOptions" />
@@ -100,6 +127,7 @@ function downloadExcel() {
       :series="chartSeries"
       :chart-type="chartType"
       :height="chartHeight"
+      :highlight-index="highlightIndex"
     />
   </ChartCard>
 </template>

@@ -9,9 +9,19 @@ const props = defineProps<{
   series: Array<{ label: string; values: Array<number | null> }>;
   chartType: 'bar' | 'radar';
   height?: string;
+  highlightIndex?: number | null;
 }>();
 
 const baseChartRef = ref<InstanceType<typeof BaseChart> | null>(null);
+
+function isHighlighted(index: number): boolean {
+  return props.highlightIndex === index;
+}
+
+function labelColor(index: number): string {
+  if (!isHighlighted(index)) return '#374151';
+  return '#1565C0';
+}
 
 const configuration = computed<ChartConfiguration>(() => {
   const datasets = props.series.map((series, index) => ({
@@ -20,7 +30,7 @@ const configuration = computed<ChartConfiguration>(() => {
     backgroundColor: `${corporatePalette[index % corporatePalette.length]}26`,
     borderColor: corporatePalette[index % corporatePalette.length],
     pointBackgroundColor: corporatePalette[index % corporatePalette.length],
-    borderWidth: 2,
+    borderWidth: isHighlighted(index) ? 3 : 2,
     borderRadius: 6,
     maxBarThickness: 22
   }));
@@ -40,7 +50,12 @@ const configuration = computed<ChartConfiguration>(() => {
             ticks: { stepSize: 2, backdropColor: 'transparent' },
             grid: { color: '#f3f4f6' },
             angleLines: { color: '#e5e7eb' },
-            pointLabels: { color: '#374151' }
+            pointLabels: {
+              color: (context) => labelColor(context.index ?? 0),
+              font: (context) => ({
+                weight: isHighlighted(context.index ?? 0) ? 700 : 400
+              })
+            }
           }
         }
       }
@@ -57,7 +72,16 @@ const configuration = computed<ChartConfiguration>(() => {
       plugins: { legend: { position: 'bottom' } },
       scales: {
         x: { beginAtZero: true, suggestedMax: 10, grid: { color: '#f3f4f6' } },
-        y: { grid: { display: false }, ticks: { autoSkip: false } }
+        y: {
+          grid: { display: false },
+          ticks: {
+            autoSkip: false,
+            color: (context) => labelColor(context.index ?? 0),
+            font: (context) => ({
+              weight: isHighlighted(context.index ?? 0) ? 700 : 400
+            })
+          }
+        }
       }
     }
   };

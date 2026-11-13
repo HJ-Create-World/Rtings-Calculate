@@ -9,7 +9,7 @@ export interface UiSelectOption {
 
 const props = withDefaults(
   defineProps<{
-    options: UiSelectOption[];
+    options: readonly UiSelectOption[];
     modelValue: string;
     placeholder?: string;
     ariaLabel?: string;

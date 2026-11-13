@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import ChartCard from '../components/ChartCard.vue';
 import ComparisonTable from '../components/ComparisonTable.vue';
 import ProductSelector from '../components/ProductSelector.vue';
+import SortControls from '../components/SortControls.vue';
 import GroupRadarChart from '../components/charts/GroupRadarChart.vue';
 import GroupContributionChart from '../components/charts/GroupContributionChart.vue';
 import TotalScoreChart from '../components/charts/TotalScoreChart.vue';
@@ -13,12 +14,22 @@ import { mutedTextClass, primaryButtonClass, secondaryButtonClass, sectionTitleC
 const {
   allBaselines,
   selectedIds,
-  selectedProducts,
+  sortedProducts,
+  displayedProducts,
   topGroups,
   totalEntries,
   radarLabels,
   radarSeries,
-  toggleProduct
+  sortMetricId,
+  sortDirection,
+  displayLimit,
+  sortMetricOptions,
+  sortDirectionOptions,
+  displayLimitOptions,
+  sortSummary,
+  toggleProduct,
+  setSelection,
+  clearSelection
 } = useComparison();
 
 const totalChartRef = ref<InstanceType<typeof TotalScoreChart> | null>(null);
@@ -38,7 +49,7 @@ function downloadContributionPng() {
 }
 
 function downloadExcel() {
-  exportComparisonExcel(selectedProducts.value, topGroups.value);
+  exportComparisonExcel(sortedProducts.value, topGroups.value);
 }
 </script>
 
@@ -48,7 +59,22 @@ function downloadExcel() {
     :products="allBaselines"
     :selected-ids="selectedIds"
     @toggle="toggleProduct"
+    @select-many="setSelection"
+    @clear-selection="clearSelection"
   />
+
+  <SortControls
+    :metric-options="sortMetricOptions"
+    :direction-options="sortDirectionOptions"
+    :limit-options="displayLimitOptions"
+    :metric="sortMetricId"
+    :direction="sortDirection"
+    :limit="displayLimit"
+    @update:metric="sortMetricId = $event"
+    @update:direction="sortDirection = $event as typeof sortDirection"
+    @update:limit="displayLimit = $event"
+  />
+  <p :class="['mb-6 text-sm', mutedTextClass]">{{ sortSummary }}</p>
 
   <section class="mb-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
     <ChartCard title="总分对比" description="Mixed Usage 总分">
@@ -82,7 +108,7 @@ function downloadExcel() {
       <GroupContributionChart
         ref="contributionChartRef"
         :groups="topGroups"
-        :products="selectedProducts"
+        :products="displayedProducts"
         height="520px"
       />
     </ChartCard>
@@ -96,6 +122,6 @@ function downloadExcel() {
       </div>
       <button :class="primaryButtonClass" @click="downloadExcel">导出 Excel</button>
     </div>
-    <ComparisonTable :groups="topGroups" :products="selectedProducts" />
+    <ComparisonTable :groups="topGroups" :products="displayedProducts" />
   </section>
 </template>

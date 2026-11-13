@@ -54,7 +54,7 @@ export function getLocalEvaluation(id: string): LocalEvaluation | undefined {
 
 export interface DraftMetaValidation {
   valid: boolean;
-  errors: Partial<Record<'brand' | 'model' | 'testDate' | 'engineer', string>>;
+  errors: Partial<Record<'brand' | 'model' | 'testDate' | 'engineer' | 'size' | 'screenType' | 'backlightType', string>>;
 }
 
 export function validateDraftMeta(draft: EvaluationDraft): DraftMetaValidation {
@@ -63,5 +63,10 @@ export function validateDraftMeta(draft: EvaluationDraft): DraftMetaValidation {
   if (!draft.model.trim()) errors.model = '型号必填';
   if (!draft.testDate.trim()) errors.testDate = '测试日期必填';
   if (!draft.engineer.trim()) errors.engineer = '测试工程师必填';
+  if (draft.size === null || draft.size === undefined || !Number.isFinite(draft.size) || draft.size <= 0) {
+    errors.size = '尺寸必填';
+  }
+  if (!draft.screenType || draft.screenType === 'unknown') errors.screenType = '屏幕类型必填';
+  if (!draft.backlightType || draft.backlightType === 'unknown') errors.backlightType = '背光类型必填';
   return { valid: Object.keys(errors).length === 0, errors };
 }

@@ -92,7 +92,7 @@ export const timeline = [
   {
     date: '2026-11-05',
     title: '录入工作台与部署',
-    description: '上线实时单项评分、分组 Excel 模板和 WorkBuddy 预览部署。'
+    description: '上线实时单项评分、分组 Excel 模板和预览部署。'
   },
   {
     date: '2026-11-06',

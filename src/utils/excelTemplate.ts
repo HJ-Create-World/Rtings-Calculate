@@ -69,6 +69,9 @@ export function downloadImportTemplate() {
     { 字段: '型号', 值: '' },
     { 字段: '测试日期', 值: '' },
     { 字段: '测试工程师', 值: '' },
+    { 字段: '尺寸（英寸）', 值: '' },
+    { 字段: '屏幕类型', 值: 'OLED / LCD' },
+    { 字段: '背光类型', 值: '自发光 / Mini LED / 普通 LED' },
     { 字段: '备注', 值: '' }
   ]), '产品信息');
 
@@ -159,12 +162,19 @@ export async function parseImportWorkbook(file: File): Promise<ImportValidation>
     warnings.push('未读取到任何测试值，请检查各分组工作表的“值”列。');
   }
 
+  const sizeText = productInfo.get('尺寸（英寸）') ?? '';
+  const size = Number(sizeText);
+  const screenTypeText = (productInfo.get('屏幕类型') ?? '').toLowerCase();
+  const backlightTypeText = (productInfo.get('背光类型') ?? '').toLowerCase();
   const draft: EvaluationDraft = {
     id: typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `import-${Date.now()}`,
     brand: productInfo.get('品牌') ?? '',
     model: productInfo.get('型号') ?? '',
     testDate: productInfo.get('测试日期') ?? '',
     engineer: productInfo.get('测试工程师') ?? '',
+    size: Number.isFinite(size) && size > 0 ? size : null,
+    screenType: screenTypeText.includes('oled') ? 'oled' : screenTypeText.includes('lcd') ? 'lcd' : 'unknown',
+    backlightType: backlightTypeText.includes('mini') ? 'mini-led' : backlightTypeText.includes('自发光') ? 'emissive' : backlightTypeText.includes('led') ? 'led' : 'unknown',
     remark: productInfo.get('备注') ?? '',
     ruleVersion: rtingsRule.version,
     values,

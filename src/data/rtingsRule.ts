@@ -8,6 +8,7 @@ import type {
   ScoringRule,
   ScoreNode
 } from '../core/types';
+import type { BacklightType, ScreenType } from '../utils/productMetadata';
 
 export const rtingsRuleV1 = ruleV1Json as unknown as ScoringRule;
 export const rtingsRuleV3 = ruleV3Json as unknown as ScoringRule;
@@ -31,7 +32,11 @@ export interface ProductBaseline {
   brand?: string;
   model?: string;
   releaseYear?: number | null;
-  size?: string;
+  size?: string | number | null;
+  /** 官方系列机型支持的全部尺寸；自建评测为单尺寸。 */
+  sizes?: number[];
+  screenType?: ScreenType;
+  backlightType?: BacklightType;
   methodology?: string;
   productColumn?: string;
   totalCell?: string;
