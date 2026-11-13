@@ -236,7 +236,7 @@ function clearFilters() {
       <input v-model="keyword" type="search" placeholder="搜索品牌 / 型号" :class="inputClass" />
     </div>
 
-    <div v-if="selectedProducts.length" class="mt-4 mb-4">
+    <div v-if="selectedProducts.length" class="mt-5 mb-5">
       <div
         class="flex flex-wrap gap-2"
         :class="showAllSelected ? '' : 'max-h-[76px] overflow-hidden'"
@@ -263,7 +263,11 @@ function clearFilters() {
       </button>
     </div>
 
-    <div v-if="expanded || !filteredAllSelected" class="flex flex-wrap gap-3" :class="expanded ? '' : 'max-h-[76px] overflow-hidden'">
+    <div
+      v-if="expanded || !filteredAllSelected"
+      class="mt-5 flex flex-wrap gap-3"
+      :class="expanded ? '' : 'max-h-[92px] overflow-hidden'"
+    >
       <button
         v-for="product in visibleProducts"
         :key="product.id"

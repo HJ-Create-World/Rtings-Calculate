@@ -5,8 +5,8 @@ import ComparisonTable from '../components/ComparisonTable.vue';
 import ProductSelector from '../components/ProductSelector.vue';
 import SortControls from '../components/SortControls.vue';
 import GroupRadarChart from '../components/charts/GroupRadarChart.vue';
-import GroupContributionChart from '../components/charts/GroupContributionChart.vue';
-import TotalScoreChart from '../components/charts/TotalScoreChart.vue';
+import ContributionLadderChart from '../components/charts/ContributionLadderChart.vue';
+import ScoreLadderChart from '../components/charts/ScoreLadderChart.vue';
 import { useComparison } from '../composables/useComparison';
 import { exportComparisonExcel } from '../utils/export';
 import { mutedTextClass, primaryButtonClass, secondaryButtonClass, sectionTitleClass } from '../utils/ui';
@@ -21,10 +21,8 @@ const {
   radarLabels,
   radarSeries,
   sortMetricId,
-  sortDirection,
   displayLimit,
   sortMetricOptions,
-  sortDirectionOptions,
   displayLimitOptions,
   sortSummary,
   comparisonTitle,
@@ -33,17 +31,22 @@ const {
   clearSelection
 } = useComparison();
 
-const totalChartRef = ref<InstanceType<typeof TotalScoreChart> | null>(null);
+const totalChartRef = ref<InstanceType<typeof ScoreLadderChart> | null>(null);
 const radarChartRef = ref<InstanceType<typeof GroupRadarChart> | null>(null);
-const contributionChartRef = ref<InstanceType<typeof GroupContributionChart> | null>(null);
+const contributionChartRef = ref<InstanceType<typeof ContributionLadderChart> | null>(null);
 
 const totalChartHeight = computed(() => {
   const base = totalEntries.value.length * 40 + 180;
   return `${Math.max(520, base)}px`;
 });
 
+const contributionChartHeight = computed(() => {
+  const base = displayedProducts.value.length * 32 + 220;
+  return `${Math.max(520, base)}px`;
+});
+
 function downloadTotalPng() {
-  totalChartRef.value?.downloadPng('Rtings-多产品总分对比');
+  totalChartRef.value?.downloadPng('Rtings-评分天梯图');
 }
 
 function downloadRadarPng() {
@@ -51,7 +54,7 @@ function downloadRadarPng() {
 }
 
 function downloadContributionPng() {
-  contributionChartRef.value?.downloadPng('Rtings-各维度对比评分');
+  contributionChartRef.value?.downloadPng('Rtings-各维度贡献天梯图');
 }
 
 function downloadExcel() {
@@ -72,23 +75,29 @@ function downloadExcel() {
   <SortControls
     class="mb-6"
     :metric-options="sortMetricOptions"
-    :direction-options="sortDirectionOptions"
     :limit-options="displayLimitOptions"
     :metric="sortMetricId"
-    :direction="sortDirection"
     :limit="displayLimit"
     @update:metric="sortMetricId = $event"
-    @update:direction="sortDirection = $event as typeof sortDirection"
     @update:limit="displayLimit = $event"
   />
 
   <section class="mb-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
-    <ChartCard :title="comparisonTitle" :description="sortSummary">
+    <ChartCard
+      :title="comparisonTitle"
+      :description="sortSummary"
+      fullscreen-mode="scroll"
+    >
       <template #actions>
         <button :class="secondaryButtonClass" @click="downloadTotalPng">导出 PNG</button>
       </template>
       <div class="max-h-[640px] overflow-y-auto pr-1">
-        <TotalScoreChart ref="totalChartRef" :entries="totalEntries" :height="totalChartHeight" />
+        <ScoreLadderChart
+          ref="totalChartRef"
+          :entries="totalEntries"
+          :metric-label="sortMetricOptions.find(option => option.value === sortMetricId)?.label"
+          :height="totalChartHeight"
+        />
       </div>
     </ChartCard>
 
@@ -107,18 +116,21 @@ function downloadExcel() {
 
   <section class="mb-8">
     <ChartCard
-      title="各维度对比评分"
-      description="展示每个主维度按权重折算后的实际贡献，定位总分差异来源"
+      title="各维度贡献天梯图"
+      description="按机型展示各主维度折算贡献，堆叠长度表示综合表现"
+      fullscreen-mode="scroll"
     >
       <template #actions>
         <button :class="secondaryButtonClass" @click="downloadContributionPng">导出 PNG</button>
       </template>
-      <GroupContributionChart
-        ref="contributionChartRef"
-        :groups="topGroups"
-        :products="displayedProducts"
-        height="520px"
-      />
+      <div class="max-h-[640px] overflow-y-auto pr-1">
+        <ContributionLadderChart
+          ref="contributionChartRef"
+          :groups="topGroups"
+          :products="displayedProducts"
+          :height="contributionChartHeight"
+        />
+      </div>
     </ChartCard>
   </section>
 

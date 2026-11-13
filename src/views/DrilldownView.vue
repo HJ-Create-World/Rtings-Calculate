@@ -21,10 +21,8 @@ const {
   sortedProducts,
   highlightIndex,
   sortMetricId,
-  sortDirection,
   displayLimit,
   sortMetricOptions,
-  sortDirectionOptions,
   displayLimitOptions,
   sortSummary,
   chartLabels,
@@ -131,16 +129,12 @@ function clearTestItems() {
   <SortControls
     class="mb-6"
     :metric-options="sortMetricOptions"
-    :direction-options="sortDirectionOptions"
     :limit-options="displayLimitOptions"
     :metric="sortMetricId"
-    :direction="sortDirection"
     :limit="displayLimit"
     @update:metric="sortMetricId = $event"
-    @update:direction="sortDirection = $event as typeof sortDirection"
     @update:limit="displayLimit = $event"
   />
-  <p :class="['mb-6 text-sm', mutedTextClass]">{{ sortSummary }}</p>
 
   <ChartCard title="维度对比" :description="sortSummary">
     <template #actions>

@@ -2,10 +2,16 @@
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { secondaryButtonClass } from '../utils/ui';
 
-const props = defineProps<{
-  title: string;
-  description?: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    title: string;
+    description?: string;
+    fullscreenMode?: 'fill' | 'scroll';
+  }>(),
+  {
+    fullscreenMode: 'fill'
+  }
+);
 
 const cardRef = ref<HTMLElement | null>(null);
 const isFullscreen = ref(false);
@@ -58,18 +64,36 @@ onBeforeUnmount(() => {
         </button>
       </div>
     </div>
-    <div :class="isFullscreen ? 'fullscreen-chart-host min-h-0 flex-1' : ''">
+    <div
+      :class="[
+        'min-h-0 flex-1',
+        isFullscreen
+          ? fullscreenMode === 'scroll'
+            ? 'overflow-y-auto fullscreen-chart-host--scroll'
+            : 'overflow-hidden fullscreen-chart-host--fill'
+          : ''
+      ]"
+    >
       <slot></slot>
     </div>
   </article>
 </template>
 
 <style scoped>
-.fullscreen-chart-host {
+.fullscreen-chart-host--fill {
   height: 100%;
 }
 
-.fullscreen-chart-host :deep(> *) {
+.fullscreen-chart-host--fill :deep(> *) {
   height: 100% !important;
+}
+
+.fullscreen-chart-host--scroll {
+  height: 100%;
+}
+
+.fullscreen-chart-host--scroll :deep(> *) {
+  height: auto !important;
+  max-height: none !important;
 }
 </style>

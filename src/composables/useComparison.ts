@@ -10,7 +10,6 @@ export function useComparison() {
 
   const selectedIds = ref<string[]>(allBaselines.value.slice(0, 6).map(baseline => baseline.id));
   const sortMetricId = ref('total');
-  const sortDirection = ref<'desc' | 'asc'>('desc');
   const displayLimit = ref('10');
 
   const selectedProducts = computed(() =>
@@ -30,11 +29,6 @@ export function useComparison() {
     ...topGroups.value.map(group => ({ value: group.id, label: group.label }))
   ]);
 
-  const sortDirectionOptions = [
-    { value: 'desc', label: '高分 → 低分' },
-    { value: 'asc', label: '低分 → 高分' }
-  ];
-
   const displayLimitOptions = [
     { value: '10', label: 'Top 10' },
     { value: '20', label: 'Top 20' },
@@ -47,14 +41,13 @@ export function useComparison() {
   }
 
   const sortedProducts = computed(() => {
-    const direction = sortDirection.value === 'asc' ? 1 : -1;
     return [...selectedProducts.value].sort((left, right) => {
       const leftValue = getSortValue(left);
       const rightValue = getSortValue(right);
       if (leftValue === null && rightValue === null) return left.label.localeCompare(right.label, 'zh-CN');
       if (leftValue === null) return 1;
       if (rightValue === null) return -1;
-      const diff = (leftValue - rightValue) * direction;
+      const diff = rightValue - leftValue;
       return diff || left.label.localeCompare(right.label, 'zh-CN');
     });
   });
@@ -65,23 +58,13 @@ export function useComparison() {
     return sortedProducts.value.slice(0, limit);
   });
 
-  const totalEntries = computed(() => {
-    // 总分/维度梯形图固定为“高分在上、低分在下”。
-    // 横向柱状图的数组首项默认渲染在底部，因此先降序再反转。
-    const ladder = [...displayedProducts.value].sort((left, right) => {
-      const leftValue = getSortValue(left);
-      const rightValue = getSortValue(right);
-      if (leftValue === null && rightValue === null) return left.label.localeCompare(right.label, 'zh-CN');
-      if (leftValue === null) return 1;
-      if (rightValue === null) return -1;
-      return rightValue - leftValue || left.label.localeCompare(right.label, 'zh-CN');
-    }).reverse();
-
-    return ladder.map(baseline => ({
+  const totalEntries = computed(() =>
+    displayedProducts.value.map((baseline, index) => ({
       label: baseline.label,
-      value: getSortValue(baseline)
-    }));
-  });
+      value: getSortValue(baseline),
+      rank: index + 1
+    }))
+  );
 
   const radarLabels = computed(() => topGroups.value.map(group => group.label));
 
@@ -95,16 +78,15 @@ export function useComparison() {
   );
 
   const comparisonTitle = computed(() => {
-    if (sortMetricId.value === 'total') return '总分对比';
+    if (sortMetricId.value === 'total') return 'Mixed Usage 总分天梯图';
     const metric = sortMetricOptions.value.find(option => option.value === sortMetricId.value)?.label ?? '';
-    return metric ? `${metric} 对比` : '维度对比';
+    return metric ? `${metric} 天梯图` : '维度对比天梯图';
   });
 
   const sortSummary = computed(() => {
     const metric = sortMetricOptions.value.find(option => option.value === sortMetricId.value)?.label ?? '总分';
-    const direction = sortDirectionOptions.find(option => option.value === sortDirection.value)?.label ?? '';
     const shown = displayedProducts.value.length;
-    return `按 ${metric} ${direction} 排序 · 展示 ${shown} / ${selectedProducts.value.length} 台`;
+    return `按 ${metric} 高分 → 低分 排序 · 展示 ${shown} / ${selectedProducts.value.length} 台`;
   });
 
   watch(
@@ -142,10 +124,8 @@ export function useComparison() {
     radarLabels,
     radarSeries,
     sortMetricId,
-    sortDirection,
     displayLimit,
     sortMetricOptions,
-    sortDirectionOptions,
     displayLimitOptions,
     sortSummary,
     comparisonTitle,

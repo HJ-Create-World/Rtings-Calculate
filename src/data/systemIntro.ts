@@ -27,8 +27,13 @@ export const capabilityCards: IntroCard[] = [
   },
   {
     title: '多维度对比分析',
-    description: '支持 Rtings 基准机型与自建评测共同参与总分、雷达和贡献对比。',
-    points: ['107 款 Rtings 基准', '云端/本机评测接入', 'PNG 与 Excel 导出']
+    description: '支持 Rtings 基准机型与自建评测共同参与评分天梯图、雷达和贡献对比。',
+    points: ['107 款 Rtings 基准', '屏幕/背光/尺寸筛选', '天梯图与 Top N 展示']
+  },
+  {
+    title: '交互与全屏体验',
+    description: '筛选结果全选、已选折叠、排序天梯图、下拉浮层防裁剪与全屏滚动查看。',
+    points: ['高分置顶排序', '全屏滚动查看', '下拉浮层自动定位']
   },
   {
     title: '云端历史与报告',
@@ -116,8 +121,8 @@ export const timeline = [
   },
   {
     date: '2026-11-13',
-    title: '筛选、排序与档案扩展',
-    description: '上线产品全选/筛选、总分与维度排序、屏幕与背光档案，并同步修复类别项选项。'
+    title: '筛选、排序与天梯图',
+    description: '上线产品全选/筛选、屏幕与背光档案、评分天梯图、贡献堆叠天梯图，并修复下拉浮层、排序方向和全屏滚动。'
   }
 ];
 
@@ -125,7 +130,7 @@ export const milestoneRows = [
   { version: '规则研究版', date: '2026-06-01 ~ 2026-11-03', summary: '规划与口径确认、Rtings 数据采集、统计汇总、规则反推、评分曲线验证与工程师表融合' },
   { version: 'v0.1.0', date: '2026-11-04 ~ 2026-11-05', summary: '评分核心、规则导入、只读展示、对比图、录入与 Excel 导入' },
   { version: '规则 v3.0', date: '2026-11-06', summary: '融合工程师表与 CSV 反推；接入云端持久化、历史载入和报告导出' },
-  { version: '当前迭代', date: '2026-11-12 ~ 2026-11-13', summary: '展示顺序统一；产品档案扩展；全选筛选；总分与维度排序；类别项修复' }
+  { version: '当前迭代', date: '2026-11-12 ~ 2026-11-13', summary: '展示顺序统一；产品档案扩展；全选筛选；评分天梯图；贡献堆叠天梯图；类别项与交互修复' }
 ];
 
 export const roadmapCards: IntroCard[] = [
@@ -175,5 +180,5 @@ export const sourceRows = [
 export const accuracyRows = [
   { label: 'CSV 总分回归', value: '107 款中 104 款误差 ≤0.1；3 款误差 ≤0.2（含 QN900F 8K 已知例外）' },
   { label: '得分档一致性', value: '工程师分档与 CSV 可比分档 96.6% 一致（767/794）' },
-  { label: '自动化测试', value: '14 项 Vitest 测试覆盖核心映射、规则聚合与 CSV 回归' }
+  { label: '自动化测试', value: '15 项 Vitest 测试覆盖核心映射、规则聚合、CSV 回归与输入引用' }
 ];

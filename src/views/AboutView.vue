@@ -28,7 +28,7 @@ const metrics = computed(() => [
   { label: '评分节点', value: rtingsRule.nodes.length, note: '主维度、子维度与叶子节点' },
   { label: '评分映射', value: rtingsRule.mappings.length, note: '锚点、区间、类别与恒等映射' },
   { label: '可录入测试项', value: leafCount.value, note: '客观值 / 类别值 / 工程师评分' },
-  { label: '自动化测试', value: 14, note: '核心映射、规则聚合与 CSV 回归' }
+  { label: '自动化测试', value: 15, note: '核心映射、规则聚合、CSV 回归与输入引用' }
 ]);
 
 const engineering = [

@@ -41,7 +41,6 @@ export function useDrilldown() {
 
   const selectedProductIds = ref(allBaselines.value.slice(0, 6).map(baseline => baseline.id));
   const sortMetricId = ref('average');
-  const sortDirection = ref<'desc' | 'asc'>('desc');
   const displayLimit = ref('10');
 
   const selectedProducts = computed(() =>
@@ -63,11 +62,6 @@ export function useDrilldown() {
       return { value: item.id, label: `${prefix}${item.label}` };
     })
   ]);
-
-  const sortDirectionOptions = [
-    { value: 'desc', label: '高分 → 低分' },
-    { value: 'asc', label: '低分 → 高分' }
-  ];
 
   const displayLimitOptions = [
     { value: '10', label: 'Top 10' },
@@ -99,14 +93,13 @@ export function useDrilldown() {
   }
 
   const sortedProducts = computed(() => {
-    const direction = sortDirection.value === 'asc' ? 1 : -1;
     return [...selectedProducts.value].sort((left, right) => {
       const leftValue = getSortValue(left);
       const rightValue = getSortValue(right);
       if (leftValue === null && rightValue === null) return left.label.localeCompare(right.label, 'zh-CN');
       if (leftValue === null) return 1;
       if (rightValue === null) return -1;
-      const diff = (leftValue - rightValue) * direction;
+      const diff = rightValue - leftValue;
       return diff || left.label.localeCompare(right.label, 'zh-CN');
     });
   });
@@ -131,9 +124,8 @@ export function useDrilldown() {
 
   const sortSummary = computed(() => {
     const metric = sortMetricOptions.value.find(option => option.value === sortMetricId.value)?.label ?? '均值';
-    const direction = sortDirectionOptions.find(option => option.value === sortDirection.value)?.label ?? '';
     const shown = displayedProducts.value.length;
-    return `按 ${metric} ${direction} 排序 · 展示 ${shown} / ${selectedProducts.value.length} 台`;
+    return `按 ${metric} 高分 → 低分 排序 · 展示 ${shown} / ${selectedProducts.value.length} 台`;
   });
 
   watch(
@@ -209,10 +201,8 @@ export function useDrilldown() {
     highlightItemId,
     highlightIndex,
     sortMetricId,
-    sortDirection,
     displayLimit,
     sortMetricOptions,
-    sortDirectionOptions,
     displayLimitOptions,
     sortSummary,
     chartLabels,
