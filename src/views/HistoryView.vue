@@ -201,11 +201,12 @@ const leafRanking = computed(() => {
         title="主维度雷达图"
         description="按主维度查看评分分布"
       >
-        <GroupRadarChart
-          :labels="topGroups.map(group => group.label)"
-          :series="radarSeries"
-          height="420px"
-        />
+          <GroupRadarChart
+            :labels="topGroups.map(group => group.label)"
+            :series="radarSeries"
+            height="420px"
+            chart-title="主维度雷达图"
+          />
       </ChartCard>
     </article>
   </section>

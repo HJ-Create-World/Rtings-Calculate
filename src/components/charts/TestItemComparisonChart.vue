@@ -10,6 +10,7 @@ const props = defineProps<{
   chartType: 'bar' | 'radar';
   height?: string;
   highlightIndex?: number | null;
+  chartTitle?: string;
 }>();
 
 const baseChartRef = ref<InstanceType<typeof BaseChart> | null>(null);
@@ -99,6 +100,7 @@ defineExpose({ downloadPng });
     ref="baseChartRef"
     :configuration="configuration"
     :height="height"
+    :chart-title="chartTitle"
     :label="chartType === 'radar' ? '测试项雷达对比图' : '测试项柱状对比图'"
   />
 </template>

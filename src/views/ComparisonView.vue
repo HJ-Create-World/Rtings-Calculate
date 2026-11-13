@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import ChartCard from '../components/ChartCard.vue';
 import ComparisonTable from '../components/ComparisonTable.vue';
 import ProductSelector from '../components/ProductSelector.vue';
+import ScoreRangeFilter from '../components/ScoreRangeFilter.vue';
 import SortControls from '../components/SortControls.vue';
 import GroupRadarChart from '../components/charts/GroupRadarChart.vue';
 import ContributionLadderChart from '../components/charts/ContributionLadderChart.vue';
@@ -26,6 +27,10 @@ const {
   displayLimitOptions,
   sortSummary,
   comparisonTitle,
+  filterMetricId,
+  scoreMin,
+  scoreMax,
+  scoreFilter,
   toggleProduct,
   setSelection,
   clearSelection
@@ -67,9 +72,21 @@ function downloadExcel() {
     class="mb-6"
     :products="allBaselines"
     :selected-ids="selectedIds"
+    :score-filter="scoreFilter ?? undefined"
     @toggle="toggleProduct"
     @select-many="setSelection"
     @clear-selection="clearSelection"
+  />
+
+  <ScoreRangeFilter
+    class="mb-6"
+    :metric-options="sortMetricOptions"
+    :metric="filterMetricId"
+    :min="scoreMin"
+    :max="scoreMax"
+    @update:metric="filterMetricId = $event"
+    @update:min="scoreMin = $event"
+    @update:max="scoreMax = $event"
   />
 
   <SortControls
@@ -97,6 +114,7 @@ function downloadExcel() {
           :entries="totalEntries"
           :metric-label="sortMetricOptions.find(option => option.value === sortMetricId)?.label"
           :height="totalChartHeight"
+          :chart-title="comparisonTitle"
         />
       </div>
     </ChartCard>
@@ -110,6 +128,7 @@ function downloadExcel() {
         :labels="radarLabels"
         :series="radarSeries"
         height="560px"
+        chart-title="各维度评分雷达图"
       />
     </ChartCard>
   </section>
@@ -129,6 +148,7 @@ function downloadExcel() {
           :groups="topGroups"
           :products="displayedProducts"
           :height="contributionChartHeight"
+          chart-title="各维度贡献天梯图"
         />
       </div>
     </ChartCard>

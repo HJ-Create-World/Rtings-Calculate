@@ -14,6 +14,7 @@ const props = defineProps<{
   entries: LadderEntry[];
   metricLabel?: string;
   height?: string;
+  chartTitle?: string;
 }>();
 
 const baseChartRef = ref<InstanceType<typeof BaseChart> | null>(null);
@@ -102,6 +103,7 @@ defineExpose({ downloadPng });
     ref="baseChartRef"
     :configuration="configuration"
     :height="height"
+    :chart-title="chartTitle"
     label="评分天梯图"
   />
 </template>

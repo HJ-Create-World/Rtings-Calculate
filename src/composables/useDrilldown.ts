@@ -156,7 +156,21 @@ export function useDrilldown() {
     }))
   );
 
-  const chartType = ref<'bar' | 'radar'>('bar');
+  const chartType = ref<'bar' | 'radar' | 'heatmap' | 'ladder'>('heatmap');
+
+  const ladderEntries = computed(() =>
+    displayedProducts.value.map((product, index) => ({
+      label: product.label,
+      value: getSortValue(product),
+      rank: index + 1
+    }))
+  );
+
+  const ladderHeight = computed(() => {
+    const base = ladderEntries.value.length * 40 + 180;
+    return `${Math.max(520, base)}px`;
+  });
+
   const chartHeight = computed(() =>
     chartType.value === 'radar'
       ? '560px'
@@ -209,6 +223,8 @@ export function useDrilldown() {
     chartSeries,
     chartType,
     chartHeight,
+    ladderEntries,
+    ladderHeight,
     toggleProduct,
     setSelection,
     clearSelection,

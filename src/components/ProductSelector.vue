@@ -15,6 +15,7 @@ const props = defineProps<{
   products: ProductBaseline[];
   selectedIds: string[];
   collapsedCount?: number;
+  scoreFilter?: (product: ProductBaseline) => boolean;
 }>();
 
 const emit = defineEmits<{
@@ -66,7 +67,8 @@ const filteredProducts = computed(() => {
       const matchesScreen = screenType.value === 'unknown' || metadata.screenType === screenType.value;
       const matchesBacklight =
         backlightType.value === 'unknown' || metadata.backlightType === backlightType.value;
-      return matchesText && matchesBrand && matchesYear && matchesSize && matchesScreen && matchesBacklight;
+      const matchesScore = !props.scoreFilter || props.scoreFilter(product);
+      return matchesText && matchesBrand && matchesYear && matchesSize && matchesScreen && matchesBacklight && matchesScore;
     })
     .sort((a, b) => {
       const yearDiff = (b.releaseYear ?? 0) - (a.releaseYear ?? 0);

@@ -228,6 +228,7 @@ async function exportExcel() {
         :labels="topGroups.map(group => group.label)"
         :series="radarSeries"
         height="460px"
+        chart-title="云端主维度雷达图"
       />
     </ChartCard>
   </section>

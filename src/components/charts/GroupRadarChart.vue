@@ -8,6 +8,7 @@ const props = defineProps<{
   labels: string[];
   series: Array<{ label: string; values: Array<number | null> }>;
   height?: string;
+  chartTitle?: string;
 }>();
 
 const configuration = computed<ChartConfiguration<'radar'>>(() => ({
@@ -55,6 +56,7 @@ defineExpose({ downloadPng });
     ref="baseChartRef"
     :configuration="configuration"
     :height="height"
+    :chart-title="chartTitle"
     label="主维度评分雷达图"
   />
 </template>

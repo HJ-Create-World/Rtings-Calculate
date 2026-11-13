@@ -4,8 +4,10 @@ import CheckboxChips from '../components/CheckboxChips.vue';
 import ChartCard from '../components/ChartCard.vue';
 import OptionChips from '../components/OptionChips.vue';
 import ProductSelector from '../components/ProductSelector.vue';
+import ScoreLadderChart from '../components/charts/ScoreLadderChart.vue';
 import SortControls from '../components/SortControls.vue';
 import TestItemComparisonChart from '../components/charts/TestItemComparisonChart.vue';
+import TestItemHeatmap from '../components/TestItemHeatmap.vue';
 import { useDrilldown } from '../composables/useDrilldown';
 import { exportDrilldownExcel } from '../utils/export';
 import { cardClass, mutedTextClass, primaryButtonClass, secondaryButtonClass } from '../utils/ui';
@@ -29,6 +31,8 @@ const {
   chartSeries,
   chartType,
   chartHeight,
+  ladderEntries,
+  ladderHeight,
   toggleProduct,
   setSelection,
   clearSelection,
@@ -37,6 +41,7 @@ const {
 } = useDrilldown();
 
 const chartRef = ref<InstanceType<typeof TestItemComparisonChart> | null>(null);
+const ladderChartRef = ref<InstanceType<typeof ScoreLadderChart> | null>(null);
 const keyword = ref('');
 
 const filteredTestItemOptions = computed(() => {
@@ -48,11 +53,22 @@ const filteredTestItemOptions = computed(() => {
 });
 
 const chartTypeOptions = [
+  { value: 'heatmap', label: '热力表' },
+  { value: 'ladder', label: '天梯图' },
   { value: 'bar', label: '柱状图' },
   { value: 'radar', label: '雷达图' }
 ];
 
+const ladderTitle = computed(() => {
+  const metric = sortMetricOptions.value.find(option => option.value === sortMetricId.value)?.label ?? '已选测试项';
+  return `${metric} 天梯图`;
+});
+
 function downloadPng() {
+  if (chartType.value === 'ladder') {
+    ladderChartRef.value?.downloadPng(ladderTitle.value);
+    return;
+  }
   chartRef.value?.downloadPng('Rtings-维度对比');
 }
 
@@ -136,19 +152,49 @@ function clearTestItems() {
     @update:limit="displayLimit = $event"
   />
 
-  <ChartCard title="维度对比" :description="sortSummary">
+  <ChartCard
+    title="维度对比"
+    :description="sortSummary"
+    :fullscreen-mode="chartType === 'ladder' || chartType === 'heatmap' ? 'scroll' : 'fill'"
+  >
     <template #actions>
       <OptionChips v-model="chartType" :options="chartTypeOptions" />
-      <button :class="secondaryButtonClass" @click="downloadPng">导出 PNG</button>
+      <button
+        v-if="chartType !== 'heatmap'"
+        :class="secondaryButtonClass"
+        @click="downloadPng"
+      >
+        导出 PNG
+      </button>
       <button :class="primaryButtonClass" @click="downloadExcel">导出 Excel</button>
     </template>
+
+    <TestItemHeatmap
+      v-if="chartType === 'heatmap'"
+      :test-items="chartLabels"
+      :products="chartSeries"
+      :highlight-index="highlightIndex"
+    />
+
+    <div v-else-if="chartType === 'ladder'" class="max-h-[640px] overflow-y-auto pr-1">
+      <ScoreLadderChart
+        ref="ladderChartRef"
+        :entries="ladderEntries"
+        :metric-label="sortMetricOptions.find(option => option.value === sortMetricId)?.label"
+        :height="ladderHeight"
+        :chart-title="ladderTitle"
+      />
+    </div>
+
     <TestItemComparisonChart
+      v-else
       ref="chartRef"
       :labels="chartLabels"
       :series="chartSeries"
       :chart-type="chartType"
       :height="chartHeight"
       :highlight-index="highlightIndex"
+      chart-title="维度对比"
     />
   </ChartCard>
 </template>

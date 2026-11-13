@@ -7,6 +7,7 @@ const props = defineProps<{
   configuration: ChartConfiguration;
   label: string;
   height?: string;
+  chartTitle?: string;
 }>();
 
 const canvasRef = ref<HTMLCanvasElement>();
@@ -24,12 +25,43 @@ const whiteBackgroundPlugin: Plugin = {
   }
 };
 
+const exportTitlePlugin: Plugin = {
+  id: 'exportTitle',
+  beforeDraw(chart) {
+    const title = props.chartTitle;
+    if (!title) return;
+    const { ctx, chartArea } = chart;
+    if (!chartArea || chartArea.top < 28) return;
+    ctx.save();
+    ctx.font = '600 16px "Microsoft YaHei", "PingFang SC", system-ui, sans-serif';
+    ctx.fillStyle = '#111827';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(title, chart.width / 2, Math.max(18, chartArea.top - 22));
+    ctx.restore();
+  }
+};
+
 function render() {
   if (!canvasRef.value) return;
+  const baseOptions = (props.configuration.options ?? {}) as Record<string, any>;
+  const baseLayout = (baseOptions.layout ?? {}) as Record<string, any>;
+  const basePadding = (baseLayout.padding ?? {}) as Record<string, number>;
+  const titleTop = props.chartTitle ? 52 : 0;
   chart?.destroy();
   chart = new Chart(canvasRef.value, {
     ...props.configuration,
-    plugins: [...(props.configuration.plugins ?? []), whiteBackgroundPlugin]
+    options: {
+      ...baseOptions,
+      layout: {
+        ...baseLayout,
+        padding: {
+          ...basePadding,
+          top: Math.max(Number(basePadding.top ?? 0), titleTop)
+        }
+      }
+    },
+    plugins: [...(props.configuration.plugins ?? []), whiteBackgroundPlugin, exportTitlePlugin]
   });
 }
 
@@ -44,7 +76,7 @@ function downloadPng(fileName: string) {
 onMounted(render);
 
 watch(
-  () => props.configuration,
+  () => [props.configuration, props.chartTitle],
   () => render(),
   { deep: true }
 );

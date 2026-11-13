@@ -15,10 +15,13 @@ const props = withDefaults(
 
 const cardRef = ref<HTMLElement | null>(null);
 const isFullscreen = ref(false);
+const fullscreenKey = ref(0);
 
 function syncFullscreenState() {
-  isFullscreen.value = document.fullscreenElement === cardRef.value;
-  window.dispatchEvent(new Event('resize'));
+  const next = document.fullscreenElement === cardRef.value;
+  if (next !== isFullscreen.value) fullscreenKey.value += 1;
+  isFullscreen.value = next;
+  requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
 }
 
 async function toggleFullscreen() {
@@ -65,6 +68,7 @@ onBeforeUnmount(() => {
       </div>
     </div>
     <div
+      :key="fullscreenKey"
       :class="[
         'min-h-0 flex-1',
         isFullscreen
@@ -94,6 +98,11 @@ onBeforeUnmount(() => {
 
 .fullscreen-chart-host--scroll :deep(> *) {
   height: auto !important;
+  min-height: 100%;
   max-height: none !important;
+}
+
+.fullscreen-chart-host--scroll :deep(> * > *) {
+  min-height: 100%;
 }
 </style>

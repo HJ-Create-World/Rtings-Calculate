@@ -10,6 +10,7 @@ const props = defineProps<{
   groups: ScoreNode[];
   products: ProductBaseline[];
   height?: string;
+  chartTitle?: string;
 }>();
 
 const baseChartRef = ref<InstanceType<typeof BaseChart> | null>(null);
@@ -86,6 +87,7 @@ defineExpose({ downloadPng });
     ref="baseChartRef"
     :configuration="configuration"
     :height="height"
+    :chart-title="chartTitle"
     label="主维度贡献天梯图"
   />
 </template>

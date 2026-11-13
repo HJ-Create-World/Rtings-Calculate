@@ -11,6 +11,9 @@ export function useComparison() {
   const selectedIds = ref<string[]>(allBaselines.value.slice(0, 6).map(baseline => baseline.id));
   const sortMetricId = ref('total');
   const displayLimit = ref('10');
+  const filterMetricId = ref('total');
+  const scoreMin = ref('');
+  const scoreMax = ref('');
 
   const selectedProducts = computed(() =>
     selectedIds.value
@@ -35,13 +38,41 @@ export function useComparison() {
     { value: 'all', label: '全部' }
   ];
 
-  function getSortValue(baseline: NonNullable<ReturnType<typeof getEvaluationProductById>>): number | null {
-    if (sortMetricId.value === 'total') return baseline.expectedTotal;
-    return baseline.expectedScores[sortMetricId.value] ?? null;
+  function getMetricValue(baseline: NonNullable<ReturnType<typeof getEvaluationProductById>>, metricId: string): number | null {
+    if (metricId === 'total') return baseline.expectedTotal;
+    return baseline.expectedScores[metricId] ?? null;
   }
 
+  function getSortValue(baseline: NonNullable<ReturnType<typeof getEvaluationProductById>>): number | null {
+    return getMetricValue(baseline, sortMetricId.value);
+  }
+
+  const scoreFilter = computed<((product: NonNullable<ReturnType<typeof getEvaluationProductById>>) => boolean) | null>(() => {
+    const minText = scoreMin.value.trim();
+    const maxText = scoreMax.value.trim();
+    const min = minText ? Number(minText) : null;
+    const max = maxText ? Number(maxText) : null;
+    if ((min === null || !Number.isFinite(min)) && (max === null || !Number.isFinite(max))) return null;
+
+    const lower = min !== null && Number.isFinite(min) ? Math.min(min, max ?? min) : null;
+    const upper = max !== null && Number.isFinite(max) ? Math.max(max, min ?? max) : null;
+
+    return product => {
+      const value = getMetricValue(product, filterMetricId.value);
+      if (value === null || !Number.isFinite(value)) return false;
+      if (lower !== null && value < lower) return false;
+      if (upper !== null && value > upper) return false;
+      return true;
+    };
+  });
+
+  const filteredSelectedProducts = computed(() => {
+    const predicate = scoreFilter.value;
+    return predicate ? selectedProducts.value.filter(predicate) : selectedProducts.value;
+  });
+
   const sortedProducts = computed(() => {
-    return [...selectedProducts.value].sort((left, right) => {
+    return [...filteredSelectedProducts.value].sort((left, right) => {
       const leftValue = getSortValue(left);
       const rightValue = getSortValue(right);
       if (leftValue === null && rightValue === null) return left.label.localeCompare(right.label, 'zh-CN');
@@ -86,7 +117,10 @@ export function useComparison() {
   const sortSummary = computed(() => {
     const metric = sortMetricOptions.value.find(option => option.value === sortMetricId.value)?.label ?? '总分';
     const shown = displayedProducts.value.length;
-    return `按 ${metric} 高分 → 低分 排序 · 展示 ${shown} / ${selectedProducts.value.length} 台`;
+    const rangeText = scoreFilter.value
+      ? ` · 已按评分区间筛选（符合 ${filteredSelectedProducts.value.length} / ${selectedProducts.value.length} 台）`
+      : '';
+    return `按 ${metric} 高分 → 低分 排序 · 展示 ${shown} 台${rangeText}`;
   });
 
   watch(
@@ -129,6 +163,10 @@ export function useComparison() {
     displayLimitOptions,
     sortSummary,
     comparisonTitle,
+    filterMetricId,
+    scoreMin,
+    scoreMax,
+    scoreFilter,
     toggleProduct,
     setSelection,
     clearSelection
