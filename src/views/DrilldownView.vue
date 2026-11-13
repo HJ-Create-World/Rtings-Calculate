@@ -4,6 +4,7 @@ import CheckboxChips from '../components/CheckboxChips.vue';
 import ChartCard from '../components/ChartCard.vue';
 import OptionChips from '../components/OptionChips.vue';
 import ProductSelector from '../components/ProductSelector.vue';
+import ScoreRangeFilter from '../components/ScoreRangeFilter.vue';
 import ScoreLadderChart from '../components/charts/ScoreLadderChart.vue';
 import SortControls from '../components/SortControls.vue';
 import TestItemComparisonChart from '../components/charts/TestItemComparisonChart.vue';
@@ -27,6 +28,10 @@ const {
   sortMetricOptions,
   displayLimitOptions,
   sortSummary,
+  filterMetricId,
+  scoreMin,
+  scoreMax,
+  scoreFilter,
   chartLabels,
   chartSeries,
   chartType,
@@ -90,11 +95,29 @@ function clearTestItems() {
     <ProductSelector
       :products="allBaselines"
       :selected-ids="selectedProductIds"
+      :score-filter="scoreFilter ?? undefined"
+      :score-metric="filterMetricId"
+      :score-min="scoreMin"
+      :score-max="scoreMax"
       @toggle="toggleProduct"
       @select-many="setSelection"
       @clear-selection="clearSelection"
+      @update:score-metric="filterMetricId = $event"
+      @update:score-min="scoreMin = $event"
+      @update:score-max="scoreMax = $event"
     />
   </section>
+
+  <ScoreRangeFilter
+    class="mb-6"
+    :metric-options="sortMetricOptions"
+    :metric="filterMetricId"
+    :min="scoreMin"
+    :max="scoreMax"
+    @update:metric="filterMetricId = $event"
+    @update:min="scoreMin = $event"
+    @update:max="scoreMax = $event"
+  />
 
   <section :class="cardClass" class="mb-6 p-6">
     <h2 class="text-xl font-semibold tracking-tight text-gray-900">主维度选择</h2>

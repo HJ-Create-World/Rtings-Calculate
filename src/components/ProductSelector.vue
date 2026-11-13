@@ -10,18 +10,36 @@ import {
   type ScreenType
 } from '../utils/productMetadata';
 import { cardClass, inputClass, mutedTextClass, primaryButtonClass, secondaryButtonClass } from '../utils/ui';
+import {
+  listFilterPresets,
+  upsertFilterPreset,
+  deleteFilterPreset,
+  type ProductFilterPreset
+} from '../services/filterPresets';
+import {
+  listCompareGroupTemplates,
+  upsertCompareGroupTemplate,
+  deleteCompareGroupTemplate,
+  type CompareGroupTemplate
+} from '../services/compareTemplates';
 
 const props = defineProps<{
   products: ProductBaseline[];
   selectedIds: string[];
   collapsedCount?: number;
   scoreFilter?: (product: ProductBaseline) => boolean;
+  scoreMetric?: string;
+  scoreMin?: string;
+  scoreMax?: string;
 }>();
 
 const emit = defineEmits<{
   (event: 'toggle', productId: string): void;
   (event: 'selectMany', productIds: string[]): void;
   (event: 'clearSelection'): void;
+  (event: 'update:scoreMetric', value: string): void;
+  (event: 'update:scoreMin', value: string): void;
+  (event: 'update:scoreMax', value: string): void;
 }>();
 
 const keyword = ref('');
@@ -166,6 +184,103 @@ function clearFilters() {
   screenType.value = 'unknown';
   backlightType.value = 'unknown';
 }
+
+const filterPresets = ref<ProductFilterPreset[]>(listFilterPresets());
+const selectedFilterPresetId = ref('');
+const filterPresetName = ref('');
+
+const filterPresetOptions = computed(() => [
+  { value: '', label: '选择筛选预设' },
+  ...filterPresets.value.map(preset => ({ value: preset.id, label: preset.name }))
+]);
+
+function saveFilterPreset() {
+  const name = filterPresetName.value.trim() || `筛选预设 ${filterPresets.value.length + 1}`;
+  const record = upsertFilterPreset({
+    id: selectedFilterPresetId.value || undefined,
+    name,
+    keyword: keyword.value,
+    brand: brand.value,
+    year: year.value,
+    size: size.value,
+    screenType: screenType.value,
+    backlightType: backlightType.value,
+    scoreMetric: props.scoreMetric ?? 'total',
+    scoreMin: props.scoreMin ?? '',
+    scoreMax: props.scoreMax ?? ''
+  });
+  filterPresets.value = listFilterPresets();
+  selectedFilterPresetId.value = record.id;
+  filterPresetName.value = record.name;
+}
+
+function applyFilterPreset(presetId: string) {
+  selectedFilterPresetId.value = presetId;
+  const preset = filterPresets.value.find(item => item.id === presetId);
+  if (!preset) return;
+
+  keyword.value = preset.keyword;
+  brand.value = preset.brand;
+  year.value = preset.year;
+  size.value = preset.size;
+  screenType.value = preset.screenType;
+  backlightType.value = preset.backlightType;
+  filterPresetName.value = preset.name;
+  emit('update:scoreMetric', preset.scoreMetric);
+  emit('update:scoreMin', preset.scoreMin);
+  emit('update:scoreMax', preset.scoreMax);
+}
+
+function deleteSelectedFilterPreset() {
+  if (!selectedFilterPresetId.value) return;
+  deleteFilterPreset(selectedFilterPresetId.value);
+  filterPresets.value = listFilterPresets();
+  selectedFilterPresetId.value = '';
+  filterPresetName.value = '';
+}
+
+const compareTemplates = ref<CompareGroupTemplate[]>(listCompareGroupTemplates());
+const selectedCompareTemplateId = ref('');
+const compareTemplateName = ref('');
+
+const compareTemplateOptions = computed(() => [
+  { value: '', label: '选择对比组模板' },
+  ...compareTemplates.value.map(template => ({
+    value: template.id,
+    label: `${template.name}（${template.productIds.length} 台）`
+  }))
+]);
+
+function saveCompareTemplate() {
+  if (!props.selectedIds.length) return;
+  const name = compareTemplateName.value.trim() || `对比组 ${compareTemplates.value.length + 1}`;
+  const record = upsertCompareGroupTemplate({
+    id: selectedCompareTemplateId.value || undefined,
+    name,
+    productIds: props.selectedIds
+  });
+  compareTemplates.value = listCompareGroupTemplates();
+  selectedCompareTemplateId.value = record.id;
+  compareTemplateName.value = record.name;
+}
+
+function applyCompareTemplate(templateId: string) {
+  selectedCompareTemplateId.value = templateId;
+  const template = compareTemplates.value.find(item => item.id === templateId);
+  if (!template) return;
+
+  compareTemplateName.value = template.name;
+  const knownIds = new Set(props.products.map(product => product.id));
+  emit('selectMany', template.productIds.filter(id => knownIds.has(id)));
+}
+
+function deleteSelectedCompareTemplate() {
+  if (!selectedCompareTemplateId.value) return;
+  deleteCompareGroupTemplate(selectedCompareTemplateId.value);
+  compareTemplates.value = listCompareGroupTemplates();
+  selectedCompareTemplateId.value = '';
+  compareTemplateName.value = '';
+}
 </script>
 
 <template>
@@ -236,6 +351,89 @@ function clearFilters() {
         aria-label="按背光类型筛选"
       />
       <input v-model="keyword" type="search" placeholder="搜索品牌 / 型号" :class="inputClass" />
+    </div>
+
+    <div class="mt-5 grid gap-4 lg:grid-cols-2">
+      <article class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+        <div class="flex items-center justify-between gap-3">
+          <h3 class="text-sm font-semibold text-gray-900">筛选预设</h3>
+          <span :class="['text-xs', mutedTextClass]">保存到本机</span>
+        </div>
+        <div class="mt-3 grid gap-3 md:grid-cols-[1fr_180px]">
+          <input
+            v-model="filterPresetName"
+            type="text"
+            placeholder="预设名称"
+            :class="inputClass"
+            aria-label="筛选预设名称"
+          />
+          <UiSelect
+            :model-value="selectedFilterPresetId"
+            :options="filterPresetOptions"
+            aria-label="选择筛选预设"
+            @update:model-value="applyFilterPreset"
+          />
+        </div>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <button
+            type="button"
+            :class="secondaryButtonClass"
+            @click="saveFilterPreset"
+          >
+            {{ selectedFilterPresetId ? '更新预设' : '保存当前筛选' }}
+          </button>
+          <button
+            type="button"
+            :class="secondaryButtonClass"
+            class="!text-red-600 hover:!bg-red-50"
+            :disabled="!selectedFilterPresetId"
+            @click="deleteSelectedFilterPreset"
+          >
+            删除预设
+          </button>
+        </div>
+      </article>
+
+      <article class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+        <div class="flex items-center justify-between gap-3">
+          <h3 class="text-sm font-semibold text-gray-900">对比组模板</h3>
+          <span :class="['text-xs', mutedTextClass]">已选 {{ selectedIds.length }} 台</span>
+        </div>
+        <div class="mt-3 grid gap-3 md:grid-cols-[1fr_180px]">
+          <input
+            v-model="compareTemplateName"
+            type="text"
+            placeholder="对比组名称"
+            :class="inputClass"
+            aria-label="对比组模板名称"
+          />
+          <UiSelect
+            :model-value="selectedCompareTemplateId"
+            :options="compareTemplateOptions"
+            aria-label="选择对比组模板"
+            @update:model-value="applyCompareTemplate"
+          />
+        </div>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <button
+            type="button"
+            :class="secondaryButtonClass"
+            :disabled="!selectedIds.length"
+            @click="saveCompareTemplate"
+          >
+            {{ selectedCompareTemplateId ? '更新模板' : '保存当前对比组' }}
+          </button>
+          <button
+            type="button"
+            :class="secondaryButtonClass"
+            class="!text-red-600 hover:!bg-red-50"
+            :disabled="!selectedCompareTemplateId"
+            @click="deleteSelectedCompareTemplate"
+          >
+            删除模板
+          </button>
+        </div>
+      </article>
     </div>
 
     <div v-if="selectedProducts.length" class="mt-5 mb-5">

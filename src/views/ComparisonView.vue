@@ -73,9 +73,15 @@ function downloadExcel() {
     :products="allBaselines"
     :selected-ids="selectedIds"
     :score-filter="scoreFilter ?? undefined"
+    :score-metric="filterMetricId"
+    :score-min="scoreMin"
+    :score-max="scoreMax"
     @toggle="toggleProduct"
     @select-many="setSelection"
     @clear-selection="clearSelection"
+    @update:score-metric="filterMetricId = $event"
+    @update:score-min="scoreMin = $event"
+    @update:score-max="scoreMax = $event"
   />
 
   <ScoreRangeFilter

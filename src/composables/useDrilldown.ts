@@ -42,6 +42,9 @@ export function useDrilldown() {
   const selectedProductIds = ref(allBaselines.value.slice(0, 6).map(baseline => baseline.id));
   const sortMetricId = ref('average');
   const displayLimit = ref('10');
+  const filterMetricId = ref('average');
+  const scoreMin = ref('');
+  const scoreMax = ref('');
 
   const selectedProducts = computed(() =>
     selectedProductIds.value
@@ -69,15 +72,15 @@ export function useDrilldown() {
     { value: 'all', label: '全部' }
   ];
 
-  function getSortValue(product: NonNullable<ReturnType<typeof getEvaluationProductById>>): number | null {
+  function getMetricValue(product: NonNullable<ReturnType<typeof getEvaluationProductById>>, metricId: string): number | null {
     const scores = selectedTestItems.value
       .map(item => product.expectedScores[item.id])
       .filter((score): score is number => typeof score === 'number');
 
-    if (sortMetricId.value === 'average') {
+    if (metricId === 'average') {
       return scores.length ? scores.reduce((sum, score) => sum + score, 0) / scores.length : null;
     }
-    if (sortMetricId.value === 'weighted') {
+    if (metricId === 'weighted') {
       const weighted = selectedTestItems.value
         .map(item => {
           const score = product.expectedScores[item.id];
@@ -89,11 +92,39 @@ export function useDrilldown() {
         .reduce((sum, item) => sum + (item.weight ?? 0), 0);
       return weightSum > 0 ? weighted.reduce((sum, score) => sum + score, 0) / weightSum : null;
     }
-    return product.expectedScores[sortMetricId.value] ?? null;
+    return product.expectedScores[metricId] ?? null;
   }
 
+  function getSortValue(product: NonNullable<ReturnType<typeof getEvaluationProductById>>): number | null {
+    return getMetricValue(product, sortMetricId.value);
+  }
+
+  const scoreFilter = computed<((product: NonNullable<ReturnType<typeof getEvaluationProductById>>) => boolean) | null>(() => {
+    const minText = scoreMin.value.trim();
+    const maxText = scoreMax.value.trim();
+    const min = minText ? Number(minText) : null;
+    const max = maxText ? Number(maxText) : null;
+    if ((min === null || !Number.isFinite(min)) && (max === null || !Number.isFinite(max))) return null;
+
+    const lower = min !== null && Number.isFinite(min) ? Math.min(min, max ?? min) : null;
+    const upper = max !== null && Number.isFinite(max) ? Math.max(max, min ?? max) : null;
+
+    return product => {
+      const value = getMetricValue(product, filterMetricId.value);
+      if (value === null || !Number.isFinite(value)) return false;
+      if (lower !== null && value < lower) return false;
+      if (upper !== null && value > upper) return false;
+      return true;
+    };
+  });
+
+  const filteredSelectedProducts = computed(() => {
+    const predicate = scoreFilter.value;
+    return predicate ? selectedProducts.value.filter(predicate) : selectedProducts.value;
+  });
+
   const sortedProducts = computed(() => {
-    return [...selectedProducts.value].sort((left, right) => {
+    return [...filteredSelectedProducts.value].sort((left, right) => {
       const leftValue = getSortValue(left);
       const rightValue = getSortValue(right);
       if (leftValue === null && rightValue === null) return left.label.localeCompare(right.label, 'zh-CN');
@@ -125,7 +156,10 @@ export function useDrilldown() {
   const sortSummary = computed(() => {
     const metric = sortMetricOptions.value.find(option => option.value === sortMetricId.value)?.label ?? '均值';
     const shown = displayedProducts.value.length;
-    return `按 ${metric} 高分 → 低分 排序 · 展示 ${shown} / ${selectedProducts.value.length} 台`;
+    const rangeText = scoreFilter.value
+      ? ` · 已按评分区间筛选（符合 ${filteredSelectedProducts.value.length} / ${selectedProducts.value.length} 台）`
+      : '';
+    return `按 ${metric} 高分 → 低分 排序 · 展示 ${shown} 台${rangeText}`;
   });
 
   watch(
@@ -133,6 +167,9 @@ export function useDrilldown() {
     items => {
       if (!['average', 'weighted'].includes(sortMetricId.value) && !items.includes(sortMetricId.value)) {
         sortMetricId.value = 'average';
+      }
+      if (!['average', 'weighted'].includes(filterMetricId.value) && !items.includes(filterMetricId.value)) {
+        filterMetricId.value = 'average';
       }
     },
     { deep: true }
@@ -219,6 +256,10 @@ export function useDrilldown() {
     sortMetricOptions,
     displayLimitOptions,
     sortSummary,
+    filterMetricId,
+    scoreMin,
+    scoreMax,
+    scoreFilter,
     chartLabels,
     chartSeries,
     chartType,
