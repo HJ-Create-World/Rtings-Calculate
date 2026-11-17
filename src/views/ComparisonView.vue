@@ -31,6 +31,8 @@ const {
   scoreMin,
   scoreMax,
   scoreFilter,
+  totalScoreMin,
+  totalScoreMax,
   toggleProduct,
   setSelection,
   clearSelection
@@ -76,12 +78,16 @@ function downloadExcel() {
     :score-metric="filterMetricId"
     :score-min="scoreMin"
     :score-max="scoreMax"
+    :total-score-min="totalScoreMin"
+    :total-score-max="totalScoreMax"
     @toggle="toggleProduct"
     @select-many="setSelection"
     @clear-selection="clearSelection"
     @update:score-metric="filterMetricId = $event"
     @update:score-min="scoreMin = $event"
     @update:score-max="scoreMax = $event"
+    @update:total-score-min="totalScoreMin = $event"
+    @update:total-score-max="totalScoreMax = $event"
   />
 
   <ScoreRangeFilter

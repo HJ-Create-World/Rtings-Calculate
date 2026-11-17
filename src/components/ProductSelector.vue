@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import UiSelect from './UiSelect.vue';
+import DualRangeSlider from './DualRangeSlider.vue';
 import type { ProductBaseline } from '../data/rtingsRule';
 import {
-  BACKLIGHT_TYPE_OPTIONS,
-  SCREEN_TYPE_OPTIONS,
   getProductMetadata,
   type BacklightType,
   type ScreenType
@@ -31,6 +30,8 @@ const props = defineProps<{
   scoreMetric?: string;
   scoreMin?: string;
   scoreMax?: string;
+  totalScoreMin?: string;
+  totalScoreMax?: string;
 }>();
 
 const emit = defineEmits<{
@@ -40,6 +41,8 @@ const emit = defineEmits<{
   (event: 'update:scoreMetric', value: string): void;
   (event: 'update:scoreMin', value: string): void;
   (event: 'update:scoreMax', value: string): void;
+  (event: 'update:totalScoreMin', value: string): void;
+  (event: 'update:totalScoreMax', value: string): void;
 }>();
 
 const keyword = ref('');
@@ -86,7 +89,14 @@ const filteredProducts = computed(() => {
       const matchesBacklight =
         backlightType.value === 'unknown' || metadata.backlightType === backlightType.value;
       const matchesScore = !props.scoreFilter || props.scoreFilter(product);
-      return matchesText && matchesBrand && matchesYear && matchesSize && matchesScreen && matchesBacklight && matchesScore;
+      const totalScore = Number(product.expectedTotal);
+      const minTotal = props.totalScoreMin ? Number(props.totalScoreMin) : null;
+      const maxTotal = props.totalScoreMax ? Number(props.totalScoreMax) : null;
+      const matchesTotalScore =
+        !Number.isFinite(totalScore) ||
+        ((minTotal === null || !Number.isFinite(minTotal) || totalScore >= minTotal) &&
+          (maxTotal === null || !Number.isFinite(maxTotal) || totalScore <= maxTotal));
+      return matchesText && matchesBrand && matchesYear && matchesSize && matchesScreen && matchesBacklight && matchesScore && matchesTotalScore;
     })
     .sort((a, b) => {
       const yearDiff = (b.releaseYear ?? 0) - (a.releaseYear ?? 0);
@@ -110,6 +120,27 @@ const sizeOptions = computed(() => [
   { value: '', label: '全部尺寸' },
   ...sizes.value.map(item => ({ value: String(item), label: `${item} 英寸` }))
 ]);
+
+const screenFilterOptions = computed(() => [
+  { value: 'unknown', label: '全部屏幕' },
+  { value: 'oled', label: 'OLED' },
+  { value: 'lcd', label: 'LCD' }
+]);
+
+const backlightFilterOptions = computed(() => [
+  { value: 'unknown', label: '全部背光' },
+  { value: 'emissive', label: '自发光' },
+  { value: 'mini-led', label: 'Mini LED' },
+  { value: 'led', label: '普通 LED' }
+]);
+
+const totalScoreLabel = computed(() => {
+  const lower = Number(props.totalScoreMin ?? 0);
+  const upper = Number(props.totalScoreMax ?? 10);
+  return `${Number.isFinite(lower) ? lower.toFixed(1) : '0.0'} ~ ${
+    Number.isFinite(upper) ? upper.toFixed(1) : '10.0'
+  }`;
+});
 
 const selectedProducts = computed(() =>
   props.selectedIds
@@ -183,6 +214,8 @@ function clearFilters() {
   size.value = '';
   screenType.value = 'unknown';
   backlightType.value = 'unknown';
+  emit('update:totalScoreMin', '0');
+  emit('update:totalScoreMax', '10');
 }
 
 const filterPresets = ref<ProductFilterPreset[]>(listFilterPresets());
@@ -207,7 +240,9 @@ function saveFilterPreset() {
     backlightType: backlightType.value,
     scoreMetric: props.scoreMetric ?? 'total',
     scoreMin: props.scoreMin ?? '',
-    scoreMax: props.scoreMax ?? ''
+    scoreMax: props.scoreMax ?? '',
+    totalScoreMin: props.totalScoreMin ?? '0',
+    totalScoreMax: props.totalScoreMax ?? '10'
   });
   filterPresets.value = listFilterPresets();
   selectedFilterPresetId.value = record.id;
@@ -229,6 +264,8 @@ function applyFilterPreset(presetId: string) {
   emit('update:scoreMetric', preset.scoreMetric);
   emit('update:scoreMin', preset.scoreMin);
   emit('update:scoreMax', preset.scoreMax);
+  emit('update:totalScoreMin', preset.totalScoreMin ?? '0');
+  emit('update:totalScoreMax', preset.totalScoreMax ?? '10');
 }
 
 function deleteSelectedFilterPreset() {
@@ -322,7 +359,7 @@ function deleteSelectedCompareTemplate() {
       </div>
     </div>
 
-    <div class="grid gap-3 grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
+    <div class="grid gap-3 grid-cols-2 md:grid-cols-4 xl:grid-cols-7">
       <UiSelect
         v-model="brand"
         :options="brandOptions"
@@ -342,14 +379,27 @@ function deleteSelectedCompareTemplate() {
       />
       <UiSelect
         v-model="screenType"
-        :options="SCREEN_TYPE_OPTIONS"
+        :options="screenFilterOptions"
         aria-label="按屏幕类型筛选"
       />
       <UiSelect
         v-model="backlightType"
-        :options="BACKLIGHT_TYPE_OPTIONS"
+        :options="backlightFilterOptions"
         aria-label="按背光类型筛选"
       />
+      <div class="grid gap-1">
+        <div class="flex items-center justify-between text-xs text-gray-600">
+          <span>总分区间</span>
+          <span class="font-medium text-gray-900">{{ totalScoreLabel }}</span>
+        </div>
+        <DualRangeSlider
+          :min-value="props.totalScoreMin ?? '0'"
+          :max-value="props.totalScoreMax ?? '10'"
+          aria-label="总分区间"
+          @update:min-value="emit('update:totalScoreMin', $event)"
+          @update:max-value="emit('update:totalScoreMax', $event)"
+        />
+      </div>
       <input v-model="keyword" type="search" placeholder="搜索品牌 / 型号" :class="inputClass" />
     </div>
 

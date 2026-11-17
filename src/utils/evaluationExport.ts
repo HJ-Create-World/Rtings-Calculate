@@ -125,7 +125,7 @@ export async function exportEvaluationExcel(draft: EvaluationDraft): Promise<voi
     { header: '测试项', key: 'label', width: 42 },
     { header: '输入类型', key: 'inputType', width: 12 },
     { header: '单位 / 范围', key: 'unit', width: 16 },
-    { header: '输入值', key: 'input', width: 22 },
+    { header: '实测数据', key: 'input', width: 22 },
     { header: '单项评分', key: 'score', width: 12 },
     { header: '权重', key: 'weight', width: 12 },
     { header: '是否计入', key: 'included', width: 12 },

@@ -481,7 +481,7 @@ function itemScoreTitle(node: ScoreNode): string {
         <thead class="bg-gray-50">
           <tr>
             <th class="px-4 py-3 text-left font-semibold text-gray-900">测试项</th>
-            <th class="px-4 py-3 text-left font-semibold text-gray-900">输入值</th>
+            <th class="px-4 py-3 text-left font-semibold text-gray-900">实测数据</th>
             <th class="px-4 py-3 text-left font-semibold text-gray-900">类型 / 单位</th>
             <th class="px-4 py-3 text-left font-semibold text-gray-900">单项评分</th>
             <th class="px-4 py-3 text-left font-semibold text-gray-900">备注</th>

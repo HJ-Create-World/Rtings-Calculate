@@ -12,6 +12,8 @@ export interface ProductFilterPreset {
   scoreMetric: string;
   scoreMin: string;
   scoreMax: string;
+  totalScoreMin: string;
+  totalScoreMax: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -28,6 +30,8 @@ export interface ProductFilterPresetInput {
   scoreMetric: string;
   scoreMin: string;
   scoreMax: string;
+  totalScoreMin: string;
+  totalScoreMax: string;
 }
 
 const STORAGE_KEY = 'rtings-calculate:filter-presets:v1';

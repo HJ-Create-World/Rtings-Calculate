@@ -43,8 +43,10 @@ export function useDrilldown() {
   const sortMetricId = ref('average');
   const displayLimit = ref('10');
   const filterMetricId = ref('average');
-  const scoreMin = ref('');
-  const scoreMax = ref('');
+  const scoreMin = ref('6');
+  const scoreMax = ref('8');
+  const totalScoreMin = ref('6');
+  const totalScoreMax = ref('8');
 
   const selectedProducts = computed(() =>
     selectedProductIds.value
@@ -260,6 +262,8 @@ export function useDrilldown() {
     scoreMin,
     scoreMax,
     scoreFilter,
+    totalScoreMin,
+    totalScoreMax,
     chartLabels,
     chartSeries,
     chartType,
