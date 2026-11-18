@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import UiSelect from '../components/UiSelect.vue';
+import RuleAdminPanel from '../components/admin/RuleAdminPanel.vue';
 import { useAuth } from '../composables/useAuth';
 import {
   fetchAppSystemStats,
@@ -31,6 +32,12 @@ const editing = ref<{
   employeeNo: string;
   name: string;
 } | null>(null);
+
+const adminTab = ref<'users' | 'rules'>('users');
+const adminTabs = [
+  { value: 'users' as const, label: '用户与权限' },
+  { value: 'rules' as const, label: '数据与规则版本' }
+];
 
 const filteredUsers = computed(() => {
   const text = search.value.trim().toLowerCase();
@@ -120,10 +127,27 @@ onMounted(() => {
       <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 :class="['text-2xl md:text-3xl', sectionTitleClass]">系统管理</h1>
-          <p :class="['mt-2 text-sm', mutedTextClass]">管理用户角色、模块权限、账号封禁与运行状态</p>
+          <p :class="['mt-2 text-sm', mutedTextClass]">管理用户权限、数据快照、规则版本与系统运行状态</p>
         </div>
         <button :class="secondaryButtonClass" :disabled="loading" @click="load">
           {{ loading ? '刷新中…' : '刷新数据' }}
+        </button>
+      </div>
+
+      <div class="mt-5 inline-flex gap-1 overflow-x-auto rounded-xl bg-gray-100 p-1">
+        <button
+          v-for="tab in adminTabs"
+          :key="tab.value"
+          type="button"
+          :class="[
+            'rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
+            adminTab === tab.value
+              ? 'bg-white text-blue-700 shadow-sm'
+              : 'text-gray-600 hover:bg-white/70'
+          ]"
+          @click="adminTab = tab.value"
+        >
+          {{ tab.label }}
         </button>
       </div>
 
@@ -155,7 +179,7 @@ onMounted(() => {
       </div>
     </section>
 
-    <section :class="cardClass" class="p-6">
+    <section v-if="adminTab === 'users'" :class="cardClass" class="p-6">
       <div class="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <h2 class="text-xl font-semibold tracking-tight text-gray-900">用户与权限</h2>
         <input
@@ -253,5 +277,7 @@ onMounted(() => {
         </table>
       </div>
     </section>
+
+    <RuleAdminPanel v-if="adminTab === 'rules'" class="mb-6" />
   </template>
 </template>

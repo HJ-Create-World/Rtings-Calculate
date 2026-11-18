@@ -16,6 +16,11 @@ export const capabilityCards: IntroCard[] = [
     points: ['评分曲线', '数据分布', '实测样本']
   },
   {
+    title: '数据快照与规则版本',
+    description: '管理员可导入 Rtings CSV 快照，自动生成差异报告，并按版本激活或回滚评分规则。',
+    points: ['数据快照', '差异报告', '版本激活 / 回滚']
+  },
+  {
     title: '结构化评分引擎',
     description: '把 Rtings 规则拆成节点树与权重路径，支持缺失子项重归一和逐级 0.1 舍入。',
     points: ['132 个评分节点', '93 条评分映射', 'Mixed Usage 总分']
@@ -132,7 +137,7 @@ export const timeline = [
   {
     date: '2026-11-18',
     title: '权限、测试方法与规则升级',
-    description: '接入账号登录与三级权限；上线测试方法与评分规则可视化；基于 Rtings v2.4 数据更新机型元数据与规则升级计划。'
+    description: '接入账号登录与三级权限；上线测试方法与评分规则可视化；基于 Rtings v2.4 更新机型元数据；启动数据快照、差异报告和规则版本激活/回滚。'
   },
   {
     date: '2026-11-13',
@@ -145,7 +150,7 @@ export const milestoneRows = [
   { version: '规则研究版', date: '2026-06-01 ~ 2026-11-03', summary: '规划与口径确认、Rtings 数据采集、统计汇总、规则反推、评分曲线验证与工程师表融合' },
   { version: 'v0.1.0', date: '2026-11-04 ~ 2026-11-05', summary: '评分核心、规则导入、只读展示、对比图、录入与 Excel 导入' },
   { version: '规则 v3.0', date: '2026-11-06', summary: '融合工程师表与 CSV 反推；接入云端持久化、历史载入和报告导出' },
-  { version: '当前迭代', date: '2026-11-18', summary: '账号登录与三级权限；测试方法/评分曲线可视化；Rtings v2.4 数据差异与机型元数据更新；评分区间进度条；主观直评修复与界面优化' }
+  { version: '当前迭代', date: '2026-11-18', summary: '账号登录与三级权限；测试方法/评分曲线可视化；Rtings v2.4 机型元数据；数据快照、差异报告与规则版本激活/回滚；主观直评修复与界面优化' }
 ];
 
 export const roadmapCards: IntroCard[] = [

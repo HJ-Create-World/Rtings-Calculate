@@ -5,6 +5,8 @@ import DualRangeSlider from './DualRangeSlider.vue';
 import type { ProductBaseline } from '../data/rtingsRule';
 import {
   getProductMetadata,
+  backlightTypeLabel,
+  screenTypeLabel,
   type BacklightType,
   type ScreenType
 } from '../utils/productMetadata';
@@ -131,8 +133,24 @@ const backlightFilterOptions = computed(() => [
   { value: 'unknown', label: '全部背光' },
   { value: 'emissive', label: '自发光' },
   { value: 'mini-led', label: 'Mini LED' },
+  { value: 'full-array', label: '全阵列背光' },
+  { value: 'direct', label: '直下式背光' },
+  { value: 'edge', label: '侧入式背光' },
   { value: 'led', label: '普通 LED' }
 ]);
+
+function productMetaText(product: ProductBaseline): string {
+  const metadata = getProductMetadata(product);
+  const values = [
+    product.brand ?? null,
+    screenTypeLabel(metadata.screenType),
+    backlightTypeLabel(metadata.backlightType),
+    product.subType ?? null,
+    product.methodology ?? null,
+    product.recommendationsCount ? `推荐 ${product.recommendationsCount}` : null
+  ].filter(Boolean);
+  return values.join(' · ');
+}
 
 const totalScoreLabel = computed(() => {
   const lower = Number(props.totalScoreMin ?? 0);
@@ -522,6 +540,7 @@ function deleteSelectedCompareTemplate() {
         v-for="product in visibleProducts"
         :key="product.id"
         type="button"
+        class="!flex !min-w-[220px] !flex-col !items-start !rounded-xl !px-3 !py-2 text-left"
         :class="[
           secondaryButtonClass,
           isSelected(product.id) ? '!border-blue-600 !bg-blue-50 !text-blue-700' : ''
@@ -529,12 +548,17 @@ function deleteSelectedCompareTemplate() {
         :aria-pressed="isSelected(product.id)"
         @click="emit('toggle', product.id)"
       >
-        {{ product.label }}
-        <span
-          v-if="product.source === 'cloud' || product.source === 'local'"
-          class="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-medium text-blue-700"
-        >
-          {{ product.source === 'cloud' ? '云端' : '本机' }}
+        <span class="flex w-full items-start justify-between gap-2">
+          <span class="min-w-0 text-sm font-medium">{{ product.label }}</span>
+          <span
+            v-if="product.source === 'cloud' || product.source === 'local'"
+            class="shrink-0 rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-medium text-blue-700"
+          >
+            {{ product.source === 'cloud' ? '云端' : '本机' }}
+          </span>
+        </span>
+        <span class="mt-1 block truncate text-[11px] font-normal text-gray-500">
+          {{ productMetaText(product) }}
         </span>
       </button>
     </div>
