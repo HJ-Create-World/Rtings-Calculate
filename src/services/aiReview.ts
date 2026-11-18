@@ -364,10 +364,24 @@ export async function generateProductSuggestions(input: {
 
 export function aiErrorMessage(error: unknown): string {
   const code = (error as { error?: { code?: string } })?.error?.code;
-  if (typeof code === 'string' && code.startsWith('quota_')) return 'AI 配额不足或触发限流';
-  if (typeof code === 'string' && code.startsWith('request_')) return 'AI 请求参数无效';
-  if (typeof code === 'string' && code.startsWith('gateway_')) return 'AI 服务暂时不可用，请重试';
-  if (typeof code === 'string' && code.startsWith('model_')) return '所选模型暂不可用';
+  const message = (error as { error?: { message?: string } })?.error?.message;
+
+  if (code === 'capability_disabled') {
+    return 'AI 能力未开启（服务端返回 capability_disabled）。请在 WorkBuddy「设置—数据管理—应用」中找到本应用并开启 AI 能力，然后点击刷新模型。';
+  }
+  if (typeof code === 'string' && code.startsWith('quota_')) {
+    return message || 'AI 配额不足或触发限流';
+  }
+  if (typeof code === 'string' && code.startsWith('request_')) {
+    return message || 'AI 请求参数无效';
+  }
+  if (typeof code === 'string' && code.startsWith('gateway_')) {
+    return message || 'AI 服务暂时不可用，请重试';
+  }
+  if (typeof code === 'string' && code.startsWith('model_')) {
+    return message || '所选模型暂不可用';
+  }
+  if (message) return message;
   if (error instanceof Error && error.message) return error.message;
   return 'AI 分析失败';
 }

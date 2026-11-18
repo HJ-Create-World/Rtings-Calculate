@@ -65,13 +65,21 @@ const diffOptions = computed(() => [
   }))
 ]);
 
-const modelOptions = computed(() => [
-  { value: '', label: '选择 AI 模型' },
-  ...models.value.map(model => ({
-    value: model.id,
-    label: model.credits ? `${model.name} · ${model.credits}` : model.name
-  }))
-]);
+const modelOptions = computed(() => {
+  if (modelsLoading.value) {
+    return [{ value: '', label: '模型加载中…' }];
+  }
+  if (!models.value.length) {
+    return [{ value: '', label: aiError.value ? 'AI 能力未开启 / 无可用模型' : '暂无可用 AI 模型' }];
+  }
+  return [
+    { value: '', label: '选择 AI 模型' },
+    ...models.value.map(model => ({
+      value: model.id,
+      label: model.credits ? `${model.name} · ${model.credits}` : model.name
+    }))
+  ];
+});
 
 const activeRuleVersion = computed(() =>
   ruleVersions.value.find(version => version.status === 'active') ?? null
@@ -356,19 +364,31 @@ onMounted(() => {
 
 <template>
   <section class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-    <div class="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div>
+    <div class="mb-6 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+      <div class="min-w-0">
         <h2 :class="['text-xl md:text-2xl', sectionTitleClass]">差异审阅与 AI 建议</h2>
         <p :class="['mt-2 text-sm', mutedTextClass]">
           AI 只生成候选建议，不直接修改规则；管理员确认后写入审阅库
         </p>
       </div>
-      <button :class="secondaryButtonClass" :disabled="loading" @click="load">
-        {{ loading ? '刷新中…' : '刷新数据' }}
-      </button>
-      <button :class="secondaryButtonClass" :disabled="modelsLoading" @click="loadModels">
-        {{ modelsLoading ? '模型刷新中…' : '刷新模型' }}
-      </button>
+      <div class="flex shrink-0 flex-wrap items-center gap-2">
+        <button
+          :class="secondaryButtonClass"
+          class="!px-3 !py-2 !text-xs"
+          :disabled="loading"
+          @click="load"
+        >
+          {{ loading ? '数据刷新中…' : '刷新数据' }}
+        </button>
+        <button
+          :class="secondaryButtonClass"
+          class="!px-3 !py-2 !text-xs"
+          :disabled="modelsLoading"
+          @click="loadModels"
+        >
+          {{ modelsLoading ? '模型刷新中…' : '刷新模型' }}
+        </button>
+      </div>
     </div>
 
     <div class="mb-6 grid gap-3 lg:grid-cols-2">
