@@ -6,6 +6,7 @@ import GroupRadarChart from '../components/charts/GroupRadarChart.vue';
 import TestItemDetailTable from '../components/TestItemDetailTable.vue';
 import { evaluateRule } from '../core/evaluate';
 import { buildDraftInputs, useEvaluationDraft } from '../composables/useEvaluationDraft';
+import { useAuth } from '../composables/useAuth';
 import { rtingsRule } from '../data/rtingsRule';
 import {
   cloudEvaluationToDraft,
@@ -20,6 +21,7 @@ import { cardClass, inputClass, mutedTextClass, primaryButtonClass, secondaryBut
 
 const router = useRouter();
 const { replaceDraft } = useEvaluationDraft();
+const { session } = useAuth();
 
 const records = ref<CloudEvaluation[]>([]);
 const loading = ref(false);
@@ -33,7 +35,7 @@ async function refresh() {
   loading.value = true;
   error.value = '';
   try {
-    records.value = await listCloudEvaluations(200);
+    records.value = await listCloudEvaluations(200, session.value?.token);
     if (!selectedId.value && records.value.length) {
       selectedId.value = records.value[0].client_id;
     }

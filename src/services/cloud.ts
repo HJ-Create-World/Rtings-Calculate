@@ -106,37 +106,44 @@ function toRecord(draft: EvaluationDraft, expectedTotal: number | null): CloudEv
 
 export async function saveEvaluationToCloud(
   draft: EvaluationDraft,
-  expectedTotal: number | null
+  expectedTotal: number | null,
+  appToken: string
 ): Promise<CloudEvaluation> {
-  const rows = await unwrap(
-    await cloud.database
-      .from('evaluations')
-      .upsert(toRecord(draft, expectedTotal), { onConflict: 'client_id' })
-      .select()
+  const result = unwrap(
+    await cloud.database.rpc('app_upsert_evaluation', {
+      p_token: appToken,
+      p_evaluation: toRecord(draft, expectedTotal) as unknown as Record<string, unknown>
+    })
   );
-  return rows[0] as CloudEvaluation;
+  return result as CloudEvaluation;
 }
 
-export async function listCloudEvaluations(limit = 100): Promise<CloudEvaluation[]> {
-  const rows = await unwrap(
-    await cloud.database
-      .from('evaluations')
-      .select('*')
-      .order('updated_at', { ascending: false })
-      .limit(limit)
+export async function listCloudEvaluations(
+  limit = 100,
+  appToken?: string
+): Promise<CloudEvaluation[]> {
+  if (!appToken) return [];
+  const result = await unwrap(
+    await cloud.database.rpc('app_list_evaluations', {
+      p_token: appToken,
+      p_limit: limit
+    })
   );
-  return rows as CloudEvaluation[];
+  return Array.isArray(result) ? (result as CloudEvaluation[]) : [];
 }
 
-export async function getCloudEvaluation(clientId: string): Promise<CloudEvaluation | null> {
-  const rows = await unwrap(
-    await cloud.database
-      .from('evaluations')
-      .select('*')
-      .eq('client_id', clientId)
-      .maybeSingle()
+export async function getCloudEvaluation(
+  clientId: string,
+  appToken?: string
+): Promise<CloudEvaluation | null> {
+  if (!appToken) return null;
+  const result = await unwrap(
+    await cloud.database.rpc('app_get_evaluation', {
+      p_token: appToken,
+      p_client_id: clientId
+    })
   );
-  return rows as CloudEvaluation | null;
+  return result ? (result as CloudEvaluation) : null;
 }
 
 export function cloudEvaluationToDraft(record: CloudEvaluation): EvaluationDraft {

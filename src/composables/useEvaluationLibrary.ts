@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue';
 import { evaluateRule } from '../core/evaluate';
 import { buildDraftInputs } from './useEvaluationDraft';
+import { useAuth } from './useAuth';
 import {
   cloudEvaluationToDraft,
   cloudErrorMessage,
@@ -81,11 +82,13 @@ const allEvaluationProducts = computed<ProductBaseline[]>(() => [
 
 async function refreshEvaluationLibrary(force = false) {
   if (libraryLoaded.value && !force) return;
+  const { session } = useAuth();
+  const appToken = session.value?.token;
   libraryLoading.value = true;
   libraryError.value = '';
   try {
     const [cloud, local] = await Promise.all([
-      listCloudEvaluations(200),
+      listCloudEvaluations(200, appToken),
       Promise.resolve(listLocalEvaluations())
     ]);
     cloudRecords.value = cloud;

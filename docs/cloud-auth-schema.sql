@@ -64,5 +64,20 @@ REVOKE ALL ON public.app_sessions FROM PUBLIC;
 -- app_system_stats(p_token) RETURNS jsonb
 -- 仅系统管理员可用；返回用户、会话与评测运行状态。
 
+-- app_list_evaluations(p_token, p_limit) RETURNS SETOF evaluations
+-- 需 data_view 权限；按 updated_at 倒序返回评测，最多 500 条。
+
+-- app_get_evaluation(p_token, p_client_id) RETURNS evaluations
+-- 需 data_view 权限；按 client_id 查询单条评测。
+
+-- app_upsert_evaluation(p_token, p_evaluation jsonb) RETURNS evaluations
+-- 需 score_entry 权限；按 client_id upsert 评测。
+-- p_evaluation 需包含 client_id/rule_version/inputs，可包含品牌、型号、测试信息与 expected_total。
+
 -- 兼容历史云端评测表：未登录 WorkBuddy Auth 的自定义账号写入时使用应用默认 owner。
 ALTER TABLE public.evaluations ALTER COLUMN owner_id SET DEFAULT 'app';
+
+-- 关闭 evaluations 直连读写，所有云端评测访问改为上述 SECURITY DEFINER RPC。
+REVOKE ALL ON public.evaluations FROM PUBLIC;
+REVOKE ALL ON public.evaluations FROM anon;
+REVOKE ALL ON public.evaluations FROM authenticated;

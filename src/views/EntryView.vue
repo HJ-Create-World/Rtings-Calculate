@@ -35,7 +35,7 @@ const {
   resetDraft
 } = useEvaluationDraft();
 const router = useRouter();
-const { canViewTestMethod } = useAuth();
+const { canViewTestMethod, session } = useAuth();
 
 const groups = getMainDimensionNodes();
 const groupOptions = groups.map(group => ({ value: group.id, label: group.label }));
@@ -169,7 +169,7 @@ async function saveToCloud() {
   cloudSaving.value = true;
   cloudMessage.value = null;
   try {
-    await saveEvaluationToCloud(draft.value, result.value.value);
+    await saveEvaluationToCloud(draft.value, result.value.value, session.value?.token ?? '');
     cloudMessage.value = {
       type: 'success',
       text: '已保存到云端历史评测库'
