@@ -145,7 +145,7 @@ export const milestoneRows = [
   { version: '规则研究版', date: '2026-06-01 ~ 2026-11-03', summary: '规划与口径确认、Rtings 数据采集、统计汇总、规则反推、评分曲线验证与工程师表融合' },
   { version: 'v0.1.0', date: '2026-11-04 ~ 2026-11-05', summary: '评分核心、规则导入、只读展示、对比图、录入与 Excel 导入' },
   { version: '规则 v3.0', date: '2026-11-06', summary: '融合工程师表与 CSV 反推；接入云端持久化、历史载入和报告导出' },
-  { version: '当前迭代', date: '2026-11-18', summary: '账号登录与三级权限；测试方法/评分曲线可视化；Rtings v2.4 数据差异与机型元数据更新；评分区间进度条' }
+  { version: '当前迭代', date: '2026-11-18', summary: '账号登录与三级权限；测试方法/评分曲线可视化；Rtings v2.4 数据差异与机型元数据更新；评分区间进度条；主观直评修复与界面优化' }
 ];
 
 export const roadmapCards: IntroCard[] = [
@@ -200,5 +200,5 @@ export const sourceRows = [
 export const accuracyRows = [
   { label: 'CSV 总分回归', value: '107 款中 104 款误差 ≤0.1；3 款误差 ≤0.2（含 QN900F 8K 已知例外）' },
   { label: '得分档一致性', value: '工程师分档与 CSV 可比分档 96.6% 一致（767/794）' },
-  { label: '自动化测试', value: '15 项 Vitest 测试覆盖核心映射、规则聚合、CSV 回归与输入引用' }
+  { label: '自动化测试', value: '17 项 Vitest 测试覆盖核心映射、规则聚合、CSV 回归、输入引用与主观评分存储' }
 ];

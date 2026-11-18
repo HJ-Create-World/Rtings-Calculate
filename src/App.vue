@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import AppLogo from './components/AppLogo.vue';
 import { useAuth } from './composables/useAuth';
 
 const route = useRoute();
+const router = useRouter();
 const { currentUser, isLoggedIn, isAdmin, canViewTestMethod, logout, submitting } = useAuth();
 
 const navItems = computed(() => {
@@ -26,6 +27,24 @@ const navItems = computed(() => {
 });
 
 const currentPath = computed(() => route.path);
+const roleLabel = computed(() =>
+  currentUser.value?.role === 'admin'
+    ? '系统管理员'
+    : currentUser.value?.role === 'engineer'
+      ? '内部工程师'
+      : '普通用户'
+);
+const roleBadgeClass = computed(() =>
+  currentUser.value?.role === 'admin'
+    ? 'bg-blue-50 text-blue-700'
+    : currentUser.value?.role === 'engineer'
+      ? 'bg-emerald-50 text-emerald-700'
+      : 'bg-gray-100 text-gray-600'
+);
+const userInitials = computed(() => {
+  const name = currentUser.value?.name?.trim() ?? '';
+  return name ? name.slice(-2) : '用户';
+});
 
 function linkClass(path: string) {
   const active = currentPath.value === path;
@@ -37,44 +56,60 @@ function linkClass(path: string) {
       : 'bg-white text-gray-700 border border-gray-300 hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow'
   ];
 }
+
+async function handleLogout() {
+  await logout();
+  await router.replace('/login');
+}
 </script>
 
 <template>
   <div class="min-h-screen bg-slate-50">
     <header class="border-b border-gray-200 bg-white">
-      <div class="mx-auto max-w-7xl px-4 py-6 md:px-6 lg:px-8">
+      <div class="mx-auto max-w-7xl px-4 py-5 md:px-6 lg:px-8">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div class="flex items-center gap-4">
-            <AppLogo class="h-12 w-12 shrink-0" />
+            <AppLogo class="h-11 w-11 shrink-0" />
             <div>
-              <h1 class="text-2xl font-semibold tracking-tight text-gray-900 md:text-3xl">
+              <h1 class="text-xl font-semibold tracking-tight text-gray-900 md:text-2xl">
                 BOE Rtings 评测系统
               </h1>
+              <p class="mt-1 hidden text-xs text-gray-500 sm:block">
+                统一评分工作台 · 规则可追溯 · 权限分级
+              </p>
             </div>
           </div>
 
-          <div v-if="isLoggedIn" class="flex items-center gap-3">
-            <div class="text-right">
-              <p class="text-sm font-medium text-gray-900">{{ currentUser?.name }}</p>
-              <p class="text-xs text-gray-500">
-                {{ currentUser?.employeeNo }} ·
-                {{ currentUser?.role === 'admin' ? '系统管理员' : currentUser?.role === 'engineer' ? '内部工程师' : '普通用户' }}
-              </p>
+          <div
+            v-if="isLoggedIn"
+            class="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white px-4 py-3 shadow-sm"
+          >
+            <span class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
+              {{ userInitials }}
+            </span>
+            <div class="min-w-0">
+              <div class="flex items-center gap-2">
+                <p class="truncate text-sm font-semibold text-gray-900">{{ currentUser?.name }}</p>
+                <span :class="['rounded-full px-2 py-0.5 text-[11px] font-medium', roleBadgeClass]">
+                  {{ roleLabel }}
+                </span>
+              </div>
+              <p class="mt-0.5 truncate text-xs text-gray-500">工号 {{ currentUser?.employeeNo }}</p>
             </div>
             <button
               type="button"
-              class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-all duration-200 hover:bg-gray-50"
+              class="ml-2 rounded-lg bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700 transition-all duration-200 hover:bg-red-50 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
               :disabled="submitting"
-              @click="logout"
+              @click="handleLogout"
             >
-              退出
+              退出登录
             </button>
           </div>
         </div>
 
         <nav
           v-if="isLoggedIn"
-          class="mt-6 inline-flex max-w-full gap-1 overflow-x-auto rounded-xl bg-gray-100 p-1"
+          class="mt-5 inline-flex max-w-full gap-1 overflow-x-auto rounded-xl bg-gray-100 p-1"
           aria-label="功能页面"
         >
           <RouterLink

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { evaluateRule } from '../src/core';
+import { parseSubjectiveScore } from '../src/composables/useEvaluationDraft';
 import {
   buildBaselineInputs,
   rtingsBaselinesV3,
@@ -42,6 +43,14 @@ describe('Rtings 融合版规则 v3', () => {
       'subjective',
       'subjective'
     ]);
+  });
+
+  it('主观评分输入按十分位存储并可直接评分', () => {
+    expect(parseSubjectiveScore(90)).toBe(90);
+    expect(parseSubjectiveScore(95)).toBe(95);
+    expect(parseSubjectiveScore(0)).toBe(0);
+    expect(parseSubjectiveScore(100)).toBe(100);
+    expect(parseSubjectiveScore(101)).toBeNull();
   });
 
   it('评分输入引用完整且支持类类别项均可表达 No', () => {    const mappingIds = new Set(rtingsRuleV3.mappings.map(mapping => mapping.id));

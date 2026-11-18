@@ -52,8 +52,9 @@ export function parseObjectiveNumber(raw: string | undefined | null): number | n
 
 export function parseSubjectiveScore(raw: number | null | undefined): number | null {
   if (raw === null || raw === undefined || Number.isNaN(raw)) return null;
-  if (raw < 0 || raw > 10) return null;
-  return Math.round(raw * 10);
+  // UI 输入 0~10，draft 内部统一保存 0~100 的十分位整数。
+  if (raw < 0 || raw > 100) return null;
+  return Math.round(raw);
 }
 
 export function buildDraftInputs(draft: EvaluationDraft): EvaluationInputs {
