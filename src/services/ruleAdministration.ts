@@ -103,6 +103,10 @@ export interface RuleActivationLog {
   performedBy?: { name?: string; account?: string };
 }
 
+export interface DataSnapshotFull extends DataSnapshot {
+  snapshot: CsvSnapshot;
+}
+
 export interface RuleReview {
   id: string;
   targetSnapshotId?: string | null;
@@ -112,6 +116,10 @@ export interface RuleReview {
   title: string;
   recommendation: string;
   payload?: Record<string, unknown>;
+  sourceType?: 'manual' | 'llm' | 'rule-import';
+  model?: string | null;
+  confidence?: number | null;
+  evidence?: Record<string, unknown>;
   status: 'pending' | 'approved' | 'rejected' | 'deferred';
   reviewNote?: string | null;
   createdAt?: string;
@@ -224,6 +232,16 @@ export async function listDataDiffs(token: string): Promise<DataDiff[]> {
   return Array.isArray(result) ? (result as DataDiff[]) : [];
 }
 
+export async function getDataSnapshot(token: string, snapshotId: string): Promise<DataSnapshotFull> {
+  const result = unwrap(
+    await cloud.database.rpc('app_get_data_snapshot', {
+      p_token: token,
+      p_snapshot_id: snapshotId
+    })
+  );
+  return result as DataSnapshotFull;
+}
+
 export async function getDataDiff(token: string, diffId: string): Promise<DataDiffReport> {
   const result = unwrap(
     await cloud.database.rpc('app_get_data_diff', {
@@ -292,9 +310,15 @@ export async function listRuleActivationLogs(token: string): Promise<RuleActivat
   return Array.isArray(result) ? (result as RuleActivationLog[]) : [];
 }
 
-export async function listRuleReviews(token: string): Promise<RuleReview[]> {
+export async function listRuleReviews(
+  token: string,
+  targetSnapshotId?: string | null
+): Promise<RuleReview[]> {
   const result = unwrap(
-    await cloud.database.rpc('app_list_rule_reviews', { p_token: token })
+    await cloud.database.rpc('app_list_rule_reviews', {
+      p_token: token,
+      p_target_snapshot_id: targetSnapshotId ?? null
+    })
   );
   return Array.isArray(result) ? (result as RuleReview[]) : [];
 }
@@ -312,10 +336,38 @@ export async function createRuleReview(
       p_item_id: input.itemId,
       p_title: input.title,
       p_recommendation: input.recommendation,
-      p_payload: input.payload ?? {}
+      p_payload: input.payload ?? {},
+      p_source_type: input.sourceType ?? 'manual',
+      p_model: input.model ?? null,
+      p_confidence: input.confidence ?? null,
+      p_evidence: input.evidence ?? {}
     })
   );
   return result as RuleReview;
+}
+
+export async function updateRuleReview(
+  token: string,
+  reviewId: string,
+  status: RuleReview['status'],
+  reviewNote?: string
+): Promise<RuleReview> {
+  const result = unwrap(
+    await cloud.database.rpc('app_update_rule_review', {
+      p_token: token,
+      p_review_id: reviewId,
+      p_status: status,
+      p_review_note: reviewNote ?? null
+    })
+  );
+  return result as RuleReview;
+}
+
+export async function deleteRuleReview(token: string, reviewId: string): Promise<void> {
+  await cloud.database.rpc('app_delete_rule_review', {
+    p_token: token,
+    p_review_id: reviewId
+  });
 }
 
 export function ruleAdminErrorMessage(error: unknown, fallback: string): string {

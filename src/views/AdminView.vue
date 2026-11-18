@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue';
 import UiSelect from '../components/UiSelect.vue';
 import RuleAdminPanel from '../components/admin/RuleAdminPanel.vue';
+import RuleReviewPanel from '../components/admin/RuleReviewPanel.vue';
 import { useAuth } from '../composables/useAuth';
 import {
   fetchAppSystemStats,
@@ -33,10 +34,11 @@ const editing = ref<{
   name: string;
 } | null>(null);
 
-const adminTab = ref<'users' | 'rules'>('users');
+const adminTab = ref<'users' | 'rules' | 'reviews'>('users');
 const adminTabs = [
   { value: 'users' as const, label: '用户与权限' },
-  { value: 'rules' as const, label: '数据与规则版本' }
+  { value: 'rules' as const, label: '数据与规则版本' },
+  { value: 'reviews' as const, label: '差异审阅 / AI 建议' }
 ];
 
 const filteredUsers = computed(() => {
@@ -279,5 +281,6 @@ onMounted(() => {
     </section>
 
     <RuleAdminPanel v-if="adminTab === 'rules'" class="mb-6" />
+    <RuleReviewPanel v-if="adminTab === 'reviews'" class="mb-6" />
   </template>
 </template>

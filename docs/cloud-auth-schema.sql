@@ -177,6 +177,10 @@ CREATE TABLE IF NOT EXISTS public.rule_update_reviews (
   title text NOT NULL,
   recommendation text NOT NULL,
   payload jsonb NOT NULL DEFAULT '{}'::jsonb,
+  source_type text NOT NULL DEFAULT 'manual' CHECK (source_type IN ('manual','llm','rule-import')),
+  model text,
+  confidence numeric CHECK (confidence >= 0 AND confidence <= 1),
+  evidence jsonb NOT NULL DEFAULT '{}'::jsonb,
   status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','approved','rejected','deferred')),
   reviewer_id uuid,
   review_note text,
@@ -197,5 +201,7 @@ CREATE TABLE IF NOT EXISTS public.rule_update_reviews (
 -- app_change_rule_version_status / app_list_rule_activation_logs
 -- 管理员激活新版本或回滚历史版本，写入激活日志；同一时间只有一个 active。
 
--- app_create_rule_review / app_list_rule_reviews / app_update_rule_review
--- 为后续 LLM 辅助审阅提供候选建议、审阅状态与备注留档。
+-- app_create_rule_review / app_list_rule_reviews / app_update_rule_review / app_delete_rule_review
+-- 为 LLM 辅助审阅提供候选建议、审阅状态、来源（manual/llm/rule-import）、模型、置信度与证据留档。
+-- app_get_data_snapshot
+-- 系统管理员读取指定数据快照；差异审阅界面用它计算新增列的数据分布与官方得分样本。
