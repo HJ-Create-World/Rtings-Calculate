@@ -1,5 +1,6 @@
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { evaluateRule } from '../core/evaluate';
+import type { ScoringRule } from '../core/types';
 import { buildDraftInputs } from './useEvaluationDraft';
 import { useAuth } from './useAuth';
 import {
@@ -11,11 +12,15 @@ import type { CloudEvaluation } from '../services/cloud';
 import { listLocalEvaluations } from '../services/localEvaluations';
 import type { LocalEvaluation } from '../services/localEvaluations';
 import type { ProductBaseline } from '../data/rtingsRule';
-import { rtingsBaselinesV3, rtingsRule } from '../data/rtingsRule';
+import { rtingsBaselinesV3 } from '../data/rtingsRule';
+import { getRuleForVersion, useRuleRuntime } from './useRuleRuntime';
 import type { EvaluationDraft } from '../types/evaluation';
 
 const cloudRecords = ref<CloudEvaluation[]>([]);
 const localRecords = ref<LocalEvaluation[]>([]);
+const { currentRule } = useRuleRuntime();
+const ruleVersionMap = ref(new Map<string, ScoringRule>());
+const loadingRuleVersions = new Set<string>();
 const libraryLoading = ref(false);
 const libraryError = ref('');
 const libraryLoaded = ref(false);
@@ -29,13 +34,16 @@ function toProduct(
   record: CloudEvaluation | LocalEvaluation,
   source: 'cloud' | 'local'
 ): ProductBaseline | null {
+  const rule = ruleVersionMap.value.get(('client_id' in record
+    ? (record as CloudEvaluation).rule_version
+    : (record as LocalEvaluation).draft.ruleVersion) ?? currentRule.value.version);
+  if (!rule) return null;
   const draft = 'client_id' in record
-    ? cloudEvaluationToDraft(record as CloudEvaluation)
+    ? cloudEvaluationToDraft(record as CloudEvaluation, rule)
     : (record as LocalEvaluation).draft;
-  if (draft.ruleVersion !== rtingsRule.version) return null;
 
-  const inputs = buildDraftInputs(draft);
-  const result = evaluateRule(rtingsRule, inputs);
+  const inputs = buildDraftInputs(draft, rule);
+  const result = evaluateRule(rule, inputs);
   const expectedScores: Record<string, number> = {};
   for (const evaluation of Object.values(result.nodes)) {
     if (evaluation.status === 'scored' && evaluation.value !== null) {
@@ -62,6 +70,37 @@ function toProduct(
     inputs: inputs as ProductBaseline['inputs']
   };
 }
+
+async function loadMissingRuleVersions() {
+  const records = [
+    ...cloudRecords.value.map(record => record.rule_version),
+    ...localRecords.value.map(record => record.draft.ruleVersion)
+  ].filter(Boolean) as string[];
+  const missing = [...new Set(records)].filter(version => !ruleVersionMap.value.has(version));
+
+  await Promise.all(missing.map(async version => {
+    if (loadingRuleVersions.has(version)) return;
+    loadingRuleVersions.add(version);
+    try {
+      const rule = await getRuleForVersion(version);
+      const next = new Map(ruleVersionMap.value);
+      next.set(version, rule);
+      ruleVersionMap.value = next;
+    } catch {
+      // 单个历史版本加载失败不阻断整个评测库；对应记录会暂时隐藏。
+    } finally {
+      loadingRuleVersions.delete(version);
+    }
+  }));
+}
+
+watch(
+  [cloudRecords, localRecords],
+  () => {
+    void loadMissingRuleVersions();
+  },
+  { immediate: true }
+);
 
 const savedProducts = computed<ProductBaseline[]>(() => {
   const cloudItems = cloudRecords.value

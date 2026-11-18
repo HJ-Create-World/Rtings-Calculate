@@ -4,51 +4,57 @@ import { useRoute, useRouter } from 'vue-router';
 import type { ChartConfiguration } from 'chart.js';
 import BaseChart from '../components/charts/BaseChart.vue';
 import UiSelect from '../components/UiSelect.vue';
-import { rtingsBaselinesV3, rtingsRule } from '../data/rtingsRule';
+import { rtingsBaselinesV3 } from '../data/rtingsRule';
+import { useRuleRuntime } from '../composables/useRuleRuntime';
 import type { ObjectiveMapping, ScoreNode } from '../core/types';
 import { cardClass, mutedTextClass, sectionTitleClass } from '../utils/ui';
 
 const route = useRoute();
 const router = useRouter();
+const { currentRule } = useRuleRuntime();
 
 const props = defineProps<{ rangeMax?: number }>();
 
-const leafNodes = rtingsRule.nodes.filter(
+const leafNodes = computed(() => currentRule.value.nodes.filter(
   node => node.kind === 'leaf' && node.includeInParent
-);
+));
 
-const nodeById = new Map<string, ScoreNode>(rtingsRule.nodes.map(node => [node.id, node]));
-const mappingById = new Map<string, ObjectiveMapping>(rtingsRule.mappings.map(item => [item.id, item]));
+const nodeById = computed(() => new Map<string, ScoreNode>(
+  currentRule.value.nodes.map(node => [node.id, node])
+));
+const mappingById = computed(() => new Map<string, ObjectiveMapping>(
+  currentRule.value.mappings.map(item => [item.id, item])
+));
 
 const selectedNodeId = ref(
-  typeof route.query.nodeId === 'string' && nodeById.has(route.query.nodeId)
+  typeof route.query.nodeId === 'string' && nodeById.value.has(route.query.nodeId)
     ? route.query.nodeId
-    : leafNodes[0]?.id ?? ''
+    : leafNodes.value[0]?.id ?? ''
 );
 
-const node = computed(() => nodeById.get(selectedNodeId.value) ?? null);
+const node = computed(() => nodeById.value.get(selectedNodeId.value) ?? null);
 const parent = computed(() =>
-  node.value?.parentId ? nodeById.get(node.value.parentId) ?? null : null
+  node.value?.parentId ? nodeById.value.get(node.value.parentId) ?? null : null
 );
 const grandParent = computed(() =>
-  parent.value?.parentId ? nodeById.get(parent.value.parentId) ?? null : null
+  parent.value?.parentId ? nodeById.value.get(parent.value.parentId) ?? null : null
 );
 const mapping = computed(() =>
-  node.value?.mappingId ? mappingById.get(node.value.mappingId) ?? null : null
+  node.value?.mappingId ? mappingById.value.get(node.value.mappingId) ?? null : null
 );
 
 watch(
   () => route.query.nodeId,
   value => {
-    if (typeof value === 'string' && nodeById.has(value)) {
+    if (typeof value === 'string' && nodeById.value.has(value)) {
       selectedNodeId.value = value;
     }
   }
 );
 
 const nodeOptions = computed(() =>
-  leafNodes.map(item => {
-    const parentNode = item.parentId ? nodeById.get(item.parentId) : null;
+  leafNodes.value.map(item => {
+    const parentNode = item.parentId ? nodeById.value.get(item.parentId) : null;
     return {
       value: item.id,
       label: parentNode ? `${parentNode.label} / ${item.label}` : item.label

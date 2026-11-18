@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import OptionChips from '../components/OptionChips.vue';
 import UiSelect from '../components/UiSelect.vue';
 import ImportView from './ImportView.vue';
 import { useEvaluationDraft } from '../composables/useEvaluationDraft';
 import { useAuth } from '../composables/useAuth';
-import { rtingsRule } from '../data/rtingsRule';
+import { useRuleRuntime } from '../composables/useRuleRuntime';
 import type { ScoreNode } from '../core/types';
 import { cloudErrorMessage, saveEvaluationToCloud } from '../services/cloud';
 import {
@@ -36,10 +36,22 @@ const {
 } = useEvaluationDraft();
 const router = useRouter();
 const { canViewTestMethod, session } = useAuth();
+const { currentRule } = useRuleRuntime();
 
-const groups = getMainDimensionNodes();
-const groupOptions = groups.map(group => ({ value: group.id, label: group.label }));
-const selectedGroupId = ref(groups[0]?.id ?? '');
+const groups = computed(() => getMainDimensionNodes(currentRule.value.nodes, currentRule.value.rootId));
+const groupOptions = computed(() =>
+  groups.value.map(group => ({ value: group.id, label: group.label }))
+);
+const selectedGroupId = ref(groups.value[0]?.id ?? '');
+watch(
+  groups,
+  nextGroups => {
+    if (!nextGroups.some(group => group.id === selectedGroupId.value)) {
+      selectedGroupId.value = nextGroups[0]?.id ?? '';
+    }
+  },
+  { immediate: true }
+);
 const keyword = ref('');
 const inputMode = ref<'manual' | 'import'>('manual');
 const inputModeOptions = [
@@ -49,9 +61,9 @@ const inputModeOptions = [
 const screenTypeOptions = SCREEN_TYPE_OPTIONS;
 const backlightTypeOptions = BACKLIGHT_TYPE_OPTIONS;
 
-const inputNodeCount = rtingsRule.nodes.filter(
+const inputNodeCount = computed(() => currentRule.value.nodes.filter(
   node => node.inputType !== 'aggregate' && node.includeInParent
-).length;
+).length);
 const hasAnyInput = computed(() => filledCount.value > 0);
 const warningGroups = computed(() => {
   const groupsByCode = new Map<string, { code: string; count: number; messages: string[] }>();
@@ -69,18 +81,18 @@ const warningGroups = computed(() => {
 });
 
 function parentLabel(node: ScoreNode): string {
-  const parent = rtingsRule.nodes.find(item => item.id === node.parentId);
+  const parent = currentRule.value.nodes.find(item => item.id === node.parentId);
   return parent?.label ?? '';
 }
 
 function unitOf(node: ScoreNode): string {
   if (node.inputType !== 'objective') return '0~10';
-  const mapping = rtingsRule.mappings.find(item => item.id === node.mappingId);
+  const mapping = currentRule.value.mappings.find(item => item.id === node.mappingId);
   return node.unit ?? mapping?.unit ?? '数值';
 }
 
 function mappingFor(node: ScoreNode) {
-  return rtingsRule.mappings.find(item => item.id === node.mappingId);
+  return currentRule.value.mappings.find(item => item.id === node.mappingId);
 }
 
 function categoryOptions(node: ScoreNode) {

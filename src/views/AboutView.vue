@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import packageJson from '../../package.json';
-import { rtingsBaselinesV3, rtingsRule } from '../data/rtingsRule';
+import { rtingsBaselinesV3 } from '../data/rtingsRule';
+import { useRuleRuntime } from '../composables/useRuleRuntime';
 import {
   capabilityCards,
   advantageRows,
@@ -15,29 +16,31 @@ import {
 import SystemVideo from '../components/SystemVideo.vue';
 import { cardClass, mutedTextClass, sectionTitleClass } from '../utils/ui';
 
+const { currentRule, ruleVersionLabel } = useRuleRuntime();
+
 const leafCount = computed(
   () =>
-    rtingsRule.nodes.filter(
+    currentRule.value.nodes.filter(
       node => node.inputType !== 'aggregate' && node.includeInParent
     ).length
 );
 
 const metrics = computed(() => [
   { label: 'Rtings 基准机型', value: rtingsBaselinesV3.items.length, note: 'CSV 官方实测与得分' },
-  { label: '测试数据列', value: 344, note: '172 个测试项 × 原始值/得分' },
-  { label: '评分节点', value: rtingsRule.nodes.length, note: '主维度、子维度与叶子节点' },
-  { label: '评分映射', value: rtingsRule.mappings.length, note: '锚点、区间、类别与恒等映射' },
+  { label: '测试数据列', value: 440, note: '20261117 快照，含新增测试项与机型元数据' },
+  { label: '评分节点', value: currentRule.value.nodes.length, note: '主维度、子维度与叶子节点' },
+  { label: '评分映射', value: currentRule.value.mappings.length, note: '锚点、区间、类别与恒等映射' },
   { label: '可录入测试项', value: leafCount.value, note: '客观值 / 类别值 / 工程师评分' },
   { label: '自动化测试', value: 17, note: '核心映射、规则聚合、CSV 回归、输入引用与主观评分存储' }
 ]);
 
 const engineering = [
   { label: '应用版本', value: `v${packageJson.version}` },
-  { label: '规则版本', value: `v${rtingsRule.version}` },
-  { label: 'Git 提交', value: '30+ 次' },
-  { label: '项目总周期', value: '2026-06-01 至 2026-11-13 · 166 天' },
-  { label: '数据采集与规则反推', value: '2026-06-01 起 · 107 款 × 344 列' },
-  { label: '前端与核心源码', value: '55+ 个 Vue/TS 文件 · 6,900+ 行' },
+  { label: '规则版本', value: `v${ruleVersionLabel.value}` },
+  { label: 'Git 提交', value: '40+ 次' },
+  { label: '项目总周期', value: '2026-06-01 至 2026-11-18 · 171 天' },
+  { label: '数据采集与规则反推', value: '2026-06-01 起 · 107 款 × 344~440 列' },
+  { label: '前端与核心源码', value: '60+ 个 Vue/TS 文件 · 7,800+ 行' },
   { label: '规则与基准数据', value: '4 个 JSON 文件 · 95,000+ 行' },
   { label: '测试代码', value: '3 个测试文件 · 270+ 行' },
   { label: '文档资产', value: '需求、规则拆解、架构、部署、项目日志' }

@@ -1,11 +1,12 @@
 import { computed, ref, watch } from 'vue';
 import type { ScoreNode } from '../core/types';
-import { rtingsRule } from '../data/rtingsRule';
 import { useEvaluationLibrary } from './useEvaluationLibrary';
+import { useRuleRuntime } from './useRuleRuntime';
 import { getMainDimensionNodes } from '../utils/ruleDisplay';
 
 export function useComparison() {
   const { allBaselines, refreshEvaluationLibrary, getEvaluationProductById } = useEvaluationLibrary();
+  const { currentRule } = useRuleRuntime();
   void refreshEvaluationLibrary();
 
   const selectedIds = ref<string[]>(allBaselines.value.slice(0, 6).map(baseline => baseline.id));
@@ -24,7 +25,7 @@ export function useComparison() {
   );
 
   const topGroups = computed(() =>
-    getMainDimensionNodes(rtingsRule.nodes).filter(
+    getMainDimensionNodes(currentRule.value.nodes, currentRule.value.rootId).filter(
       node => node.includeInParent
     )
   );

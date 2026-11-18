@@ -11,6 +11,7 @@ import AdminView from '../views/AdminView.vue';
 import TestMethodsView from '../views/TestMethodsView.vue';
 import AccessDeniedView from '../views/AccessDeniedView.vue';
 import { useAuth } from '../composables/useAuth';
+import { initializeRuleRuntime } from '../composables/useRuleRuntime';
 
 export const router = createRouter({
   history: createWebHashHistory(),
@@ -37,6 +38,7 @@ export const router = createRouter({
 router.beforeEach(async to => {
   const auth = useAuth();
   await auth.initializeAuth();
+  await initializeRuleRuntime();
 
   if (to.meta.public) return true;
 

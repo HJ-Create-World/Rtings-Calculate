@@ -1,20 +1,21 @@
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { evaluateRule } from '../core/evaluate';
 import type { EvaluationInputs, NodeEvaluation, ScoreNode } from '../core/types';
 import {
   buildBaselineInputs,
-  defaultBaselineV3,
-  rtingsRule
+  defaultBaselineV3
 } from '../data/rtingsRule';
 import type { BaselineRow } from '../data/rtingsRule';
+import { useRuleRuntime } from './useRuleRuntime';
 
 export function useScoring() {
+  const { currentRule } = useRuleRuntime();
   const inputs = computed<EvaluationInputs>(() => buildBaselineInputs(defaultBaselineV3));
-  const result = computed(() => evaluateRule(rtingsRule, inputs.value));
+  const result = computed(() => evaluateRule(currentRule.value, inputs.value));
 
   const nodeById = computed(() => {
     const map = new Map<string, ScoreNode>();
-    for (const node of rtingsRule.nodes) map.set(node.id, node);
+    for (const node of currentRule.value.nodes) map.set(node.id, node);
     return map;
   });
 
@@ -27,7 +28,12 @@ export function useScoring() {
   const topGroups = computed(() => result.value.children);
   const warnings = computed(() => result.value.warnings);
 
-  const selectedNodeId = ref<string>(rtingsRule.rootId);
+  const selectedNodeId = ref<string>(currentRule.value.rootId);
+  watch(currentRule, rule => {
+    if (!rule.nodes.some(node => node.id === selectedNodeId.value)) {
+      selectedNodeId.value = rule.rootId;
+    }
+  });
   const selectedNode = computed(() => nodeById.value.get(selectedNodeId.value));
   const selectedEvaluation = computed(() => result.value.nodes[selectedNodeId.value]);
   const selectedBaselineRow = computed(() =>
@@ -54,7 +60,7 @@ export function useScoring() {
   }
 
   return {
-    rule: rtingsRule,
+    rule: currentRule,
     baseline: defaultBaselineV3,
     result,
     warnings,

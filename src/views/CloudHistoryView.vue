@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import ChartCard from '../components/ChartCard.vue';
 import GroupRadarChart from '../components/charts/GroupRadarChart.vue';
@@ -7,7 +7,7 @@ import TestItemDetailTable from '../components/TestItemDetailTable.vue';
 import { evaluateRule } from '../core/evaluate';
 import { buildDraftInputs, useEvaluationDraft } from '../composables/useEvaluationDraft';
 import { useAuth } from '../composables/useAuth';
-import { rtingsRule } from '../data/rtingsRule';
+import { getRuleForVersion, useRuleRuntime } from '../composables/useRuleRuntime';
 import {
   cloudEvaluationToDraft,
   cloudErrorMessage,
@@ -22,6 +22,7 @@ import { cardClass, inputClass, mutedTextClass, primaryButtonClass, secondaryBut
 const router = useRouter();
 const { replaceDraft } = useEvaluationDraft();
 const { session } = useAuth();
+const { currentRule } = useRuleRuntime();
 
 const records = ref<CloudEvaluation[]>([]);
 const loading = ref(false);
@@ -66,13 +67,24 @@ const selectedDraft = computed(() =>
   selectedRecord.value ? cloudEvaluationToDraft(selectedRecord.value) : null
 );
 
+const selectedRule = ref(currentRule.value);
+
+watch(selectedRecord, async (record: CloudEvaluation | undefined) => {
+  if (!record) return;
+  try {
+    selectedRule.value = await getRuleForVersion(record.rule_version);
+  } catch {
+    selectedRule.value = currentRule.value;
+  }
+}, { immediate: true });
+
 const selectedResult = computed(() => {
   if (!selectedDraft.value) return null;
-  return evaluateRule(rtingsRule, buildDraftInputs(selectedDraft.value));
+  return evaluateRule(selectedRule.value, buildDraftInputs(selectedDraft.value, selectedRule.value));
 });
 
 const topGroups = computed(() =>
-  getMainDimensionNodes(rtingsRule.nodes).filter(node => node.includeInParent)
+  getMainDimensionNodes(selectedRule.value.nodes, selectedRule.value.rootId).filter(node => node.includeInParent)
 );
 
 const radarSeries = computed(() => {
@@ -89,7 +101,7 @@ const radarSeries = computed(() => {
 const selectedProduct = computed(() => {
   if (!selectedDraft.value || !selectedResult.value) return null;
   const expectedScores: Record<string, number | null> = {};
-  for (const node of rtingsRule.nodes) {
+  for (const node of selectedRule.value.nodes) {
     expectedScores[node.id] = selectedResult.value.nodes[node.id]?.value ?? null;
   }
   return {

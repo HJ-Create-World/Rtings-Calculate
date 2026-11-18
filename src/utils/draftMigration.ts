@@ -1,4 +1,5 @@
 import type { EvaluationDraft, EvaluationDraftValue } from '../types/evaluation';
+import type { ScoringRule } from '../core/types';
 import { rtingsRule } from '../data/rtingsRule';
 
 /**
@@ -12,7 +13,8 @@ const legacyLeafIdMap: Record<string, string> = {
 };
 
 export function migrateDraftValues(
-  values: Record<string, EvaluationDraftValue>
+  values: Record<string, EvaluationDraftValue>,
+  rule: ScoringRule = rtingsRule
 ): Record<string, EvaluationDraftValue> {
   const migrated: Record<string, EvaluationDraftValue> = { ...values };
 
@@ -24,7 +26,7 @@ export function migrateDraftValues(
 
   // 不计入评分的历史节点不保留录入值，避免导出或后续保存继续携带旧数据。
   const includedLeafIds = new Set(
-    rtingsRule.nodes
+    rule.nodes
       .filter(node => node.inputType !== 'aggregate' && node.includeInParent)
       .map(node => node.id)
   );
@@ -34,9 +36,9 @@ export function migrateDraftValues(
   );
 }
 
-export function migrateDraft(draft: EvaluationDraft): EvaluationDraft {
+export function migrateDraft(draft: EvaluationDraft, rule: ScoringRule = rtingsRule): EvaluationDraft {
   return {
     ...draft,
-    values: migrateDraftValues(draft.values ?? {})
+    values: migrateDraftValues(draft.values ?? {}, rule)
   };
 }

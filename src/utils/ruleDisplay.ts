@@ -1,5 +1,4 @@
 import type { ScoreNode } from '../core/types';
-import { rtingsRule } from '../data/rtingsRule';
 
 /**
  * 主维度展示顺序来自《Rtings计算文档.xlsx》的 Rtings评测拆解 sheet。
@@ -235,16 +234,22 @@ function sortByIds(nodes: ScoreNode[], orderedIds: string[]): ScoreNode[] {
   });
 }
 
-export function getMainDimensionNodes(nodes: ScoreNode[] = rtingsRule.nodes): ScoreNode[] {
+export function getMainDimensionNodes(
+  nodes: ScoreNode[] = [],
+  rootId?: string
+): ScoreNode[] {
+  const root = rootId ?? nodes.find(node => node.parentId === null)?.id;
   return sortByIds(
-    nodes.filter(node => node.parentId === rtingsRule.rootId),
+    nodes.filter(node => node.parentId === root),
     MAIN_DIMENSION_IDS
   );
 }
 
-export function collectNodesByDocumentOrder(nodes: ScoreNode[] = rtingsRule.nodes): ScoreNode[] {
-  const byId = new Map(nodes.map(node => [node.id, node]));
-  const root = nodes.find(node => node.id === rtingsRule.rootId);
+export function collectNodesByDocumentOrder(
+  nodes: ScoreNode[] = [],
+  rootId?: string
+): ScoreNode[] {
+  const root = nodes.find(node => node.id === (rootId ?? nodes.find(node => node.parentId === null)?.id));
   if (!root) return [];
 
   const output: ScoreNode[] = [];
@@ -252,12 +257,11 @@ export function collectNodesByDocumentOrder(nodes: ScoreNode[] = rtingsRule.node
     output.push(node);
     getChildrenByDocumentOrder(node.id, nodes).forEach(walk);
   }
-  void byId;
   walk(root);
   return output;
 }
 
-export function getChildrenByDocumentOrder(parentId: string, nodes: ScoreNode[] = rtingsRule.nodes): ScoreNode[] {
+export function getChildrenByDocumentOrder(parentId: string, nodes: ScoreNode[] = []): ScoreNode[] {
   const children = nodes.filter(node => node.parentId === parentId);
   const ordered = CHILD_ORDER[parentId] ?? LEAF_ORDER[parentId];
   return ordered ? sortByIds(children, ordered) : children;
@@ -268,7 +272,7 @@ export interface DocumentOrderLeaf {
   parentLabel: string;
 }
 
-export function collectLeafItemsByDocumentOrder(parentId: string, nodes: ScoreNode[] = rtingsRule.nodes): DocumentOrderLeaf[] {
+export function collectLeafItemsByDocumentOrder(parentId: string, nodes: ScoreNode[] = []): DocumentOrderLeaf[] {
   const parent = nodes.find(node => node.id === parentId);
   return getChildrenByDocumentOrder(parentId, nodes).flatMap(child => {
     if (child.inputType === 'aggregate') {
@@ -283,7 +287,7 @@ export interface SubDimensionGroup {
   items: DocumentOrderLeaf[];
 }
 
-export function collectSubDimensionGroups(groupId: string, nodes: ScoreNode[] = rtingsRule.nodes): SubDimensionGroup[] {
+export function collectSubDimensionGroups(groupId: string, nodes: ScoreNode[] = []): SubDimensionGroup[] {
   const group = nodes.find(node => node.id === groupId);
   const children = getChildrenByDocumentOrder(groupId, nodes);
   const dimensions = children.filter(child => child.inputType === 'aggregate');

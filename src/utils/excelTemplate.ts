@@ -1,9 +1,11 @@
 import * as XLSX from 'xlsx';
-import { rtingsRule } from '../data/rtingsRule';
-import type { ScoreNode } from '../core/types';
+import type { ScoringRule, ScoreNode } from '../core/types';
 import type { EvaluationDraft, ImportValidation } from '../types/evaluation';
 import { parseObjectiveNumber } from '../composables/useEvaluationDraft';
+import { useRuleRuntime } from '../composables/useRuleRuntime';
 import { collectLeafItemsByDocumentOrder, getMainDimensionNodes } from './ruleDisplay';
+
+const { currentRule } = useRuleRuntime();
 
 function shortGroupName(group: ScoreNode): string {
   const key = group.id.replace('mixed-usage.', '');
@@ -20,10 +22,10 @@ function shortGroupName(group: ScoreNode): string {
   return names[key] ?? group.label.replace(/[\\/?*[\]:]/g, ' ').slice(0, 28);
 }
 
-function inputRow(node: ScoreNode) {
-  const parent = rtingsRule.nodes.find(item => item.id === node.parentId);
+function inputRow(node: ScoreNode, rule: ScoringRule) {
+  const parent = rule.nodes.find(item => item.id === node.parentId);
   const mapping = node.mappingId
-    ? rtingsRule.mappings.find(item => item.id === node.mappingId)
+    ? rule.mappings.find(item => item.id === node.mappingId)
     : undefined;
   return {
     '维度 / 父级': parent?.label ?? '',
@@ -38,11 +40,12 @@ function inputRow(node: ScoreNode) {
 }
 
 function groupedInputSheets() {
-  const groups = getMainDimensionNodes();
+  const rule = currentRule.value;
+  const groups = getMainDimensionNodes(rule.nodes, rule.rootId);
   return groups.map((group, index) => {
-    const rows = collectLeafItemsByDocumentOrder(group.id)
+    const rows = collectLeafItemsByDocumentOrder(group.id, rule.nodes)
       .filter(item => item.node.includeInParent)
-      .map(item => inputRow(item.node));
+      .map(item => inputRow(item.node, rule));
     const sheet = XLSX.utils.json_to_sheet(rows);
     sheet['!cols'] = [
       { wch: 26 },
@@ -119,7 +122,8 @@ export async function parseImportWorkbook(file: File): Promise<ImportValidation>
     if (key) productInfo.set(key, text(row['值']));
   }
 
-  const nodeById = new Map(rtingsRule.nodes.map(node => [node.id, node]));
+  const rule = currentRule.value;
+  const nodeById = new Map(rule.nodes.map(node => [node.id, node]));
   const values: EvaluationDraft['values'] = {};
   const seen = new Set<string>();
 
@@ -176,7 +180,7 @@ export async function parseImportWorkbook(file: File): Promise<ImportValidation>
     screenType: screenTypeText.includes('oled') ? 'oled' : screenTypeText.includes('lcd') ? 'lcd' : 'unknown',
     backlightType: backlightTypeText.includes('mini') ? 'mini-led' : backlightTypeText.includes('自发光') ? 'emissive' : backlightTypeText.includes('led') ? 'led' : 'unknown',
     remark: productInfo.get('备注') ?? '',
-    ruleVersion: rtingsRule.version,
+    ruleVersion: rule.version,
     values,
     updatedAt: new Date().toISOString()
   };

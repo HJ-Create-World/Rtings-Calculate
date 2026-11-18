@@ -1,12 +1,14 @@
 import { computed, ref, watch } from 'vue';
 import { evaluateRule } from '../core/evaluate';
 import type { EvaluationInputs } from '../core/types';
-import { rtingsRule } from '../data/rtingsRule';
 import type { EvaluationDraft, EvaluationDraftValue } from '../types/evaluation';
+import type { ScoringRule } from '../core/types';
 import { normalizeBacklightType, normalizeScreenType } from '../utils/productMetadata';
 import { migrateDraftValues } from '../utils/draftMigration';
+import { useRuleRuntime } from './useRuleRuntime';
 
 const STORAGE_KEY = 'rtings-calculate:evaluation-draft:v3';
+const { currentRule } = useRuleRuntime();
 
 function createId(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
@@ -26,7 +28,7 @@ function emptyDraft(): EvaluationDraft {
     screenType: 'unknown',
     backlightType: 'unknown',
     remark: '',
-    ruleVersion: rtingsRule.version,
+    ruleVersion: currentRule.value.version,
     values: {},
     updatedAt: new Date().toISOString()
   };
@@ -57,9 +59,12 @@ export function parseSubjectiveScore(raw: number | null | undefined): number | n
   return Math.round(raw);
 }
 
-export function buildDraftInputs(draft: EvaluationDraft): EvaluationInputs {
+export function buildDraftInputs(
+  draft: EvaluationDraft,
+  rule: ScoringRule = currentRule.value
+): EvaluationInputs {
   const inputs: EvaluationInputs = {};
-  const nodeById = new Map(rtingsRule.nodes.map(node => [node.id, node]));
+  const nodeById = new Map(rule.nodes.map(node => [node.id, node]));
 
   for (const [nodeId, value] of Object.entries(draft.values)) {
     const node = nodeById.get(nodeId);
@@ -93,14 +98,14 @@ function loadDraft(): EvaluationDraft {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return emptyDraft();
     const parsed = JSON.parse(raw) as EvaluationDraft;
-    if (parsed.ruleVersion !== rtingsRule.version) return emptyDraft();
+    if (parsed.ruleVersion !== currentRule.value.version) return emptyDraft();
     return {
       ...emptyDraft(),
       ...parsed,
       size: typeof parsed.size === 'number' ? parsed.size : null,
       screenType: normalizeScreenType(parsed.screenType),
       backlightType: normalizeBacklightType(parsed.backlightType),
-      values: migrateDraftValues(parsed.values ?? {})
+      values: migrateDraftValues(parsed.values ?? {}, currentRule.value)
     };
   } catch {
     return emptyDraft();
@@ -121,18 +126,31 @@ watch(
   { deep: true }
 );
 
+watch(
+  () => currentRule.value.version,
+  version => {
+    if (draft.value.ruleVersion !== version) {
+      draft.value = {
+        ...draft.value,
+        ruleVersion: version,
+        values: migrateDraftValues(draft.value.values ?? {}, currentRule.value)
+      };
+    }
+  }
+);
+
 export function useEvaluationDraft() {
 
   const inputs = computed<EvaluationInputs>(() => buildDraftInputs(draft.value));
-  const result = computed(() => evaluateRule(rtingsRule, inputs.value));
-  const includedLeafNodeIds = new Set(
-    rtingsRule.nodes
+  const result = computed(() => evaluateRule(currentRule.value, inputs.value));
+  const includedLeafNodeIds = computed(() => new Set(
+    currentRule.value.nodes
       .filter(node => node.inputType !== 'aggregate' && node.includeInParent)
       .map(node => node.id)
-  );
+  ));
   const filledCount = computed(() =>
     Object.entries(draft.value.values).filter(([nodeId, value]) => {
-      if (!includedLeafNodeIds.has(nodeId)) return false;
+      if (!includedLeafNodeIds.value.has(nodeId)) return false;
       return Boolean(value.objectiveRaw?.trim()) || value.subjectiveScore !== null && value.subjectiveScore !== undefined;
     }).length
   );

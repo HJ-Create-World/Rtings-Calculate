@@ -1,6 +1,5 @@
 import * as XLSX from 'xlsx';
-import type { ScoreNode } from '../core/types';
-import { rtingsRule } from '../data/rtingsRule';
+import type { ScoreNode, ScoringRule } from '../core/types';
 import type { ProductBaseline } from '../data/rtingsRule';
 
 interface ExcelSheet {
@@ -20,7 +19,8 @@ function downloadWorkbook(sheets: ExcelSheet[], fileName: string) {
 export function exportComparisonExcel(
   products: ProductBaseline[],
   groups: ScoreNode[],
-  fileName = 'Rtings-多产品对比'
+  fileName = 'Rtings-多产品对比',
+  rule?: ScoringRule
 ) {
   const summaryRows: Record<string, string | number | null>[] = [
     Object.fromEntries([
@@ -39,7 +39,7 @@ export function exportComparisonExcel(
   });
 
   const detailRows = products.flatMap(product =>
-    rtingsRule.nodes
+    (rule?.nodes ?? [])
       .filter(node => node.inputType !== 'aggregate')
       .map(node => {
         const input = product.inputs[node.id];

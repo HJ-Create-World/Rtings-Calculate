@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import ChartCard from '../components/ChartCard.vue';
 import GroupRadarChart from '../components/charts/GroupRadarChart.vue';
 import TestItemDetailTable from '../components/TestItemDetailTable.vue';
 import UiSelect from '../components/UiSelect.vue';
-import { rtingsRule } from '../data/rtingsRule';
+import { useRuleRuntime } from '../composables/useRuleRuntime';
 import { useEvaluationLibrary } from '../composables/useEvaluationLibrary';
 import { formatScore, formatWeight } from '../utils/format';
 import { collectLeafItemsByDocumentOrder, getMainDimensionNodes } from '../utils/ruleDisplay';
 import { cardClass, inputClass, mutedTextClass, primaryButtonClass, sectionTitleClass } from '../utils/ui';
 
 const { allBaselines, refreshEvaluationLibrary } = useEvaluationLibrary();
+const { currentRule } = useRuleRuntime();
 
 const search = ref('');
 const brand = ref('');
@@ -75,10 +76,16 @@ const selectedBaseline = computed(
 );
 
 const topGroups = computed(() =>
-  getMainDimensionNodes(rtingsRule.nodes).filter(node => node.includeInParent)
+  getMainDimensionNodes(currentRule.value.nodes, currentRule.value.rootId).filter(node => node.includeInParent)
 );
 
 const selectedGroupId = ref(topGroups.value[0]?.id ?? '');
+
+watch(topGroups, groups => {
+  if (!groups.some(group => group.id === selectedGroupId.value)) {
+    selectedGroupId.value = groups[0]?.id ?? '';
+  }
+});
 
 const radarSeries = computed(() => {
   if (!selectedBaseline.value) return [];
@@ -90,10 +97,10 @@ const radarSeries = computed(() => {
   ];
 });
 
-const parentById = computed(() => new Map(rtingsRule.nodes.map(node => [node.id, node])));
+const parentById = computed(() => new Map(currentRule.value.nodes.map(node => [node.id, node])));
 
 const leafRanking = computed(() => {
-  const scored = collectLeafItemsByDocumentOrder(rtingsRule.rootId)
+  const scored = collectLeafItemsByDocumentOrder(currentRule.value.rootId, currentRule.value.nodes)
     .filter(item => item.node.includeInParent)
     .map(item => ({
       node: item.node,

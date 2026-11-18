@@ -31,6 +31,11 @@ export const capabilityCards: IntroCard[] = [
     points: ['候选节点生成', '官方基线回归', 'Draft 版本留档']
   },
   {
+    title: '规则运行时切换',
+    description: '评分录入、对比分析、测试方法与导出读取云库 active 规则；历史评测按记录的 rule_version 绑定原规则复算。',
+    points: ['激活规则驱动', '历史规则绑定', '管理员即时切换']
+  },
+  {
     title: '结构化评分引擎',
     description: '把 Rtings 规则拆成节点树与权重路径，支持缺失子项重归一和逐级 0.1 舍入。',
     points: ['132 个评分节点', '93 条评分映射', 'Mixed Usage 总分']
@@ -160,7 +165,7 @@ export const milestoneRows = [
   { version: '规则研究版', date: '2026-06-01 ~ 2026-11-03', summary: '规划与口径确认、Rtings 数据采集、统计汇总、规则反推、评分曲线验证与工程师表融合' },
   { version: 'v0.1.0', date: '2026-11-04 ~ 2026-11-05', summary: '评分核心、规则导入、只读展示、对比图、录入与 Excel 导入' },
   { version: '规则 v3.0', date: '2026-11-06', summary: '融合工程师表与 CSV 反推；接入云端持久化、历史载入和报告导出' },
-  { version: '当前迭代', date: '2026-11-18', summary: '账号登录与三级权限；测试方法/评分曲线可视化；Rtings v2.4 机型元数据；数据快照、差异报告、规则版本激活/回滚；WorkBuddy LLM 差异审阅与 AI 规则草稿回归；主观直评修复与界面优化' }
+  { version: '当前迭代', date: '2026-11-18', summary: '账号登录与三级权限；测试方法/评分曲线可视化；Rtings v2.4 机型元数据；数据快照、差异报告、规则版本激活/回滚；WorkBuddy LLM 差异审阅与 AI 规则草稿回归；规则运行时切换与历史规则绑定' }
 ];
 
 export const roadmapCards: IntroCard[] = [

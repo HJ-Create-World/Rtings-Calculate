@@ -1,5 +1,5 @@
 import { buildDraftInputs } from '../composables/useEvaluationDraft';
-import { rtingsRule } from '../data/rtingsRule';
+import { useRuleRuntime } from '../composables/useRuleRuntime';
 import { evaluateRule } from '../core/evaluate';
 import type { EvaluationDraft } from '../types/evaluation';
 import type { NodeEvaluation } from '../core/types';
@@ -14,21 +14,23 @@ import {
   getMainDimensionNodes
 } from './ruleDisplay';
 
+const { currentRule } = useRuleRuntime();
+
 function parentLabel(nodeId: string): string {
-  const parent = rtingsRule.nodes.find(node => node.id === nodeId);
+  const parent = currentRule.value.nodes.find(node => node.id === nodeId);
   return parent?.label ?? '';
 }
 
 function topGroupLabel(nodeId: string): string {
-  let current = rtingsRule.nodes.find(node => node.id === nodeId);
-  while (current?.parentId && current.parentId !== rtingsRule.rootId) {
-    current = rtingsRule.nodes.find(node => node.id === current!.parentId);
+  let current = currentRule.value.nodes.find(node => node.id === nodeId);
+  while (current?.parentId && current.parentId !== currentRule.value.rootId) {
+    current = currentRule.value.nodes.find(node => node.id === current!.parentId);
   }
   return current?.label ?? '';
 }
 
 function leafNodes() {
-  return collectLeafItemsByDocumentOrder(rtingsRule.rootId)
+  return collectLeafItemsByDocumentOrder(currentRule.value.rootId, currentRule.value.nodes)
     .map(item => item.node)
     .filter(node => node.includeInParent);
 }
@@ -58,8 +60,8 @@ function autoColumns(worksheet: any, widths: number[]) {
 
 export async function exportEvaluationExcel(draft: EvaluationDraft): Promise<void> {
   const ExcelJS = await import('exceljs');
-  const inputs = buildDraftInputs(draft);
-  const result = evaluateRule(rtingsRule, inputs);
+  const inputs = buildDraftInputs(draft, currentRule.value);
+  const result = evaluateRule(currentRule.value, inputs);
   const workbook = new ExcelJS.Workbook();
   workbook.creator = 'Rtings Calculate';
   workbook.created = new Date();
@@ -90,7 +92,7 @@ export async function exportEvaluationExcel(draft: EvaluationDraft): Promise<voi
   ]);
   normalizeHeaderStyle(infoSheet);
 
-  const topGroups = getMainDimensionNodes(rtingsRule.nodes).filter(
+  const topGroups = getMainDimensionNodes(currentRule.value.nodes, currentRule.value.rootId).filter(
     node => node.includeInParent
   );
   const summarySheet = workbook.addWorksheet('评分汇总');
@@ -134,7 +136,7 @@ export async function exportEvaluationExcel(draft: EvaluationDraft): Promise<voi
   ];
   leafNodes().forEach(node => {
     const evaluation = result.nodes[node.id];
-    const mapping = rtingsRule.mappings.find(item => item.id === node.mappingId);
+    const mapping = currentRule.value.mappings.find(item => item.id === node.mappingId);
     detailSheet.addRow({
       group: topGroupLabel(node.id),
       dimension: parentLabel(node.id),
@@ -164,12 +166,12 @@ export async function exportEvaluationExcel(draft: EvaluationDraft): Promise<voi
     { header: '状态', key: 'status', width: 14 },
     { header: '警告', key: 'warning', width: 58 }
   ];
-  const orderedNodes = collectNodesByDocumentOrder(rtingsRule.nodes);
+  const orderedNodes = collectNodesByDocumentOrder(currentRule.value.nodes, currentRule.value.rootId);
   const orderById = new Map(orderedNodes.map((node, index) => [node.id, index]));
   Object.values(result.nodes)
     .sort((left, right) => (orderById.get(left.nodeId) ?? 0) - (orderById.get(right.nodeId) ?? 0))
     .forEach((evaluation: NodeEvaluation) => {
-    const node = rtingsRule.nodes.find(item => item.id === evaluation.nodeId);
+    const node = currentRule.value.nodes.find(item => item.id === evaluation.nodeId);
     traceSheet.addRow({
       kind: node?.kind ?? '',
       id: evaluation.nodeId,

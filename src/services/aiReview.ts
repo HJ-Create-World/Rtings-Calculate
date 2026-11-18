@@ -1,6 +1,6 @@
 import { cloud } from './cloud';
 import type { DataDiffReport, DataSnapshotFull } from './ruleAdministration';
-import { rtingsRule } from '../data/rtingsRule';
+import { useRuleRuntime } from '../composables/useRuleRuntime';
 
 export interface LlmModelOption {
   id: string;
@@ -143,7 +143,8 @@ function parseSuggestions(
 }
 
 function existingLeafLabels(): string[] {
-  return rtingsRule.nodes
+  const { currentRule } = useRuleRuntime();
+  return currentRule.value.nodes
     .filter(node => node.kind === 'leaf')
     .map(node => node.label);
 }
@@ -311,7 +312,8 @@ export async function generateProductSuggestions(input: {
   if (!products.length) return [];
   const batches = chunk(products, 5);
   const results: AiSuggestionDraft[] = [];
-  const existingProducts = rtingsRule.nodes.filter(node => node.kind === 'leaf').length;
+  const { currentRule } = useRuleRuntime();
+  const existingProducts = currentRule.value.nodes.filter(node => node.kind === 'leaf').length;
 
   for (let index = 0; index < batches.length; index += 1) {
     const batch = batches[index];

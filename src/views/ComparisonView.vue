@@ -9,8 +9,11 @@ import GroupRadarChart from '../components/charts/GroupRadarChart.vue';
 import ContributionLadderChart from '../components/charts/ContributionLadderChart.vue';
 import ScoreLadderChart from '../components/charts/ScoreLadderChart.vue';
 import { useComparison } from '../composables/useComparison';
+import { useRuleRuntime } from '../composables/useRuleRuntime';
 import { exportComparisonExcel } from '../utils/export';
 import { mutedTextClass, primaryButtonClass, secondaryButtonClass, sectionTitleClass } from '../utils/ui';
+
+const { currentRule } = useRuleRuntime();
 
 const {
   allBaselines,
@@ -65,7 +68,7 @@ function downloadContributionPng() {
 }
 
 function downloadExcel() {
-  exportComparisonExcel(sortedProducts.value, topGroups.value);
+  exportComparisonExcel(sortedProducts.value, topGroups.value, 'Rtings-多产品对比', currentRule.value);
 }
 </script>
 

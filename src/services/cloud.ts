@@ -1,5 +1,6 @@
 import { createWorkBuddyCloud } from '@tencent-ai/workbuddy-cloud-sdk';
 import type { EvaluationDraft, EvaluationDraftValue } from '../types/evaluation';
+import type { ScoringRule } from '../core/types';
 import {
   normalizeBacklightType,
   normalizeScreenType,
@@ -146,7 +147,7 @@ export async function getCloudEvaluation(
   return result ? (result as CloudEvaluation) : null;
 }
 
-export function cloudEvaluationToDraft(record: CloudEvaluation): EvaluationDraft {
+export function cloudEvaluationToDraft(record: CloudEvaluation, rule?: ScoringRule): EvaluationDraft {
   const inputs = { ...(record.inputs ?? {}) } as Record<string, EvaluationDraftValue & Partial<EvaluationMetadata>>;
   const metadata = inputs[METADATA_KEY] as Partial<EvaluationMetadata> | undefined;
   delete inputs[METADATA_KEY];
@@ -163,7 +164,7 @@ export function cloudEvaluationToDraft(record: CloudEvaluation): EvaluationDraft
     ruleVersion: record.rule_version,
     values: inputs,
     updatedAt: record.updated_at
-  });
+  }, rule);
 }
 
 export function cloudErrorMessage(error: unknown): string {

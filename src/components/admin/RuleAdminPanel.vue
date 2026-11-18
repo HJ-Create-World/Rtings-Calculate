@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue';
 import UiSelect from '../UiSelect.vue';
 import { useAuth } from '../../composables/useAuth';
-import { rtingsRule } from '../../data/rtingsRule';
+import { useRuleRuntime } from '../../composables/useRuleRuntime';
 import {
   createRuleVersion,
   generateDataDiff,
@@ -23,6 +23,7 @@ import {
 import { inputClass, mutedTextClass, primaryButtonClass, secondaryButtonClass, sectionTitleClass } from '../../utils/ui';
 
 const { session } = useAuth();
+const { currentRule, initializeRuleRuntime } = useRuleRuntime();
 
 const snapshots = ref<DataSnapshot[]>([]);
 const diffs = ref<DataDiff[]>([]);
@@ -172,12 +173,12 @@ async function importRule() {
       version: ruleVersionName.value.trim(),
       displayName: ruleDisplayName.value.trim(),
       description: ruleDescription.value.trim() || '从当前系统规则导入的版本快照',
-      rule: rtingsRule as unknown as Record<string, unknown>,
+      rule: currentRule.value as unknown as Record<string, unknown>,
       metadata: {
         source: 'frontend-current-rule',
         importedAt: new Date().toISOString(),
-        nodeCount: rtingsRule.nodes.length,
-        mappingCount: rtingsRule.mappings.length,
+        nodeCount: currentRule.value.nodes.length,
+        mappingCount: currentRule.value.mappings.length,
         sourceSnapshotLabel: snapshots.value.find(
           snapshot => snapshot.id === targetSnapshotId.value
         )?.versionLabel ?? null
@@ -190,6 +191,7 @@ async function importRule() {
     ruleDisplayName.value = '';
     ruleDescription.value = '';
     await load();
+    await initializeRuleRuntime(true);
   } catch (err) {
     error.value = ruleAdminErrorMessage(err, '导入规则版本失败');
   } finally {
@@ -207,6 +209,7 @@ async function switchVersion(versionId: string, action: 'activate' | 'rollback')
     await activateRuleVersion(token, versionId, action, `${actionLabels[action]}规则版本`);
     notice.value = action === 'activate' ? '规则版本已激活' : '已回滚到历史规则版本';
     await load();
+    await initializeRuleRuntime(true);
   } catch (err) {
     error.value = ruleAdminErrorMessage(err, '切换规则版本失败');
   } finally {

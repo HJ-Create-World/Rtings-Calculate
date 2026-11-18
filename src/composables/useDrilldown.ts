@@ -1,27 +1,32 @@
 import { computed, ref, watch } from 'vue';
 import type { ScoreNode } from '../core/types';
-import { rtingsRule } from '../data/rtingsRule';
 import { useEvaluationLibrary } from './useEvaluationLibrary';
+import { useRuleRuntime } from './useRuleRuntime';
 import { getChildrenByDocumentOrder, getMainDimensionNodes } from '../utils/ruleDisplay';
 
-function collectTestItems(nodeId: string): ScoreNode[] {
-  return getChildrenByDocumentOrder(nodeId).flatMap(child => {
+function collectTestItems(nodeId: string, nodes: ScoreNode[]): ScoreNode[] {
+  return getChildrenByDocumentOrder(nodeId, nodes).flatMap(child => {
     if (child.inputType !== 'aggregate') return [child];
-    return collectTestItems(child.id);
+    return collectTestItems(child.id, nodes);
   });
 }
 
 export function useDrilldown() {
   const { allBaselines, refreshEvaluationLibrary, getEvaluationProductById } = useEvaluationLibrary();
+  const { currentRule } = useRuleRuntime();
   void refreshEvaluationLibrary();
-  const groups = getMainDimensionNodes();
-  const groupOptions = groups.map(group => ({ value: group.id, label: group.label }));
-  const selectedGroupId = ref(groups[0]?.id ?? '');
+  const groups = computed(() =>
+    getMainDimensionNodes(currentRule.value.nodes, currentRule.value.rootId)
+  );
+  const groupOptions = computed(() =>
+    groups.value.map(group => ({ value: group.id, label: group.label }))
+  );
+  const selectedGroupId = ref(groups.value[0]?.id ?? '');
 
-  const testItems = computed(() => collectTestItems(selectedGroupId.value));
+  const testItems = computed(() => collectTestItems(selectedGroupId.value, currentRule.value.nodes));
   const testItemOptions = computed(() =>
     testItems.value.map(item => {
-      const parent = rtingsRule.nodes.find(node => node.id === item.parentId);
+      const parent = currentRule.value.nodes.find(node => node.id === item.parentId);
       return {
         value: item.id,
         label: parent && parent.kind === 'dimension'
@@ -38,6 +43,16 @@ export function useDrilldown() {
   watch(selectedGroupId, () => {
     selectedTestItemIds.value = testItems.value.slice(0, 6).map(item => item.id);
   });
+
+  watch(
+    groups,
+    () => {
+      if (!groups.value.some(group => group.id === selectedGroupId.value)) {
+        selectedGroupId.value = groups.value[0]?.id ?? '';
+      }
+    },
+    { immediate: true }
+  );
 
   const selectedProductIds = ref(allBaselines.value.slice(0, 6).map(baseline => baseline.id));
   const sortMetricId = ref('average');
@@ -62,7 +77,7 @@ export function useDrilldown() {
     { value: 'average', label: '已选测试项均值' },
     { value: 'weighted', label: '已选测试项加权均值' },
     ...selectedTestItems.value.map(item => {
-      const parent = rtingsRule.nodes.find(node => node.id === item.parentId);
+      const parent = currentRule.value.nodes.find(node => node.id === item.parentId);
       const prefix = parent && parent.kind === 'dimension' ? `${parent.label} / ` : '';
       return { value: item.id, label: `${prefix}${item.label}` };
     })
@@ -179,7 +194,7 @@ export function useDrilldown() {
 
   const chartLabels = computed(() =>
     selectedTestItems.value.map(item => {
-      const parent = rtingsRule.nodes.find(node => node.id === item.parentId);
+      const parent = currentRule.value.nodes.find(node => node.id === item.parentId);
       return parent && parent.kind === 'dimension'
         ? `${parent.label} / ${item.label}`
         : item.label;
