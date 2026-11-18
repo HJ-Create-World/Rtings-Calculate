@@ -119,7 +119,7 @@ function categorySelectOptions(node: ScoreNode) {
 }
 
 const allItems = computed(() =>
-  collectLeafItemsByDocumentOrder(selectedGroupId.value)
+  collectLeafItemsByDocumentOrder(selectedGroupId.value, currentRule.value.nodes)
     .map(item => item.node)
     .filter(node => node.includeInParent)
 );

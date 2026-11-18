@@ -197,6 +197,8 @@ CREATE TABLE IF NOT EXISTS public.rule_update_reviews (
 
 -- app_create_rule_version / app_list_rule_versions / app_get_rule_version
 -- 创建规则版本快照，并把节点 / 映射写入索引表；首个版本自动 active。
+-- app_get_active_rule / app_get_rule_by_version
+-- 前端评分运行时读取当前 active 规则；历史评测按 rule_version 读取原版本。
 
 -- app_change_rule_version_status / app_list_rule_activation_logs
 -- 管理员激活新版本或回滚历史版本，写入激活日志；同一时间只有一个 active。

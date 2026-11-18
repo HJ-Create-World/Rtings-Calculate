@@ -10,7 +10,7 @@ import { useRuleRuntime } from './useRuleRuntime';
 
 export function useScoring() {
   const { currentRule } = useRuleRuntime();
-  const inputs = computed<EvaluationInputs>(() => buildBaselineInputs(defaultBaselineV3));
+  const inputs = computed<EvaluationInputs>(() => buildBaselineInputs(defaultBaselineV3, currentRule.value));
   const result = computed(() => evaluateRule(currentRule.value, inputs.value));
 
   const nodeById = computed(() => {

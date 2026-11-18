@@ -48,12 +48,14 @@ const selectedDraftIds = ref<string[]>([]);
 const reviewNote = ref('');
 
 const loading = ref(false);
+const modelsLoading = ref(false);
 const aiRunning = ref(false);
 const aiProgress = ref('');
 const savingDrafts = ref(false);
 const updatingReviewId = ref('');
 const error = ref('');
 const notice = ref('');
+const aiError = ref('');
 
 const diffOptions = computed(() => [
   { value: '', label: '选择差异报告' },
@@ -97,22 +99,41 @@ const canGenerate = computed(() => Boolean(
 
 const summary = computed(() => report.value?.report.summary);
 
+async function loadModels() {
+  const token = session.value?.token;
+  if (!token) return;
+  modelsLoading.value = true;
+  aiError.value = '';
+  try {
+    const modelList = await listLlmModels();
+    models.value = modelList;
+    if (!modelList.length) {
+      aiError.value = '当前应用暂无可用 AI 模型，请稍后刷新或检查 WorkBuddy 云服务 AI 能力状态。';
+    } else if (!selectedModelId.value) {
+      selectedModelId.value = modelList[0].id;
+    }
+  } catch (err) {
+    aiError.value = aiErrorMessage(err);
+    models.value = [];
+    selectedModelId.value = '';
+  } finally {
+    modelsLoading.value = false;
+  }
+}
+
 async function load() {
   const token = session.value?.token;
   if (!token) return;
   loading.value = true;
   error.value = '';
   try {
-    const [diffList, modelList, versionList] = await Promise.all([
+    const [diffList, versionList] = await Promise.all([
       listDataDiffs(token),
-      listLlmModels(),
       listRuleVersions(token)
     ]);
     diffs.value = diffList;
-    models.value = modelList;
     ruleVersions.value = versionList;
 
-    if (!selectedModelId.value && modelList.length) selectedModelId.value = modelList[0].id;
     if (!selectedDiffId.value && diffList.length) selectedDiffId.value = diffList[0].id;
     if (selectedDiffId.value) await selectDiff(selectedDiffId.value);
   } catch (err) {
@@ -329,6 +350,7 @@ function recommendationLabel(value: string): string {
 
 onMounted(() => {
   void load();
+  void loadModels();
 });
 </script>
 
@@ -342,7 +364,10 @@ onMounted(() => {
         </p>
       </div>
       <button :class="secondaryButtonClass" :disabled="loading" @click="load">
-        {{ loading ? '刷新中…' : '刷新' }}
+        {{ loading ? '刷新中…' : '刷新数据' }}
+      </button>
+      <button :class="secondaryButtonClass" :disabled="modelsLoading" @click="loadModels">
+        {{ modelsLoading ? '模型刷新中…' : '刷新模型' }}
       </button>
     </div>
 
@@ -364,6 +389,10 @@ onMounted(() => {
 
     <p v-if="aiProgress" class="mb-4 rounded-lg bg-blue-50 p-3 text-sm text-blue-700">{{ aiProgress }}</p>
     <p v-if="notice" class="mb-4 rounded-lg bg-green-50 p-3 text-sm text-green-700">{{ notice }}</p>
+    <p v-if="aiError" class="mb-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-700">
+      {{ aiError }}
+      <span v-if="modelsLoading" class="ml-2">正在加载可用模型…</span>
+    </p>
     <p v-if="error" class="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">{{ error }}</p>
 
     <div v-if="summary" class="mb-6 grid gap-4 sm:grid-cols-3 lg:grid-cols-6">

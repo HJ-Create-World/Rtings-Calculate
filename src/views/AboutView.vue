@@ -45,6 +45,10 @@ const engineering = [
   { label: '测试代码', value: '3 个测试文件 · 270+ 行' },
   { label: '文档资产', value: '需求、规则拆解、架构、部署、项目日志' }
 ];
+
+const sortedTimeline = computed(() =>
+  [...timeline].sort((left, right) => left.date.localeCompare(right.date))
+);
 </script>
 
 <template>
@@ -157,7 +161,7 @@ const engineering = [
     <article :class="cardClass" class="p-6">
       <h3 class="text-xl font-semibold tracking-tight text-gray-900">从 0 到 1 的实现路径</h3>
       <ol class="mt-5 space-y-5">
-        <li v-for="item in timeline" :key="item.date" class="relative border-l border-blue-200 pl-5">
+        <li v-for="item in sortedTimeline" :key="item.date" class="relative border-l border-blue-200 pl-5">
           <span class="absolute -left-[7px] top-1 h-3.5 w-3.5 rounded-full border-2 border-white bg-blue-600"></span>
           <p class="text-xs font-medium text-blue-700">{{ item.date }}</p>
           <p class="mt-1 font-semibold text-gray-900">{{ item.title }}</p>

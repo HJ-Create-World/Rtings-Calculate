@@ -4,6 +4,7 @@ import UiSelect from './UiSelect.vue';
 import { getReferenceValues } from '../data/rtingsReferences';
 import type { ScoreNode } from '../core/types';
 import { collectSubDimensionGroups } from '../utils/ruleDisplay';
+import { useRuleRuntime } from '../composables/useRuleRuntime';
 import { formatScore, formatWeight } from '../utils/format';
 import { mutedTextClass } from '../utils/ui';
 
@@ -21,6 +22,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   (event: 'update:selectedGroupId', value: string): void;
 }>();
+
+const { currentRule } = useRuleRuntime();
 
 const columnOptions = [
   { value: 'subDimension', label: '子类维度' },
@@ -41,7 +44,7 @@ const mainDimensionOptions = computed(() =>
 );
 
 const groups = computed(() =>
-  collectSubDimensionGroups(props.selectedGroupId)
+  collectSubDimensionGroups(props.selectedGroupId, currentRule.value.nodes)
     .map(group => ({
       node: group.node,
       items: group.items.filter(item => item.node.includeInParent)

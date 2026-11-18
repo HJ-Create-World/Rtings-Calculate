@@ -30,7 +30,7 @@ const error = ref('');
 const keyword = ref('');
 const selectedId = ref('');
 const exporting = ref(false);
-const selectedGroupId = ref(getMainDimensionNodes()[0]?.id ?? '');
+const selectedGroupId = ref(currentRule.value.rootId ? getMainDimensionNodes(currentRule.value.nodes, currentRule.value.rootId)[0]?.id ?? '' : '');
 
 async function refresh() {
   loading.value = true;

@@ -12,7 +12,7 @@ import type { CloudEvaluation } from '../services/cloud';
 import { listLocalEvaluations } from '../services/localEvaluations';
 import type { LocalEvaluation } from '../services/localEvaluations';
 import type { ProductBaseline } from '../data/rtingsRule';
-import { rtingsBaselinesV3 } from '../data/rtingsRule';
+import { buildBaselineInputs, rtingsBaselinesV3 } from '../data/rtingsRule';
 import { getRuleForVersion, useRuleRuntime } from './useRuleRuntime';
 import type { EvaluationDraft } from '../types/evaluation';
 
@@ -114,9 +114,28 @@ const savedProducts = computed<ProductBaseline[]>(() => {
   return [...cloudItems, ...localItems];
 });
 
+const officialProducts = computed<ProductBaseline[]>(() =>
+  rtingsBaselinesV3.items.map(baseline => {
+    const inputs = buildBaselineInputs(baseline, currentRule.value);
+    const result = evaluateRule(currentRule.value, inputs);
+    const expectedScores: Record<string, number> = {};
+    for (const evaluation of Object.values(result.nodes)) {
+      if (evaluation.status === 'scored' && evaluation.value !== null) {
+        expectedScores[evaluation.nodeId] = evaluation.value;
+      }
+    }
+    return {
+      ...baseline,
+      expectedTotal: result.value ?? baseline.expectedTotal,
+      expectedScores,
+      inputs: inputs as ProductBaseline['inputs']
+    };
+  })
+);
+
 const allEvaluationProducts = computed<ProductBaseline[]>(() => [
   ...savedProducts.value,
-  ...rtingsBaselinesV3.items
+  ...officialProducts.value
 ]);
 
 async function refreshEvaluationLibrary(force = false) {
