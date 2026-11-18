@@ -286,6 +286,16 @@ export async function listRuleVersions(token: string): Promise<RuleVersion[]> {
   return Array.isArray(result) ? (result as RuleVersion[]) : [];
 }
 
+export async function getRuleVersion(token: string, versionId: string): Promise<RuleVersion & { rule: Record<string, unknown> }> {
+  const result = unwrap(
+    await cloud.database.rpc('app_get_rule_version', {
+      p_token: token,
+      p_version_id: versionId
+    })
+  );
+  return result as RuleVersion & { rule: Record<string, unknown> };
+}
+
 export async function activateRuleVersion(
   token: string,
   versionId: string,

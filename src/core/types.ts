@@ -41,6 +41,8 @@ export interface ObjectiveMapping {
   anchors?: Array<{ value: number; score: number }>;
   /** 类别值精确映射；label 用于 UI 展示，value 用于精确匹配。 */
   values?: Array<{ value: string; score: number; label?: string }>;
+  /** AI 候选映射的源 CSV 列，用于官方基线回归。 */
+  sourceColumn?: string;
   source?: string;
   evidence?: string;
 }

@@ -29,6 +29,7 @@ import {
   type LlmModelOption
 } from '../../services/aiReview';
 import { mutedTextClass, primaryButtonClass, secondaryButtonClass, sectionTitleClass } from '../../utils/ui';
+import RuleDraftPanel from './RuleDraftPanel.vue';
 
 const { session } = useAuth();
 
@@ -618,5 +619,12 @@ onMounted(() => {
         </table>
       </div>
     </section>
+
+    <RuleDraftPanel
+      :reviews="reviews"
+      :report="report"
+      :snapshot="snapshot"
+      :active-version="activeRuleVersion ?? null"
+    />
   </section>
 </template>
