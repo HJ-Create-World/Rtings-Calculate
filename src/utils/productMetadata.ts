@@ -1,5 +1,12 @@
 export type ScreenType = 'oled' | 'lcd' | 'unknown';
-export type BacklightType = 'emissive' | 'mini-led' | 'led' | 'unknown';
+export type BacklightType =
+  | 'emissive'
+  | 'mini-led'
+  | 'led'
+  | 'full-array'
+  | 'direct'
+  | 'edge'
+  | 'unknown';
 
 export interface ProductMetadata {
   screenType: ScreenType;
@@ -18,6 +25,9 @@ export const BACKLIGHT_TYPE_OPTIONS = [
   { value: 'unknown', label: '未知背光' },
   { value: 'emissive', label: '自发光' },
   { value: 'mini-led', label: 'Mini LED' },
+  { value: 'full-array', label: '全阵列背光' },
+  { value: 'direct', label: '直下式背光' },
+  { value: 'edge', label: '侧入式背光' },
   { value: 'led', label: '普通 LED' }
 ] as const;
 
@@ -34,7 +44,12 @@ export function normalizeScreenType(value: unknown): ScreenType {
 }
 
 export function normalizeBacklightType(value: unknown): BacklightType {
-  return value === 'emissive' || value === 'mini-led' || value === 'led'
+  return value === 'emissive'
+    || value === 'mini-led'
+    || value === 'led'
+    || value === 'full-array'
+    || value === 'direct'
+    || value === 'edge'
     ? value
     : 'unknown';
 }

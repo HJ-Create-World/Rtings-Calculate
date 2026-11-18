@@ -1,0 +1,970 @@
+{
+  "source": "rtings_data-20261117.csv",
+  "dataVersion": "2026-11-17",
+  "methodology": "v2.4",
+  "items": {
+    "LG G6 OLED": {
+      "panelType": "OLED",
+      "subType": "WOLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "LG",
+      "recommendationsCount": 4
+    },
+    "Samsung S95H OLED": {
+      "panelType": "OLED",
+      "subType": "QD-OLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 17
+    },
+    "LG G5 OLED": {
+      "panelType": "OLED",
+      "subType": "WOLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "LG",
+      "recommendationsCount": 0
+    },
+    "Samsung S95F OLED": {
+      "panelType": "OLED",
+      "subType": "QD-OLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "Panasonic Z95B OLED": {
+      "panelType": "OLED",
+      "subType": "WOLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "Panasonic",
+      "recommendationsCount": 1
+    },
+    "Sony BRAVIA 9 II": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Sony",
+      "recommendationsCount": 8
+    },
+    "Samsung 77S90H OLED": {
+      "panelType": "OLED",
+      "subType": "WOLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "LG C6H OLED": {
+      "panelType": "OLED",
+      "subType": "WOLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "LG",
+      "recommendationsCount": 1
+    },
+    "LG C6 OLED 2026": {
+      "panelType": "OLED",
+      "subType": "WOLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "LG",
+      "recommendationsCount": 22
+    },
+    "Samsung S90F OLED": {
+      "panelType": "OLED",
+      "subType": "QD-OLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "LG C5 OLED": {
+      "panelType": "OLED",
+      "subType": "WOLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "LG",
+      "recommendationsCount": 0
+    },
+    "Sony A95L OLED": {
+      "panelType": "OLED",
+      "subType": "QD-OLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "Sony",
+      "recommendationsCount": 0
+    },
+    "Samsung R95H": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 1
+    },
+    "TCL X11L": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "TCL",
+      "recommendationsCount": 4
+    },
+    "Sony BRAVIA 8 II OLED": {
+      "panelType": "OLED",
+      "subType": "QD-OLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "Sony",
+      "recommendationsCount": 2
+    },
+    "Samsung S90D OLED": {
+      "panelType": "OLED",
+      "subType": "QD-OLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "LG G4 OLED": {
+      "panelType": "OLED",
+      "subType": "WOLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "LG",
+      "recommendationsCount": 0
+    },
+    "Samsung S95D OLED": {
+      "panelType": "OLED",
+      "subType": "QD-OLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.2",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "TCL RM9L": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "TCL",
+      "recommendationsCount": 0
+    },
+    "Samsung S90H OLED": {
+      "panelType": "OLED",
+      "subType": "WOLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 2
+    },
+    "TCL QM9K": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "TCL",
+      "recommendationsCount": 0
+    },
+    "TCL QM8K": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "TCL",
+      "recommendationsCount": 0
+    },
+    "Hisense U8QG": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Hisense",
+      "recommendationsCount": 1
+    },
+    "Sony BRAVIA 7 II": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Sony",
+      "recommendationsCount": 8
+    },
+    "Sony BRAVIA 9": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Sony",
+      "recommendationsCount": 0
+    },
+    "TCL QM8L": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "TCL",
+      "recommendationsCount": 1
+    },
+    "Hisense U7SG": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Hisense",
+      "recommendationsCount": 26
+    },
+    "Panasonic Z8BA OLED": {
+      "panelType": "OLED",
+      "subType": "WOLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "Panasonic",
+      "recommendationsCount": 0
+    },
+    "LG B5 OLED": {
+      "panelType": "OLED",
+      "subType": "WOLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "LG",
+      "recommendationsCount": 2
+    },
+    "Hisense U8N": {
+      "panelType": "LCD",
+      "subType": "VA (except 75 )",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Hisense",
+      "recommendationsCount": 0
+    },
+    "LG C4 OLED": {
+      "panelType": "OLED",
+      "subType": "WOLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "LG",
+      "recommendationsCount": 0
+    },
+    "TCL QM851G": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.2",
+      "brand": "TCL",
+      "recommendationsCount": 0
+    },
+    "LG B6 OLED 2026": {
+      "panelType": "OLED",
+      "subType": "WOLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "LG",
+      "recommendationsCount": 4
+    },
+    "TCL QM7L": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "TCL",
+      "recommendationsCount": 4
+    },
+    "Hisense UR9SG": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Hisense",
+      "recommendationsCount": 1
+    },
+    "LG B6E OLED": {
+      "panelType": "OLED",
+      "subType": "WOLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "LG",
+      "recommendationsCount": 0
+    },
+    "Samsung QN90F": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "Samsung S85F OLED": {
+      "panelType": "OLED",
+      "subType": "QD-OLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 1
+    },
+    "Sony BRAVIA 7": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Sony",
+      "recommendationsCount": 0
+    },
+    "Samsung S85H OLED": {
+      "panelType": "OLED",
+      "subType": "WOLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "LG MRGB95B": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "LG",
+      "recommendationsCount": 0
+    },
+    "Samsung QN90D": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "LG B4 OLED": {
+      "panelType": "OLED",
+      "subType": "WOLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "LG",
+      "recommendationsCount": 0
+    },
+    "TCL QM7L Pro": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "TCL",
+      "recommendationsCount": 0
+    },
+    "Hisense UR8SG": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Hisense",
+      "recommendationsCount": 1
+    },
+    "Hisense U75QG": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Hisense",
+      "recommendationsCount": 0
+    },
+    "Sony BRAVIA 8 OLED": {
+      "panelType": "OLED",
+      "subType": "WOLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "Sony",
+      "recommendationsCount": 0
+    },
+    "Hisense U6SF Pro": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Hisense",
+      "recommendationsCount": 12
+    },
+    "TCL QM7K": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "TCL",
+      "recommendationsCount": 4
+    },
+    "Samsung QN990F 8K": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 1
+    },
+    "TCL QM751G": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "TCL",
+      "recommendationsCount": 0
+    },
+    "Samsung QN900F 8K": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.1",
+      "brand": "Samsung",
+      "recommendationsCount": 2
+    },
+    "Roku Pro Series OLED": {
+      "panelType": "OLED",
+      "subType": "WOLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "Roku",
+      "recommendationsCount": 0
+    },
+    "Sony BRAVIA 6 OLED": {
+      "panelType": "OLED",
+      "subType": "WOLED",
+      "screenType": "oled",
+      "backlightType": "emissive",
+      "methodology": "v2.4",
+      "brand": "Sony",
+      "recommendationsCount": 0
+    },
+    "Samsung QN80H": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 1
+    },
+    "Samsung R85H": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "LG QNED92A": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "LG",
+      "recommendationsCount": 0
+    },
+    "Sony X90L/X90CL": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Sony",
+      "recommendationsCount": 0
+    },
+    "Roku Pro Series 2025": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Roku",
+      "recommendationsCount": 2
+    },
+    "Panasonic W95A": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Panasonic",
+      "recommendationsCount": 0
+    },
+    "Samsung QN85D": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.2",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "Hisense U7N": {
+      "panelType": "LCD",
+      "subType": "VA (except 75 )",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Hisense",
+      "recommendationsCount": 0
+    },
+    "Hisense U6SF": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Hisense",
+      "recommendationsCount": 0
+    },
+    "Hisense U65QF": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Hisense",
+      "recommendationsCount": 1
+    },
+    "TCL QM6K": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "TCL",
+      "recommendationsCount": 12
+    },
+    "Samsung The Frame Pro 2026": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "edge",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 1
+    },
+    "Sony BRAVIA 5": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Sony",
+      "recommendationsCount": 0
+    },
+    "Samsung QN80F": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "Samsung Q80D": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.2",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "Samsung The Frame Pro 2025": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "edge",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "TCL QM5K": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "TCL",
+      "recommendationsCount": 4
+    },
+    "Samsung QN70F": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "edge",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "Hisense QD7QF": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Hisense",
+      "recommendationsCount": 0
+    },
+    "Hisense U6N": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Hisense",
+      "recommendationsCount": 0
+    },
+    "Hisense CanvasTV 2026": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "edge",
+      "methodology": "v2.4",
+      "brand": "Hisense",
+      "recommendationsCount": 1
+    },
+    "Samsung The Frame 2026": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "edge",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "TCL M8LF": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.3.1",
+      "brand": "TCL",
+      "recommendationsCount": 0
+    },
+    "Samsung The Frame 2024": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "edge",
+      "methodology": "v2.2",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "Vizio Mini LED Quantum 4K": {
+      "panelType": "LCD",
+      "subType": "IPS",
+      "screenType": "lcd",
+      "backlightType": "full-array",
+      "methodology": "v2.4",
+      "brand": "Vizio",
+      "recommendationsCount": 16
+    },
+    "Amazon Ember Artline 2026": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "edge",
+      "methodology": "v2.4",
+      "brand": "Amazon",
+      "recommendationsCount": 0
+    },
+    "Samsung M80H": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "direct",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "LG QNED85A": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "edge",
+      "methodology": "v2.4",
+      "brand": "LG",
+      "recommendationsCount": 0
+    },
+    "Sony BRAVIA 3 II": {
+      "panelType": "LCD",
+      "subType": "IPS",
+      "screenType": "lcd",
+      "backlightType": "direct",
+      "methodology": "v2.4",
+      "brand": "Sony",
+      "recommendationsCount": 5
+    },
+    "Samsung QN70H": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "edge",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "Samsung Q8F 2025": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "edge",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 2
+    },
+    "Hisense QD6QF": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "direct",
+      "methodology": "v2.4",
+      "brand": "Hisense",
+      "recommendationsCount": 9
+    },
+    "Hisense CanvasTV 2024": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "edge",
+      "methodology": "v2.4",
+      "brand": "Hisense",
+      "recommendationsCount": 0
+    },
+    "TCL S551G": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "direct",
+      "methodology": "v2.4",
+      "brand": "TCL",
+      "recommendationsCount": 0
+    },
+    "Samsung Q60D": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "edge",
+      "methodology": "v2.2",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "Hisense A7N": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "direct",
+      "methodology": "v2.2",
+      "brand": "Hisense",
+      "recommendationsCount": 0
+    },
+    "LG Gallery 2026": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "direct",
+      "methodology": "v2.4",
+      "brand": "LG",
+      "recommendationsCount": 0
+    },
+    "Hisense QD7N": {
+      "panelType": "LCD",
+      "subType": "IPS",
+      "screenType": "lcd",
+      "backlightType": "direct",
+      "methodology": "v2.4",
+      "brand": "Hisense",
+      "recommendationsCount": 0
+    },
+    "TCL Q651G": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "direct",
+      "methodology": "v2.4",
+      "brand": "TCL",
+      "recommendationsCount": 0
+    },
+    "Samsung M70H": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "direct",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 3
+    },
+    "TCL Q77K": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "direct",
+      "methodology": "v2.4",
+      "brand": "TCL",
+      "recommendationsCount": 0
+    },
+    "Samsung Q7F 2025": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "direct",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "Sony BRAVIA 3": {
+      "panelType": "LCD",
+      "subType": "IPS",
+      "screenType": "lcd",
+      "backlightType": "direct",
+      "methodology": "v2.4",
+      "brand": "Sony",
+      "recommendationsCount": 0
+    },
+    "Samsung U8000F": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "direct",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "Panasonic W70B": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "direct",
+      "methodology": "v2.2",
+      "brand": "Panasonic",
+      "recommendationsCount": 0
+    },
+    "Samsung U8000H": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "direct",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "LG QNED75B": {
+      "panelType": "LCD",
+      "subType": "IPS",
+      "screenType": "lcd",
+      "backlightType": "direct",
+      "methodology": "v2.4",
+      "brand": "LG",
+      "recommendationsCount": 0
+    },
+    "Samsung U7900F": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "direct",
+      "methodology": "v2.4",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "Samsung DU8000": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "edge",
+      "methodology": "v2.2",
+      "brand": "Samsung",
+      "recommendationsCount": 0
+    },
+    "onn. S4V1": {
+      "panelType": "LCD",
+      "subType": "VA",
+      "screenType": "lcd",
+      "backlightType": "direct",
+      "methodology": "v2.4",
+      "brand": "onn.",
+      "recommendationsCount": 0
+    },
+    "Sony BRAVIA 2 II": {
+      "panelType": "LCD",
+      "subType": "IPS",
+      "screenType": "lcd",
+      "backlightType": "direct",
+      "methodology": "v2.4",
+      "brand": "Sony",
+      "recommendationsCount": 0
+    },
+    "LG UA77": {
+      "panelType": "LCD",
+      "subType": "IPS",
+      "screenType": "lcd",
+      "backlightType": "direct",
+      "methodology": "v2.4",
+      "brand": "LG",
+      "recommendationsCount": 1
+    },
+    "LG UT75": {
+      "panelType": "LCD",
+      "subType": "IPS",
+      "screenType": "lcd",
+      "backlightType": "direct",
+      "methodology": "v2.4",
+      "brand": "LG",
+      "recommendationsCount": 0
+    }
+  }
+}

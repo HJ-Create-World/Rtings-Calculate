@@ -1,6 +1,11 @@
 import { createWorkBuddyCloud } from '@tencent-ai/workbuddy-cloud-sdk';
 import type { EvaluationDraft, EvaluationDraftValue } from '../types/evaluation';
-import { normalizeBacklightType, normalizeScreenType } from '../utils/productMetadata';
+import {
+  normalizeBacklightType,
+  normalizeScreenType,
+  type BacklightType,
+  type ScreenType
+} from '../utils/productMetadata';
 import { migrateDraft } from '../utils/draftMigration';
 
 export const publicConfig = {
@@ -11,8 +16,8 @@ export const publicConfig = {
 
 export interface EvaluationMetadata {
   size: number | null;
-  screenType: 'oled' | 'lcd' | 'unknown';
-  backlightType: 'emissive' | 'mini-led' | 'led' | 'unknown';
+  screenType: ScreenType;
+  backlightType: BacklightType;
 }
 
 const METADATA_KEY = '__meta__';

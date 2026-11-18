@@ -2,17 +2,28 @@
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import AppLogo from './components/AppLogo.vue';
+import { useAuth } from './composables/useAuth';
 
 const route = useRoute();
+const { currentUser, isLoggedIn, isAdmin, canViewTestMethod, logout, submitting } = useAuth();
 
-const navItems = [
-  { to: '/', label: 'Rtings评分' },
-  { to: '/history', label: '详细参数' },
-  { to: '/drilldown', label: '维度对比' },
-  { to: '/entry', label: '评分录入' },
-  { to: '/cloud', label: '云端数据' },
-  { to: '/overview', label: '系统介绍' }
-];
+const navItems = computed(() => {
+  const items = [
+    { to: '/', label: 'Rtings评分' },
+    { to: '/history', label: '详细参数' },
+    { to: '/drilldown', label: '维度对比' },
+    { to: '/entry', label: '评分录入' },
+    { to: '/cloud', label: '云端数据' }
+  ];
+  if (canViewTestMethod.value) {
+    items.push({ to: '/methods', label: '测试方法' });
+  }
+  items.push({ to: '/overview', label: '系统介绍' });
+  if (isAdmin.value) {
+    items.push({ to: '/admin', label: '系统管理' });
+  }
+  return items;
+});
 
 const currentPath = computed(() => route.path);
 
@@ -32,16 +43,40 @@ function linkClass(path: string) {
   <div class="min-h-screen bg-slate-50">
     <header class="border-b border-gray-200 bg-white">
       <div class="mx-auto max-w-7xl px-4 py-6 md:px-6 lg:px-8">
-        <div class="flex items-center gap-4">
-          <AppLogo class="h-12 w-12 shrink-0" />
-          <div>
-            <h1 class="text-2xl font-semibold tracking-tight text-gray-900 md:text-3xl">
-              BOE Rtings 评测系统
-            </h1>
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div class="flex items-center gap-4">
+            <AppLogo class="h-12 w-12 shrink-0" />
+            <div>
+              <h1 class="text-2xl font-semibold tracking-tight text-gray-900 md:text-3xl">
+                BOE Rtings 评测系统
+              </h1>
+            </div>
+          </div>
+
+          <div v-if="isLoggedIn" class="flex items-center gap-3">
+            <div class="text-right">
+              <p class="text-sm font-medium text-gray-900">{{ currentUser?.name }}</p>
+              <p class="text-xs text-gray-500">
+                {{ currentUser?.employeeNo }} ·
+                {{ currentUser?.role === 'admin' ? '系统管理员' : currentUser?.role === 'engineer' ? '内部工程师' : '普通用户' }}
+              </p>
+            </div>
+            <button
+              type="button"
+              class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-all duration-200 hover:bg-gray-50"
+              :disabled="submitting"
+              @click="logout"
+            >
+              退出
+            </button>
           </div>
         </div>
 
-        <nav class="mt-6 inline-flex max-w-full gap-1 overflow-x-auto rounded-xl bg-gray-100 p-1" aria-label="功能页面">
+        <nav
+          v-if="isLoggedIn"
+          class="mt-6 inline-flex max-w-full gap-1 overflow-x-auto rounded-xl bg-gray-100 p-1"
+          aria-label="功能页面"
+        >
           <RouterLink
             v-for="item in navItems"
             :key="item.to"

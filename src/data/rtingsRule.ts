@@ -1,5 +1,6 @@
 import baselinesV1Json from './baselines/rtings-baselines.v1.json';
 import baselinesV3Json from './baselines/rtings-baselines-v3.json';
+import productMetadata20261117Json from './rtings-product-metadata-20261117.json';
 import ruleV1Json from './rtings-rule.v1.json';
 import ruleV3Json from './rtings-rule-v3.json';
 import type {
@@ -37,6 +38,9 @@ export interface ProductBaseline {
   sizes?: number[];
   screenType?: ScreenType;
   backlightType?: BacklightType;
+  panelType?: string | null;
+  subType?: string | null;
+  recommendationsCount?: number | null;
   methodology?: string;
   productColumn?: string;
   totalCell?: string;
@@ -56,6 +60,39 @@ export interface BaselineCollection {
 export const rtingsBaselinesV1 = baselinesV1Json as unknown as BaselineCollection;
 export const rtingsBaselinesV3 = baselinesV3Json as unknown as BaselineCollection;
 export const rtingsBaselines = rtingsBaselinesV3;
+
+const officialMetadata20261117 = productMetadata20261117Json as unknown as {
+  source: string;
+  dataVersion: string;
+  methodology: string;
+  items: Record<
+    string,
+    {
+      panelType?: string | null;
+      subType?: string | null;
+      screenType?: ScreenType;
+      backlightType?: BacklightType;
+      methodology?: string | null;
+      brand?: string | null;
+      recommendationsCount?: number;
+    }
+  >;
+};
+
+rtingsBaselinesV3.items = rtingsBaselinesV3.items.map(baseline => {
+  const metadata = officialMetadata20261117.items[baseline.label];
+  if (!metadata) return baseline;
+  return {
+    ...baseline,
+    panelType: metadata.panelType ?? null,
+    subType: metadata.subType ?? null,
+    screenType: metadata.screenType,
+    backlightType: metadata.backlightType,
+    methodology: metadata.methodology ?? baseline.methodology,
+    brand: metadata.brand ?? baseline.brand,
+    recommendationsCount: metadata.recommendationsCount ?? null
+  };
+});
 
 export const hisense65U7nVaBaselineV1 = getBaselineById('hisense-65u7n-rtings-va')!;
 export const defaultBaselineV3 = rtingsBaselinesV3.items[0];

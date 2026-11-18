@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import OptionChips from '../components/OptionChips.vue';
 import UiSelect from '../components/UiSelect.vue';
 import ImportView from './ImportView.vue';
 import { useEvaluationDraft } from '../composables/useEvaluationDraft';
+import { useAuth } from '../composables/useAuth';
 import { rtingsRule } from '../data/rtingsRule';
 import type { ScoreNode } from '../core/types';
 import { cloudErrorMessage, saveEvaluationToCloud } from '../services/cloud';
@@ -32,6 +34,8 @@ const {
   updateValue,
   resetDraft
 } = useEvaluationDraft();
+const router = useRouter();
+const { canViewTestMethod } = useAuth();
 
 const groups = getMainDimensionNodes();
 const groupOptions = groups.map(group => ({ value: group.id, label: group.label }));
@@ -485,6 +489,7 @@ function itemScoreTitle(node: ScoreNode): string {
             <th class="px-4 py-3 text-left font-semibold text-gray-900">类型 / 单位</th>
             <th class="px-4 py-3 text-left font-semibold text-gray-900">单项评分</th>
             <th class="px-4 py-3 text-left font-semibold text-gray-900">备注</th>
+            <th v-if="canViewTestMethod" class="px-4 py-3 text-left font-semibold text-gray-900">测试方法</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
@@ -550,6 +555,16 @@ function itemScoreTitle(node: ScoreNode): string {
                 :class="[inputClass, 'w-full min-w-40']"
                 @input="updateValue(node.id, { note: ($event.target as HTMLInputElement).value })"
               />
+            </td>
+            <td v-if="canViewTestMethod" class="px-4 py-3">
+              <button
+                type="button"
+                :class="secondaryButtonClass"
+                class="!px-3 !py-1 !text-xs"
+                @click="router.push({ path: '/methods', query: { nodeId: node.id } })"
+              >
+                测试方法
+              </button>
             </td>
           </tr>
         </tbody>

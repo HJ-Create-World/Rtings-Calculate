@@ -30,8 +30,21 @@ describe('Rtings 融合版规则 v3', () => {
     expect(failures, failures.slice(0, 10).join('\n')).toHaveLength(0);
   });
 
-  it('评分输入引用完整且支持类类别项均可表达 No', () => {
-    const mappingIds = new Set(rtingsRuleV3.mappings.map(mapping => mapping.id));
+  it('关键人工判定项保持工程师直评', () => {
+    const expected = new Set([
+      'mixed-usage.black-level.zone-precision.item',
+      'mixed-usage.motion.zone-transitions.item',
+      'mixed-usage.processing.upscaling.default'
+    ]);
+    const nodes = rtingsRuleV3.nodes.filter(node => expected.has(node.id));
+    expect(nodes.map(node => node.inputType)).toEqual([
+      'subjective',
+      'subjective',
+      'subjective'
+    ]);
+  });
+
+  it('评分输入引用完整且支持类类别项均可表达 No', () => {    const mappingIds = new Set(rtingsRuleV3.mappings.map(mapping => mapping.id));
     const issues: string[] = [];
 
     for (const node of rtingsRuleV3.nodes) {
