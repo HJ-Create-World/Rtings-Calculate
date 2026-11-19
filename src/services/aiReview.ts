@@ -383,26 +383,28 @@ export async function generateProductSuggestions(input: {
 export function aiErrorMessage(error: unknown): string {
   const code = (error as { error?: { code?: string } })?.error?.code;
   const message = (error as { error?: { message?: string } })?.error?.message;
+  const requestId = (error as { requestId?: string })?.requestId;
+  const requestIdText = requestId ? `（requestId：${requestId}）` : '';
 
   if (code === 'capability_disabled') {
-    return '本应用尚未开通大模型调用能力（服务端返回 capability_disabled）。这不是网络或模型选择问题，刷新、换模型、重试都不会生效。请在 WorkBuddy 对话中打开本应用，说明“接入大模型 / AI 能力”，让平台重新为本应用配置；若已接入仍报错，请联系 WorkBuddy 支持核查账号的模型调用权限。';
+    return `本应用尚未开通大模型调用能力（服务端返回 capability_disabled${requestIdText}）。这不是网络或模型选择问题，刷新、换模型、重试都不会生效。请在 WorkBuddy 对话中打开本应用，说明“接入大模型 / AI 能力”，让平台重新为本应用配置；若已接入仍报错，请联系 WorkBuddy 支持核查账号的模型调用权限。`;
   }
   if (/(^|\b)(502|503|504)(\b|$)/i.test(`${code ?? ''}`) || /bad gateway|service unavailable|gateway timeout|HTTP 502|HTTP 503|HTTP 504/i.test(`${message ?? ''}`)) {
-    return 'AI 服务网关暂时不稳定（502/503/504），已自动重试仍失败。请稍后点击「刷新模型」；这不是美网或本地网络的必然问题。';
+    return `AI 服务网关暂时不稳定（502/503/504），已自动重试仍失败${requestIdText}。请稍后点击「刷新模型」；这不是美网或本地网络的必然问题。`;
   }
   if (typeof code === 'string' && code.startsWith('quota_')) {
-    return message || 'AI 配额不足或触发限流';
+    return `${message || 'AI 配额不足或触发限流'}${requestIdText}`;
   }
   if (typeof code === 'string' && code.startsWith('request_')) {
-    return message || 'AI 请求参数无效';
+    return `${message || 'AI 请求参数无效'}${requestIdText}`;
   }
   if (typeof code === 'string' && code.startsWith('gateway_')) {
-    return message || 'AI 服务暂时不可用，请重试';
+    return `${message || 'AI 服务暂时不可用，请重试'}${requestIdText}`;
   }
   if (typeof code === 'string' && code.startsWith('model_')) {
-    return message || '所选模型暂不可用';
+    return `${message || '所选模型暂不可用'}${requestIdText}`;
   }
-  if (message) return message;
-  if (error instanceof Error && error.message) return error.message;
-  return 'AI 分析失败';
+  if (message) return `${message}${requestIdText}`;
+  if (error instanceof Error && error.message) return `${error.message}${requestIdText}`;
+  return `AI 分析失败${requestIdText}`;
 }
