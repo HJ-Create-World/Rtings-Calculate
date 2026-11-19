@@ -10,6 +10,7 @@ exports/
 .env.*
 !.env.example
 *.local
+server/secrets.mjs
 
 .DS_Store
 Thumbs.db

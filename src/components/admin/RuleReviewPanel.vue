@@ -30,11 +30,14 @@ import {
 } from '../../services/aiReview';
 import { mutedTextClass, primaryButtonClass, secondaryButtonClass, sectionTitleClass } from '../../utils/ui';
 import RuleDraftPanel from './RuleDraftPanel.vue';
+import ExternalAiPanel from './ExternalAiPanel.vue';
+import { listExternalAiConfigs, type ExternalAiConfig } from '../../services/externalAi';
 
 const { session } = useAuth();
 
 const diffs = ref<DataDiff[]>([]);
 const models = ref<LlmModelOption[]>([]);
+const externalConfigs = ref<ExternalAiConfig[]>([]);
 const ruleVersions = ref<RuleVersion[]>([]);
 const reviews = ref<RuleReview[]>([]);
 const report = ref<DataDiffReport | null>(null);
@@ -66,18 +69,25 @@ const diffOptions = computed(() => [
 ]);
 
 const modelOptions = computed(() => {
-  if (modelsLoading.value) {
-    return [{ value: '', label: '模型加载中…' }];
-  }
-  if (!models.value.length) {
+  const externalOptions = externalConfigs.value.flatMap(config =>
+    config.models.map(modelId => ({
+      value: `external:${config.id}:${modelId}`,
+      label: `外部 / ${config.label} / ${modelId}`
+    }))
+  );
+  const builtinOptions = models.value.map(model => ({
+    value: model.id,
+    label: model.credits ? `${model.name} · ${model.credits}` : model.name
+  }));
+
+  if (modelsLoading.value) return [{ value: '', label: '模型加载中…' }];
+  if (!builtinOptions.length && !externalOptions.length) {
     return [{ value: '', label: aiError.value ? 'AI 能力未开通' : '暂无可用 AI 模型' }];
   }
   return [
     { value: '', label: '选择 AI 模型' },
-    ...models.value.map(model => ({
-      value: model.id,
-      label: model.credits ? `${model.name} · ${model.credits}` : model.name
-    }))
+    ...builtinOptions,
+    ...externalOptions
   ];
 });
 
@@ -113,12 +123,26 @@ async function loadModels() {
   modelsLoading.value = true;
   aiError.value = '';
   try {
-    const modelList = await listLlmModels();
-    models.value = modelList;
-    if (!modelList.length) {
-      aiError.value = '当前应用没有可用的 AI 模型，请稍后重试；若持续为空，请回到 WorkBuddy 对话为本应用接入大模型。';
-    } else if (!selectedModelId.value) {
-      selectedModelId.value = modelList[0].id;
+    const [modelList, externalList] = await Promise.allSettled([
+      listLlmModels(),
+      listExternalAiConfigs()
+    ]);
+    if (modelList.status === 'fulfilled') models.value = modelList.value;
+    else aiError.value = aiErrorMessage(modelList.reason);
+    if (externalList.status === 'fulfilled') externalConfigs.value = externalList.value;
+
+    if (!selectedModelId.value) {
+      if (externalList.status === 'fulfilled' && externalList.value.length) {
+        const firstConfig = externalList.value[0];
+        const firstModel = firstConfig.models[0];
+        if (firstModel) selectedModelId.value = `external:${firstConfig.id}:${firstModel}`;
+      } else if (modelList.status === 'fulfilled' && modelList.value.length) {
+        selectedModelId.value = modelList.value[0].id;
+      }
+    }
+
+    if (!models.value.length && !externalConfigs.value.length) {
+      aiError.value = '当前应用没有可用的 AI 模型；可在下方外部模型接入页添加 DeepSeek / GLM / Kimi 等 API Key。';
     }
   } catch (err) {
     aiError.value = aiErrorMessage(err);
@@ -704,5 +728,7 @@ onMounted(() => {
       :snapshot="snapshot"
       :active-version="activeRuleVersion ?? null"
     />
+
+    <ExternalAiPanel class="mt-6" />
   </section>
 </template>

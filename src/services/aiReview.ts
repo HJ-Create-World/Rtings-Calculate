@@ -1,6 +1,7 @@
 import { cloud } from './cloud';
 import type { DataDiffReport, DataSnapshotFull } from './ruleAdministration';
 import { useRuleRuntime } from '../composables/useRuleRuntime';
+import { callExternalAi } from './externalAi';
 
 export interface LlmModelOption {
   id: string;
@@ -235,21 +236,38 @@ async function generateBatch(
   modelId: string,
   expectedIds: string[],
   objectType: 'column' | 'product',
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  businessId?: string
 ): Promise<AiSuggestionDraft[]> {
-  const answer = await collectCompletion(
-    cloud.llm.chat.completions.create({
-      model: modelId,
+  let answer = '';
+  if (modelId.startsWith('external:')) {
+    const [, configId, externalModelId] = modelId.split(':');
+    const result = await callExternalAi({
+      configId,
+      model: externalModelId,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
-      stream: true,
-      response_format: { type: 'json_object' },
       temperature: 0.2,
-      signal
-    })
-  );
+      businessId
+    });
+    answer = result.content;
+  } else {
+    answer = await collectCompletion(
+      cloud.llm.chat.completions.create({
+        model: modelId,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        stream: true,
+        response_format: { type: 'json_object' },
+        temperature: 0.2,
+        signal
+      })
+    );
+  }
   return parseSuggestions(answer, expectedIds, objectType, modelId);
 }
 
@@ -311,7 +329,8 @@ export async function generateColumnSuggestions(input: {
         input.modelId,
         batch.map(context => context.label),
         'column',
-        input.signal
+        input.signal,
+        'rule-review-column'
       ))
     );
     input.onProgress?.(index + 1, batches.length);
@@ -371,7 +390,8 @@ export async function generateProductSuggestions(input: {
         input.modelId,
         batch.map(item => item.product),
         'product',
-        input.signal
+        input.signal,
+        'rule-review-product'
       ))
     );
     input.onProgress?.(index + 1, batches.length);
