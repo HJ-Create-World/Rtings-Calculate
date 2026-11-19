@@ -385,7 +385,7 @@ export function aiErrorMessage(error: unknown): string {
   const message = (error as { error?: { message?: string } })?.error?.message;
 
   if (code === 'capability_disabled') {
-    return 'AI 能力未开启（服务端返回 capability_disabled）。WorkBuddy 当前版本没有暴露可直接调用的开启接口，请联系 WorkBuddy 支持或在平台管理里查找本应用的云服务 AI 配置。';
+    return '本应用尚未开通大模型调用能力（服务端返回 capability_disabled）。这不是网络或模型选择问题，刷新、换模型、重试都不会生效。请在 WorkBuddy 对话中打开本应用，说明“接入大模型 / AI 能力”，让平台重新为本应用配置；若已接入仍报错，请联系 WorkBuddy 支持核查账号的模型调用权限。';
   }
   if (/(^|\b)(502|503|504)(\b|$)/i.test(`${code ?? ''}`) || /bad gateway|service unavailable|gateway timeout|HTTP 502|HTTP 503|HTTP 504/i.test(`${message ?? ''}`)) {
     return 'AI 服务网关暂时不稳定（502/503/504），已自动重试仍失败。请稍后点击「刷新模型」；这不是美网或本地网络的必然问题。';

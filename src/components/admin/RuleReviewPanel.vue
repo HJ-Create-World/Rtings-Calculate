@@ -70,7 +70,7 @@ const modelOptions = computed(() => {
     return [{ value: '', label: '模型加载中…' }];
   }
   if (!models.value.length) {
-    return [{ value: '', label: aiError.value ? 'AI 能力未开启 / 无可用模型' : '暂无可用 AI 模型' }];
+    return [{ value: '', label: aiError.value ? 'AI 能力未开通' : '暂无可用 AI 模型' }];
   }
   return [
     { value: '', label: '选择 AI 模型' },
@@ -116,7 +116,7 @@ async function loadModels() {
     const modelList = await listLlmModels();
     models.value = modelList;
     if (!modelList.length) {
-      aiError.value = '当前应用暂无可用 AI 模型，请稍后刷新或检查 WorkBuddy 云服务 AI 能力状态。';
+      aiError.value = '当前应用没有可用的 AI 模型，请稍后重试；若持续为空，请回到 WorkBuddy 对话为本应用接入大模型。';
     } else if (!selectedModelId.value) {
       selectedModelId.value = modelList[0].id;
     }
