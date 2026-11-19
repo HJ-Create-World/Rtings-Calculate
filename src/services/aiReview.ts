@@ -52,18 +52,36 @@ export interface ColumnReviewContext {
 const PRODUCT_KEY = 'Product (general:product)';
 
 export async function listLlmModels(): Promise<LlmModelOption[]> {
-  const models = await cloud.llm.models.list();
-  return models
-    .filter(model => model.disabled !== true && model.enabled !== false)
-    .map(model => ({
-      id: model.id,
-      name: model.name ?? model.id,
-      description: model.descriptionZh ?? model.descriptionEn,
-      disabled: model.disabled === true,
-      enabled: model.enabled,
-      maxInputTokens: model.maxInputTokens,
-      credits: model.credits
-    }));
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      const models = await cloud.llm.models.list();
+      return models
+        .filter(model => model.disabled !== true && model.enabled !== false)
+        .map(model => ({
+          id: model.id,
+          name: model.name ?? model.id,
+          description: model.descriptionZh ?? model.descriptionEn,
+          disabled: model.disabled === true,
+          enabled: model.enabled,
+          maxInputTokens: model.maxInputTokens,
+          credits: model.credits
+        }));
+    } catch (error) {
+      lastError = error;
+      const code = (error as { error?: { code?: string | null } })?.error?.code;
+      const message = String(
+        (error as { error?: { message?: string } })?.error?.message
+        ?? (error as Error)?.message
+        ?? ''
+      );
+      if (code === 'capability_disabled' || !/502|503|504|gateway|network/i.test(`${code} ${message}`)) {
+        throw error;
+      }
+      if (attempt < 2) await new Promise(resolve => setTimeout(resolve, 400 * (attempt + 1)));
+    }
+  }
+  throw lastError;
 }
 
 function extractJson(text: string): Record<string, unknown> {
@@ -367,7 +385,10 @@ export function aiErrorMessage(error: unknown): string {
   const message = (error as { error?: { message?: string } })?.error?.message;
 
   if (code === 'capability_disabled') {
-    return 'AI 能力未开启（服务端返回 capability_disabled）。请在 WorkBuddy「设置—数据管理—应用」中找到本应用并开启 AI 能力，然后点击刷新模型。';
+    return 'AI 能力未开启（服务端返回 capability_disabled）。WorkBuddy 当前版本没有暴露可直接调用的开启接口，请联系 WorkBuddy 支持或在平台管理里查找本应用的云服务 AI 配置。';
+  }
+  if (/(^|\b)(502|503|504)(\b|$)/i.test(`${code ?? ''}`) || /bad gateway|service unavailable|gateway timeout|HTTP 502|HTTP 503|HTTP 504/i.test(`${message ?? ''}`)) {
+    return 'AI 服务网关暂时不稳定（502/503/504），已自动重试仍失败。请稍后点击「刷新模型」；这不是美网或本地网络的必然问题。';
   }
   if (typeof code === 'string' && code.startsWith('quota_')) {
     return message || 'AI 配额不足或触发限流';

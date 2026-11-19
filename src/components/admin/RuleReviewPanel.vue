@@ -102,7 +102,7 @@ const existingByKey = computed(() =>
 );
 
 const canGenerate = computed(() => Boolean(
-  selectedDiffId.value && selectedModelId.value && selectedColumnsForAi.value.length && snapshot.value
+  selectedDiffId.value && selectedModelId.value && selectedColumnsForAi.value.length && report.value
 ));
 
 const summary = computed(() => report.value?.report.summary);
@@ -135,14 +135,24 @@ async function load() {
   loading.value = true;
   error.value = '';
   try {
-    const [diffList, versionList] = await Promise.all([
+    const [diffSettled, versionSettled] = await Promise.allSettled([
       listDataDiffs(token),
       listRuleVersions(token)
     ]);
-    diffs.value = diffList;
-    ruleVersions.value = versionList;
 
-    if (!selectedDiffId.value && diffList.length) selectedDiffId.value = diffList[0].id;
+    const diffList = diffSettled.status === 'fulfilled' ? diffSettled.value : [];
+    diffs.value = diffList;
+    ruleVersions.value = versionSettled.status === 'fulfilled' ? versionSettled.value : ruleVersions.value;
+
+    if (diffSettled.status === 'rejected') {
+      error.value = ruleAdminErrorMessage(diffSettled.reason, '差异报告加载失败');
+    } else if (versionSettled.status === 'rejected') {
+      error.value = ruleAdminErrorMessage(versionSettled.reason, '规则版本加载失败');
+    }
+
+    if (diffSettled.status === 'fulfilled' && !selectedDiffId.value && diffList.length) {
+      selectedDiffId.value = diffList[0].id;
+    }
     if (selectedDiffId.value) await selectDiff(selectedDiffId.value);
   } catch (err) {
     error.value = ruleAdminErrorMessage(err, '加载审阅数据失败');
@@ -175,7 +185,6 @@ async function selectDiff(diffId: string) {
     if (!token) return;
     const detail = await getDataDiff(token, diffId);
     report.value = detail;
-    snapshot.value = await getDataSnapshot(token, detail.targetSnapshotId);
     selectedColumnIds.value = (detail.report.addedColumns ?? []).slice(0, 8);
     await refreshReviews();
   } catch (err) {
@@ -191,11 +200,31 @@ function toggleSelection(list: string[], value: string): string[] {
     : [...list, value];
 }
 
+async function ensureSnapshot(): Promise<DataSnapshotFull | null> {
+  const token = session.value?.token;
+  if (!token || !report.value) return null;
+  if (snapshot.value) return snapshot.value;
+  aiProgress.value = '正在读取目标数据快照，用于 AI 特征分析…';
+  try {
+    const full = await getDataSnapshot(token, report.value.targetSnapshotId);
+    snapshot.value = full;
+    return full;
+  } finally {
+    aiProgress.value = '';
+  }
+}
+
 async function generateSuggestions() {
   const token = session.value?.token;
-  if (!token || !report.value || !snapshot.value || !selectedModelId.value) return;
+  if (!token || !report.value || !selectedModelId.value) return;
   if (!selectedColumnsForAi.value.length) {
     error.value = '请选择至少一个新增测试列';
+    return;
+  }
+
+  const fullSnapshot = await ensureSnapshot();
+  if (!fullSnapshot) {
+    error.value = ruleAdminErrorMessage(null, '目标数据快照加载失败，无法生成 AI 建议');
     return;
   }
 
@@ -207,7 +236,7 @@ async function generateSuggestions() {
     const suggestions = await generateColumnSuggestions({
       modelId: selectedModelId.value,
       report: report.value,
-      snapshot: snapshot.value,
+      snapshot: fullSnapshot,
       columns: selectedColumnsForAi.value,
       onProgress: (completed, total) => {
         aiProgress.value = `AI 分析进度：${completed} / ${total} 批`;

@@ -1,9 +1,8 @@
 import { computed, ref } from 'vue';
 import { rtingsRule } from '../data/rtingsRule';
-import { cloud } from '../services/cloud';
+import { cloudErrorMessage, rpcWithRetry } from '../services/cloud';
 import { useAuth } from './useAuth';
 import type { ScoringRule } from '../core/types';
-import { authErrorMessage } from '../services/auth';
 
 export interface RuleRuntimeVersion {
   id: string;
@@ -60,7 +59,7 @@ export async function fetchRuleVersion(token: string, ruleVersion: string): Prom
   const cached = versionCache.get(ruleVersion);
   if (cached) return cached;
   const result = unwrap(
-    await cloud.database.rpc('app_get_rule_by_version', {
+    await rpcWithRetry('app_get_rule_by_version', {
       p_token: token,
       p_rule_version: ruleVersion
     })
@@ -72,7 +71,7 @@ export async function fetchRuleVersion(token: string, ruleVersion: string): Prom
 
 export async function fetchActiveRule(token: string): Promise<RuleRuntimeVersion> {
   const result = unwrap(
-    await cloud.database.rpc('app_get_active_rule', { p_token: token })
+    await rpcWithRetry('app_get_active_rule', { p_token: token })
   );
   const version = normalizeVersion(result);
   versionCache.set(version.version, version);
@@ -101,7 +100,7 @@ export async function initializeRuleRuntime(force = false): Promise<void> {
     currentRule.value = rtingsRule;
     activeRuleVersionId.value = null;
     activeRuleVersionLabel.value = rtingsRule.version;
-    ruleError.value = authErrorMessage(error, '加载激活规则版本失败，已回退本地规则');
+    ruleError.value = cloudErrorMessage(error, '加载激活规则版本失败，已回退本地规则');
   } finally {
     ruleLoading.value = false;
   }

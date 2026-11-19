@@ -77,22 +77,32 @@ async function load() {
   loading.value = true;
   error.value = '';
   try {
-    const [snapshotList, diffList, versionList, activationLogs] = await Promise.all([
+    const [snapshotSettled, diffSettled, versionSettled, logsSettled] = await Promise.allSettled([
       listDataSnapshots(token),
       listDataDiffs(token),
       listRuleVersions(token),
       listRuleActivationLogs(token)
     ]);
-    snapshots.value = snapshotList;
-    diffs.value = diffList;
-    ruleVersions.value = versionList;
-    logs.value = activationLogs;
 
-    if (!baseSnapshotId.value && snapshotList.length >= 2) {
-      baseSnapshotId.value = snapshotList[snapshotList.length - 2].id;
-      targetSnapshotId.value = snapshotList[snapshotList.length - 1].id;
-    } else if (!targetSnapshotId.value && snapshotList.length) {
-      targetSnapshotId.value = snapshotList[0].id;
+    const snapshotList = snapshotSettled.status === 'fulfilled' ? snapshotSettled.value : [];
+    diffs.value = diffSettled.status === 'fulfilled' ? diffSettled.value : diffs.value;
+    ruleVersions.value = versionSettled.status === 'fulfilled' ? versionSettled.value : ruleVersions.value;
+    logs.value = logsSettled.status === 'fulfilled' ? logsSettled.value : logs.value;
+
+    if (snapshotSettled.status === 'fulfilled') {
+      snapshots.value = snapshotList;
+      if (!baseSnapshotId.value && snapshotList.length >= 2) {
+        baseSnapshotId.value = snapshotList[snapshotList.length - 2].id;
+        targetSnapshotId.value = snapshotList[snapshotList.length - 1].id;
+      } else if (!targetSnapshotId.value && snapshotList.length) {
+        targetSnapshotId.value = snapshotList[0].id;
+      }
+    }
+
+    const failures = [snapshotSettled, diffSettled, versionSettled, logsSettled]
+      .filter(result => result.status === 'rejected') as Array<PromiseRejectedResult>;
+    if (failures.length) {
+      error.value = ruleAdminErrorMessage(failures[0].reason, `部分云端数据加载失败（${failures.length}/4 项），已显示可加载部分`);
     }
   } catch (err) {
     error.value = ruleAdminErrorMessage(err, '加载规则管理数据失败');

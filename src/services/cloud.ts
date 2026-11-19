@@ -74,6 +74,67 @@ export const cloud = createWorkBuddyCloud<AppDatabase>({
   publishableKey: publicConfig.publishableKey
 });
 
+interface CloudRpcError {
+  code?: string | number | null;
+  message?: string;
+  status?: number;
+  error?: {
+    code?: string | number | null;
+    message?: string;
+    status?: number;
+  };
+}
+
+function isTransientCloudError(error: unknown): boolean {
+  const raw = error as CloudRpcError | null;
+  const code = `${raw?.code ?? raw?.error?.code ?? ''}`;
+  const message = `${raw?.message ?? raw?.error?.message ?? ''}`;
+  return /(^|\b)(502|503|504)(\b|$)/i.test(code)
+    || /bad gateway|service unavailable|gateway timeout|gateway_network_error|fetch failed|network error/i.test(message);
+}
+
+export async function rpcWithRetry(
+  functionName: string,
+  params: Record<string, unknown>,
+  retries = 2
+): Promise<{ data: unknown; error: unknown }> {
+  let lastResult: { data: unknown; error: unknown } | null = null;
+
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    const result = await cloud.database.rpc(functionName, params as Record<string, unknown>) as { data: unknown; error: unknown };
+    if (!result.error) return result;
+
+    lastResult = result;
+    const transient = isTransientCloudError(result.error);
+    if (!transient || attempt === retries) break;
+    await new Promise(resolve => setTimeout(resolve, 400 * (attempt + 1)));
+  }
+
+  return lastResult ?? { data: null, error: new Error('云服务请求失败') };
+}
+
+export function cloudErrorMessage(error: unknown, fallback = '云服务请求失败'): string {
+  if (!error) return fallback;
+  const raw = error as CloudRpcError | Error;
+  const code = 'error' in raw ? (raw as CloudRpcError).error?.code : (raw as CloudRpcError).code;
+  const message = 'message' in raw
+    ? (raw as { message?: string }).message
+    : (raw as CloudRpcError).error?.message;
+  const text = message ?? '';
+
+  if (code === 'capability_disabled') {
+    return 'AI 能力未开启（服务端返回 capability_disabled）。请在 WorkBuddy 应用管理中开启本应用的 AI 能力后重试。';
+  }
+  if (/(^|\b)(502|503|504)(\b|$)/i.test(`${code}`) || /bad gateway|service unavailable|gateway timeout/i.test(text)) {
+    return '云服务网关暂时不稳定（502/503/504），已自动重试仍失败。请稍后点击刷新，或换一个网络环境再试。';
+  }
+  if (/fetch failed|network error|Failed to fetch/i.test(text)) {
+    return '云服务网络请求失败。请检查当前网络环境后点击刷新。';
+  }
+  if (typeof text === 'string' && text.trim()) return text;
+  return fallback;
+}
+
 function unwrap<T>(result: { data: T | null; error: unknown }): T {
   if (result.error) throw result.error;
   if (result.data === null || result.data === undefined) {
@@ -111,7 +172,7 @@ export async function saveEvaluationToCloud(
   appToken: string
 ): Promise<CloudEvaluation> {
   const result = unwrap(
-    await cloud.database.rpc('app_upsert_evaluation', {
+    await rpcWithRetry('app_upsert_evaluation', {
       p_token: appToken,
       p_evaluation: toRecord(draft, expectedTotal) as unknown as Record<string, unknown>
     })
@@ -125,7 +186,7 @@ export async function listCloudEvaluations(
 ): Promise<CloudEvaluation[]> {
   if (!appToken) return [];
   const result = await unwrap(
-    await cloud.database.rpc('app_list_evaluations', {
+    await rpcWithRetry('app_list_evaluations', {
       p_token: appToken,
       p_limit: limit
     })
@@ -139,7 +200,7 @@ export async function getCloudEvaluation(
 ): Promise<CloudEvaluation | null> {
   if (!appToken) return null;
   const result = await unwrap(
-    await cloud.database.rpc('app_get_evaluation', {
+    await rpcWithRetry('app_get_evaluation', {
       p_token: appToken,
       p_client_id: clientId
     })
@@ -165,15 +226,4 @@ export function cloudEvaluationToDraft(record: CloudEvaluation, rule?: ScoringRu
     values: inputs,
     updatedAt: record.updated_at
   }, rule);
-}
-
-export function cloudErrorMessage(error: unknown): string {
-  if (!error) return '未知错误';
-  if (typeof error === 'string') return error;
-  if (error instanceof Error) return error.message;
-  if (typeof error === 'object' && 'message' in error) {
-    const message = (error as { message?: unknown }).message;
-    if (typeof message === 'string') return message;
-  }
-  return '云数据库操作失败';
 }

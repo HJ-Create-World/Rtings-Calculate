@@ -4,6 +4,7 @@ import { useAuth } from '../../composables/useAuth';
 import { rtingsRule } from '../../data/rtingsRule';
 import {
   createRuleVersion,
+  getDataSnapshot,
   getRuleVersion,
   ruleAdminErrorMessage,
   type DataDiffReport,
@@ -32,6 +33,8 @@ const props = defineProps<{
 const { session } = useAuth();
 
 const baseRule = ref<ScoringRule>(rtingsRule);
+const workingSnapshot = ref<DataSnapshotFull | null>(props.snapshot);
+const loadingSnapshot = ref(false);
 const selectedReviewIds = ref<string[]>([]);
 const candidates = ref<DraftCandidate[]>([]);
 const draftRule = ref<ScoringRule | null>(null);
@@ -60,7 +63,7 @@ const selectedReviews = computed(() =>
 const includedCandidates = computed(() => candidates.value.filter(candidate => candidate.includeInParent));
 
 const canGenerate = computed(() => Boolean(
-  baseRule.value && props.snapshot && selectedReviewIds.value.length
+  baseRule.value && props.report && selectedReviewIds.value.length
 ));
 
 const regressionSummary = computed(() => comparison.value?.summary ?? null);
@@ -115,23 +118,40 @@ function formatMapping(candidate: DraftCandidate): string {
   return candidate.mapping.kind ?? '映射';
 }
 
+async function ensureSnapshot(): Promise<DataSnapshotFull | null> {
+  const token = session.value?.token;
+  if (!token || !props.report) return null;
+  if (workingSnapshot.value) return workingSnapshot.value;
+  loadingSnapshot.value = true;
+  try {
+    const full = await getDataSnapshot(token, props.report.targetSnapshotId);
+    workingSnapshot.value = full;
+    return full;
+  } finally {
+    loadingSnapshot.value = false;
+  }
+}
+
 async function generateDraft() {
-  if (!props.snapshot || !selectedReviews.value.length) return;
+  if (!selectedReviews.value.length) return;
   generating.value = true;
   error.value = '';
   notice.value = '';
   try {
+    const snapshot = await ensureSnapshot();
+    if (!snapshot) throw new Error('目标数据快照加载失败，无法生成规则草稿');
+
     const result = buildRuleDraft({
       baseRule: baseRule.value,
       reviews: selectedReviews.value,
-      snapshot: props.snapshot
+      snapshot
     });
     draftRule.value = result.rule;
     candidates.value = result.candidates;
     skipped.value = result.skipped;
 
-    const base = runRegression(baseRule.value, props.snapshot);
-    const draft = runRegression(result.rule, props.snapshot);
+    const base = runRegression(baseRule.value, snapshot);
+    const draft = runRegression(result.rule, snapshot);
     baseRegression.value = base;
     draftRegression.value = draft;
     comparison.value = compareRegressions(base, draft);
@@ -178,6 +198,13 @@ async function createDraftVersion() {
 }
 
 watch(
+  () => props.snapshot,
+  value => {
+    workingSnapshot.value = value;
+  }
+);
+
+watch(
   () => props.activeVersion?.id,
   () => {
     void loadBaseRule();
@@ -217,7 +244,7 @@ onMounted(() => {
         </p>
       </div>
       <button :class="primaryButtonClass" :disabled="generating || !canGenerate" @click="generateDraft">
-        {{ generating ? '生成中…' : '生成规则草稿' }}
+        {{ generating ? (loadingSnapshot ? '读取快照中…' : '生成中…') : '生成规则草稿' }}
       </button>
     </div>
 

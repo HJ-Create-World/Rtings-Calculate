@@ -1,4 +1,4 @@
-import { cloud } from './cloud';
+import { cloudErrorMessage, rpcWithRetry } from './cloud';
 
 export type AppRole = 'admin' | 'engineer' | 'user';
 export type AppStatus = 'active' | 'banned';
@@ -108,19 +108,12 @@ function writeStoredSession(session: AppSession | null) {
 }
 
 export function authErrorMessage(error: unknown, fallback = '操作失败'): string {
-  if (!error) return fallback;
-  if (typeof error === 'string') return error;
-  if (error instanceof Error && error.message) return error.message;
-  if (typeof error === 'object' && 'message' in error) {
-    const message = (error as { message?: unknown }).message;
-    if (typeof message === 'string' && message.trim()) return message;
-  }
-  return fallback;
+  return cloudErrorMessage(error, fallback);
 }
 
 export async function registerAppUser(input: RegisterInput): Promise<AppSession> {
   const result = unwrap(
-    await cloud.database.rpc('app_register', {
+    await rpcWithRetry('app_register', {
       p_account: input.account,
       p_employee_no: input.employeeNo,
       p_name: input.name,
@@ -134,7 +127,7 @@ export async function registerAppUser(input: RegisterInput): Promise<AppSession>
 
 export async function loginAppUser(account: string, password: string): Promise<AppSession> {
   const result = unwrap(
-    await cloud.database.rpc('app_login', {
+    await rpcWithRetry('app_login', {
       p_account: account,
       p_password: password
     })
@@ -146,13 +139,13 @@ export async function loginAppUser(account: string, password: string): Promise<A
 
 export async function fetchCurrentUser(token: string): Promise<AppUser> {
   const result = unwrap(
-    await cloud.database.rpc('app_current_user', { p_token: token })
+    await rpcWithRetry('app_current_user', { p_token: token })
   );
   return normalizeUser(result);
 }
 
 export async function logoutAppUser(token: string): Promise<void> {
-  await cloud.database.rpc('app_logout', { p_token: token });
+  await rpcWithRetry('app_logout', { p_token: token });
   writeStoredSession(null);
 }
 
@@ -162,7 +155,7 @@ export async function changeAppPassword(
   newPassword: string
 ): Promise<AppUser> {
   const result = unwrap(
-    await cloud.database.rpc('app_change_password', {
+    await rpcWithRetry('app_change_password', {
       p_token: token,
       p_old_password: oldPassword,
       p_new_password: newPassword
@@ -173,7 +166,7 @@ export async function changeAppPassword(
 
 export async function listAppUsers(token: string): Promise<AppUser[]> {
   const result = unwrap(
-    await cloud.database.rpc('app_list_users', { p_token: token })
+    await rpcWithRetry('app_list_users', { p_token: token })
   );
   return Array.isArray(result) ? result.map(normalizeUser) : [];
 }
@@ -190,7 +183,7 @@ export async function updateAppUser(
   }
 ): Promise<AppUser> {
   const result = unwrap(
-    await cloud.database.rpc('app_update_user', {
+    await rpcWithRetry('app_update_user', {
       p_token: token,
       p_user_id: userId,
       p_role: patch.role,
@@ -205,7 +198,7 @@ export async function updateAppUser(
 
 export async function fetchAppSystemStats(token: string): Promise<AppSystemStats> {
   const result = unwrap(
-    await cloud.database.rpc('app_system_stats', { p_token: token })
+    await rpcWithRetry('app_system_stats', { p_token: token })
   );
   return result as AppSystemStats;
 }

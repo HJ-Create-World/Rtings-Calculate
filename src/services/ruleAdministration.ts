@@ -1,4 +1,4 @@
-import { cloud } from './cloud';
+import { rpcWithRetry } from './cloud';
 import { authErrorMessage } from './auth';
 import { csvToRecords } from '../utils/csv';
 
@@ -187,7 +187,7 @@ export async function uploadDataSnapshot(
   input: DataSnapshotInput & { snapshot: CsvSnapshot }
 ): Promise<DataSnapshot> {
   const result = unwrap(
-    await cloud.database.rpc('app_create_data_snapshot', {
+    await rpcWithRetry('app_create_data_snapshot', {
       p_token: token,
       p_version_label: input.versionLabel,
       p_file_name: input.fileName,
@@ -205,7 +205,7 @@ export async function uploadDataSnapshot(
 
 export async function listDataSnapshots(token: string): Promise<DataSnapshot[]> {
   const result = unwrap(
-    await cloud.database.rpc('app_list_data_snapshots', { p_token: token })
+    await rpcWithRetry('app_list_data_snapshots', { p_token: token })
   );
   return Array.isArray(result) ? (result as DataSnapshot[]) : [];
 }
@@ -216,7 +216,7 @@ export async function generateDataDiff(
   targetSnapshotId: string
 ): Promise<DataDiffReport> {
   const result = unwrap(
-    await cloud.database.rpc('app_generate_data_diff', {
+    await rpcWithRetry('app_generate_data_diff', {
       p_token: token,
       p_base_snapshot_id: baseSnapshotId,
       p_target_snapshot_id: targetSnapshotId
@@ -227,14 +227,14 @@ export async function generateDataDiff(
 
 export async function listDataDiffs(token: string): Promise<DataDiff[]> {
   const result = unwrap(
-    await cloud.database.rpc('app_list_data_diffs', { p_token: token })
+    await rpcWithRetry('app_list_data_diffs', { p_token: token })
   );
   return Array.isArray(result) ? (result as DataDiff[]) : [];
 }
 
 export async function getDataSnapshot(token: string, snapshotId: string): Promise<DataSnapshotFull> {
   const result = unwrap(
-    await cloud.database.rpc('app_get_data_snapshot', {
+    await rpcWithRetry('app_get_data_snapshot', {
       p_token: token,
       p_snapshot_id: snapshotId
     })
@@ -244,7 +244,7 @@ export async function getDataSnapshot(token: string, snapshotId: string): Promis
 
 export async function getDataDiff(token: string, diffId: string): Promise<DataDiffReport> {
   const result = unwrap(
-    await cloud.database.rpc('app_get_data_diff', {
+    await rpcWithRetry('app_get_data_diff', {
       p_token: token,
       p_diff_id: diffId
     })
@@ -265,7 +265,7 @@ export async function createRuleVersion(
   }
 ): Promise<RuleVersion> {
   const result = unwrap(
-    await cloud.database.rpc('app_create_rule_version', {
+    await rpcWithRetry('app_create_rule_version', {
       p_token: token,
       p_version: input.version,
       p_display_name: input.displayName,
@@ -281,14 +281,14 @@ export async function createRuleVersion(
 
 export async function listRuleVersions(token: string): Promise<RuleVersion[]> {
   const result = unwrap(
-    await cloud.database.rpc('app_list_rule_versions', { p_token: token })
+    await rpcWithRetry('app_list_rule_versions', { p_token: token })
   );
   return Array.isArray(result) ? (result as RuleVersion[]) : [];
 }
 
 export async function getRuleVersion(token: string, versionId: string): Promise<RuleVersion & { rule: Record<string, unknown> }> {
   const result = unwrap(
-    await cloud.database.rpc('app_get_rule_version', {
+    await rpcWithRetry('app_get_rule_version', {
       p_token: token,
       p_version_id: versionId
     })
@@ -303,7 +303,7 @@ export async function activateRuleVersion(
   note?: string
 ): Promise<RuleVersion> {
   const result = unwrap(
-    await cloud.database.rpc('app_change_rule_version_status', {
+    await rpcWithRetry('app_change_rule_version_status', {
       p_token: token,
       p_version_id: versionId,
       p_action: action,
@@ -315,7 +315,7 @@ export async function activateRuleVersion(
 
 export async function listRuleActivationLogs(token: string): Promise<RuleActivationLog[]> {
   const result = unwrap(
-    await cloud.database.rpc('app_list_rule_activation_logs', { p_token: token })
+    await rpcWithRetry('app_list_rule_activation_logs', { p_token: token })
   );
   return Array.isArray(result) ? (result as RuleActivationLog[]) : [];
 }
@@ -325,7 +325,7 @@ export async function listRuleReviews(
   targetSnapshotId?: string | null
 ): Promise<RuleReview[]> {
   const result = unwrap(
-    await cloud.database.rpc('app_list_rule_reviews', {
+    await rpcWithRetry('app_list_rule_reviews', {
       p_token: token,
       p_target_snapshot_id: targetSnapshotId ?? null
     })
@@ -338,7 +338,7 @@ export async function createRuleReview(
   input: Omit<RuleReview, 'id' | 'status' | 'createdAt' | 'updatedAt' | 'reviewNote'>
 ): Promise<RuleReview> {
   const result = unwrap(
-    await cloud.database.rpc('app_create_rule_review', {
+    await rpcWithRetry('app_create_rule_review', {
       p_token: token,
       p_target_snapshot_id: input.targetSnapshotId ?? null,
       p_rule_version_id: input.ruleVersionId ?? null,
@@ -363,7 +363,7 @@ export async function updateRuleReview(
   reviewNote?: string
 ): Promise<RuleReview> {
   const result = unwrap(
-    await cloud.database.rpc('app_update_rule_review', {
+    await rpcWithRetry('app_update_rule_review', {
       p_token: token,
       p_review_id: reviewId,
       p_status: status,
@@ -374,7 +374,7 @@ export async function updateRuleReview(
 }
 
 export async function deleteRuleReview(token: string, reviewId: string): Promise<void> {
-  await cloud.database.rpc('app_delete_rule_review', {
+  await rpcWithRetry('app_delete_rule_review', {
     p_token: token,
     p_review_id: reviewId
   });
