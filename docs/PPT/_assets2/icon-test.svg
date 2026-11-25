@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200"><rect width="400" height="200" fill="#f2f2f2"/><g transform="translate(20,10) scale(2)"><svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  class="icon icon-tabler icons-tabler-outline icon-tabler-activity"
+>
+  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+  <path d="M3 12h4l3 8l4 -16l3 8h4" />
+</svg></g><text x="150" y="100" font-family="sans-serif" font-size="20">icon test</text></svg>

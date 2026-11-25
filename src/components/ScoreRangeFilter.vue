@@ -23,7 +23,7 @@ const emit = defineEmits<{
       <div class="shrink-0">
         <h2 class="text-lg font-semibold tracking-tight text-gray-900">评分区间筛选</h2>
         <p :class="['mt-1 text-sm', mutedTextClass]">
-          拖动进度条筛选指定维度机型，默认 6.0 ~ 8.0 分
+          拖动进度条筛选指定维度机型，默认 0.0 ~ 10.0 分
         </p>
       </div>
       <div class="grid gap-3 sm:grid-cols-[minmax(220px,1fr)_minmax(280px,1.2fr)] lg:w-auto lg:min-w-[560px]">

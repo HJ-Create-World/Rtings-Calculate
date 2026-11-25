@@ -13,10 +13,10 @@ export function useComparison() {
   const sortMetricId = ref('total');
   const displayLimit = ref('10');
   const filterMetricId = ref('total');
-  const scoreMin = ref('6');
-  const scoreMax = ref('8');
-  const totalScoreMin = ref('6');
-  const totalScoreMax = ref('8');
+  const scoreMin = ref('0');
+  const scoreMax = ref('10');
+  const totalScoreMin = ref('0');
+  const totalScoreMax = ref('10');
 
   const selectedProducts = computed(() =>
     selectedIds.value

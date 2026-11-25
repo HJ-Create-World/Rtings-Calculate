@@ -27,7 +27,7 @@ async function toggleFullscreen() {
 
 async function loadVideoAsBlob() {
   try {
-    // WorkBuddy 静态托管不返回 Range 响应，直接挂 MP4 会导致原生进度条难以拖动。
+    // 静态托管不返回 Range 响应，直接挂 MP4 会导致原生进度条难以拖动。
     // 先完整读取视频并转成 Blob URL，浏览器就能在本地字节上任意 seek。
     const response = await fetch(VIDEO_URL);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);

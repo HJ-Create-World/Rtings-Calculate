@@ -123,7 +123,7 @@ export function cloudErrorMessage(error: unknown, fallback = '云服务请求失
   const text = message ?? '';
 
   if (code === 'capability_disabled') {
-    return '本应用尚未开通大模型调用能力（服务端返回 capability_disabled）。请回到 WorkBuddy 对话，对本应用说明“接入大模型 / AI 能力”让平台重新配置；若已接入仍报错，联系 WorkBuddy 支持核查账号的模型调用权限。';
+    return '本应用尚未开通大模型调用能力（服务端返回 capability_disabled）。请联系系统管理员在平台设置中开启模型调用权限，或改用已配置的外部模型服务。';
   }
   if (/(^|\b)(502|503|504)(\b|$)/i.test(`${code}`) || /bad gateway|service unavailable|gateway timeout/i.test(text)) {
     return '云服务网关暂时不稳定（502/503/504），已自动重试仍失败。请稍后点击刷新，或换一个网络环境再试。';
